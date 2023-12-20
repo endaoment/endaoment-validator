@@ -1,0 +1,80 @@
+# Open Sourcing Endaoment's Ethereum Staking Guide
+
+The Endaoment Ethereum Staking Guide is officially open source! This guide has been growing over the last few years. What began as one Endaoment employee's personal quest, transformed into [Endaoment](https://endaoment.org) spinning up five of its own Ethereum validators. Our guide aims to provide comprehensive instructions on setting up an Ethereum Proof of Stake (PoS) node containing a validator (or validators), maintaining its operations, and managing emergency scenarios effectively. We share these operational protocols in the spirit of open-source collaboration. We aim to contribute to the stability and robustness of the Ethereum network generally. Also, feedback never hurts!
+
+Before getting started let us be clear: we stand on the shoulders of giants. The work of [Somer Esat](https://twitter.com/SomerEsat), [Coin Cashew](https://twitter.com/coincashew_), and [mentanull.eth](https://twitter.com/MetanullOps) (Stake Local) have been instrumental in our ability to produce this guide and run our own set up. Explore more about their work in the resources section below.  
+
+All right, let's get to it.
+
+## Table of Contents
+
+- [Client Diversity Disclaimer](#disclaimer-client-diversity)
+- [Humble Beginnings](#humble-beginnings)
+- [Validate for Good](#validate-for-good)
+- [Operational Impact](#operational-impact)
+- [Contribution and Feedback](#contribution-and-feedback)
+- [Future Outlook](#future-outlook)
+- [Acknowledgements](#acknowledgements)
+- [Resources](#resources)
+- [Funding Endaoment](#funding-endaoment)
+- [About the Author](#about-the-author)
+
+## Disclaimer: Client Diversity
+
+Let's get ahead of it here, the guide we're releasing uses a Geth/Prysm set up. This is **not ideal for enhancing client diversity**. As of the time of writing, Prysm makes up over 40% of all Consensus Clients while Geth makes up over 80% of Execution Clients according to [clientdiversity.org](https://clientdiversity.org). This can potentially pose a major problem for network security and viability, specifically if something were to go wrong with the Geth client. While Endaoment remains concerned about client diversity, currently there are no suitable alternatives to Geth that are sufficiently reliable for Endaoment's use given that it is a nonprofit and must adhere to principles of [Prudent Investment Management](https://www.uniformlaws.org/committees/community-home?CommunityKey=043b9067-bc2c-46b7-8436-07c9054064a3).
+
+While we are excited to release this guide in its current form, it will continue to grow and adjust as tools do. We look forward to continuing to evaluate other Execution Clients in particular, as suitable alternatives to Geth are available for our use and pass our diligence requirements mentioned above.
+
+## Humble Beginnings
+
+Endaoment's engagement in Ethereum staking is a manifestation of our faith in blockchain technology's potential to revolutionize philanthropic ventures (with specific emphasis on the Ethereum ecosystem post PoS transition). We hope here to detail the extensive trial, optimization, and real-world operation of our validator. Embracing a community-driven approach, we share our staking guide to enhance Ethereum's staking ecosystem and invite contributions for creating a reliable and accessible staking environment for all.
+
+This guide started as a humble many hundred line text file, constantly updated with the latest versions of clients, security findings, maintenance processes, and other insights gained from research as well as the guides mentioned above. It was regular practice to spend weekends and evenings tooling around with Linux CLI, experimenting with validating on Goerli, testing out peripheral software packages like [`fail2ban`](https://github.com/fail2ban/fail2ban), [`grafana`](https://github.com/grafana/grafana), and [`prometheus`](https://github.com/prometheus/prometheus) among others, and gathering best practices from any and all publicly available materials. Getting it right took a considerable amount of time - many months of rigorous evaluation, and at one time stress testing the selected hardware to see just how many validators could run off of the same node (we got to 100 without issue).
+
+## Validate for Good
+
+In early 2023, the leadership of Endaoment made the decision to finalize internal policies related to Ethereum validating and deploy the majority of ETH in our [treasury](https://etherscan.io/address/0xd7d78Cf2f7c5a1B2E44080814D2f54a41A151A37) for staking. To that end, we made [five deposits](https://beaconcha.in/validators/deposits?q=a41406f86cc65063c25021422e2ee8e93e680b4c) for five newly spun up validators, entered the activation queue, and after a few weeks, finally began our journey in earnest on Mainnet.
+
+This decision was motivated by our desire to align our financial assets with our mission, using Ethereum staking as a means to further extend our impact and commitment to sustainable, community-focused investment strategies, while at the same time extending the runway of Endaoment.org by adding to our pool of operational capital. Our proactive involvement in the Ethereum network not only reflects our belief in blockchain as a tool for social good, but also underscores our commitment to being a forward-thinking, tech-embracing nonprofit.
+
+## Operational Impact
+
+Ethereum staking is an exciting new way not just to help secure the Ethereum network on which Endaoment is built, but also to be able to deploy ETH for yield. With that said, this is not an endeavor that every nonprofit is suited to go on. The technical know-how required is considerable, and risks are high given the [32 ETH requirement](https://ethereum.org/en/staking/). While much of the work for getting set up for Ethereum staking happens at the beginning, ongoing maintenance is essential for prudent management. Execution and Consensus Clients continuously are getting upgraded, as is other peripheral software on the node. Databases may require pruning, hardware may become obsolete or otherwise need to be replaced, a bug could be introduced in a software upgrade, the list goes on - and this is to say nothing of the *outside the node* requirements like ongoing internet connectivity and an uninterrupted power supply in a secure location (and choosing that location!). Endaoment did not approach this process lightly, and we encourage all reading this guide to consider the risks as well as the rewards to Ethereum staking.
+
+Since activation, our validators have been an overall net positive. Aside from generating additional ETH and extending Endaoment's operational capital, participation in the Ethereum network coupled with alerts of block proposals and sync committees have energized the team and made us all additionally proud of our organization.
+
+## Contribution and Feedback
+
+We welcome feedback and contributions from the community to enhance this guide. If you have suggestions or find any issues, please report them through GitHub issues or submit a pull request to our repository if you have changes to recommend. Your input is invaluable in making this a robust and user-friendly resource for the entire community.
+
+## Future Outlook
+
+As we look to the future, Endaoment remains committed to its role within Ethereum network - not just as crypto's community foundation but as a contributor to network security and stability. Our journey does not end with the successful deployment and operation of our validators - we'll be here, updating the repo, handling the ongoing upkeep of our node and continuous improvement of our guide.
+
+To keep pace with the changing state of Ethereum (and the software required to run a validator or otherwise manage a node) we will be regularly updating this repo via public commits and pull requests. Our goal is to keep it as current and comprehensive as possible, integrating new learnings and strategies wherever we can. Our hope here is to demystify the process of Ethereum staking, while at the same time be transparent about our own internal processes.
+
+Endaoment recognizes the unique position it holds at the intersection of blockchain technology and philanthropy. Our ongoing involvement in Ethereum staking is more than a strategic decision; it's a reflection of our broader commitment to leveraging cutting-edge technology for social good.
+
+## Acknowledgements
+
+Thank you, Ethereum community! It's been amazing to see the collective effort in transitioning to a more scalable and environmentally friendly PoS consensus mechanism. Special thanks to all contributors to this guide, who have played a part in making Ethereum staking more accessible and reliable. Read our previous article on [Endaoment Validators Are Live: Deepening Our Involvement in the Ethereum Ecosystem](https://endaoment.mirror.xyz/1ZKVUnusvN-nEOEhs0Lng36W0ykrdvOFLwEBhLyQwlc) to learn more about our initial foray into Ethereum staking.
+
+## Resources
+
+- [Somer Esat's guides to staking on Ethereum](https://someresat.medium.com/)
+- [CoinCashew's guide on how to set up a validator for Ethereum staking on mainnet](https://www.coincashew.com/coins/overview-eth/guide-or-how-to-setup-a-validator-on-eth2-mainnet)
+- [StakeLocal Dashboard guide](https://docs.stakelocal.io)
+- [Beaconchain Knowledge Base](https://kb.beaconcha.in)
+
+## Funding Endaoment
+
+If you'd like to contribute to Endaoment's mission and operations (including this guide!), please head [here](https://app.endaoment.org/orgs/84-4661797) and you can make a donation and get a tax receipt! If you'd like something a bit simpler, you can send any tips to `treasury.ndao.eth`.
+
+## About the Author
+
+[Zach Bronstein](https://github.com/zbronstein) is [Endaoment's](endaoment.org) Chief Operating Officer; in addition to managing general operations of the organization, he is specifically in charge of all things Ethereum staking related and wrote the entirety of this guide (his baby) as well as the above statement. While Zach has built and configured Linux/Windows computers before, this is the first time he's published his work as a guide publicly, and is excited to share with the Ethereum community. Zach began his journey into web3 midway through 2020, eventually leaving his role at Morgan Stanley to join Endaoment as COO in early 2021. Zach lives with his wife Tracey, and their dog Ellie.
+
+You can find him at the social links below, as well as in [Endaoment's Discord](https://discord.gg/endaoment):
+
+[LinkedIn](https://www.linkedin.com/in/zbronstein/)
+[X](https://twitter.com/_ZachBronstein)
