@@ -45,12 +45,12 @@ This guide is heavily based off of Somer Esat's [guides](https://someresat.mediu
 
 ```mermaid
 sequenceDiagram
-    participant DepositTool as "Deposit Tool"
-    participant Validator as "Validator"
-    participant BNode as "Beacon Chain Node"
-    participant OBCNodes as "Other Beacon Chain Nodes"
-    participant ECNode as "Execution Client Node"
-    participant OECNodes as "Other Execution Client Nodes"
+    participant DepositTool as Deposit Tool
+    participant Validator as Validator
+    participant BNode as Beacon Chain Node
+    participant OBCNodes as Other Beacon Chain Nodes
+    participant ECNode as Execution Client Node
+    participant OECNodes as Other Execution Client Nodes
 
     Note over DepositTool,Validator: Run on Air-Gapped Machine
     DepositTool->>Validator: Generate Staking Deposit Data
