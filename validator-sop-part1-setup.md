@@ -347,7 +347,7 @@ Press CTRL+X to exit
 
 ### Step 7 Configure Geth
 
-Time to install Geth! All commands provided below are based on the 1.13.7 version of Geth (current as of 12.22.23), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
+Time to install Geth! All commands provided below are based on the 1.13.8 version of Geth (current as of 12.22.23), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
 
 Curl the Geth build from the above link:
 
