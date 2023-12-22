@@ -33,11 +33,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Geth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.7-c3d9ca62.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.7 in this example (current as of 12.19.23).
+First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.8-b20b4a71.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.8 in this example (current as of 12.22.23).
 
 ```console
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.7-c3d9ca62.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.8-b20b4a71.tar.gz
 ```
 
 Then stop the Geth service
@@ -51,8 +51,8 @@ Note that stopping Geth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```console
-tar xvf geth-linux-amd64-1.13.7-c3d9ca62.tar.gz
-cd geth-linux-amd64-1.13.7-c3d9ca62
+tar xvf geth-linux-amd64-1.13.8-b20b4a71.tar.gz
+cd geth-linux-amd64-1.13.8-b20b4a71
 sudo cp geth /usr/local/bin
 ```
 
@@ -72,8 +72,8 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```console
 cd ~
-rm geth-linux-amd64-1.13.7-c3d9ca62.tar.gz
-rm -r geth-linux-amd64-1.13.7-c3d9ca62
+rm geth-linux-amd64-1.13.8-b20b4a71.tar.gz
+rm -r geth-linux-amd64-1.13.8-b20b4a71
 geth version
 ```
 

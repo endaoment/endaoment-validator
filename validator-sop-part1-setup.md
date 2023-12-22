@@ -347,20 +347,20 @@ Press CTRL+X to exit
 
 ### Step 7 Configure Geth
 
-Time to install Geth! All commands provided below are based on the 1.13.6 version of Geth (current as of 12.19.23), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
+Time to install Geth! All commands provided below are based on the 1.13.7 version of Geth (current as of 12.22.23), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
 
 Curl the Geth build from the above link:
 
 ```console
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.7-c3d9ca62.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.8-b20b4a71.tar.gz
 ```
 
 Extract the files from the archive and copy to the /usr/local/bin directory. The Geth service will run it from there. Modify the file name to match the downloaded version:
 
 ```console
-tar xvf geth-linux-amd64-1.13.7-c3d9ca62.tar.gz
-cd geth-linux-amd64-1.13.7-c3d9ca62
+tar xvf geth-linux-amd64-1.13.8-b20b4a71.tar.gz
+cd geth-linux-amd64-1.13.8-b20b4a71
 sudo cp geth /usr/local/bin
 ```
 
@@ -368,8 +368,8 @@ Clean up the files. Modify the file name to match the downloaded version:
 
 ```console
 cd ~
-rm geth-linux-amd64-1.13.7-c3d9ca62.tar.gz
-rm -r geth-linux-amd64-1.13.7-c3d9ca62
+rm geth-linux-amd64-1.13.8-b20b4a71.tar.gz
+rm -r geth-linux-amd64-1.13.8-b20b4a71
 ```
 
 Geth will be configured to run as a background service. Create an account for the service to run under. This type of account can’t log into the server:
