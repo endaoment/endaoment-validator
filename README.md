@@ -38,6 +38,14 @@ This guide assumes use of MacOS on the connected device (LAN). While anyone can 
    - Validator Unrecoverable Error
    - Validator Operator Missing
    - Validator Operator Missing + No Validator Access
+4. [Validator SOP Part 4: Monitoring and Dashboard Creation](./validator-sop-part4-monitoring.md)
+   - Adjust Firewall
+   - Install Prerequisite Software
+   - Install Reporting Software
+   - Configure Ethereum Clients
+   - Configure Reporting Software
+   - Configure Prometheus Jobs + Targets
+   - Set Up Dashboard
 
 ## Acknowledgements & Background Information
 
