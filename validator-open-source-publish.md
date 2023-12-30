@@ -76,5 +76,5 @@ If you'd like to contribute to Endaoment's mission and operations (including thi
 
 You can find him at the social links below, as well as in [Endaoment's Discord](https://discord.gg/endaoment):
 
-[LinkedIn](https://www.linkedin.com/in/zbronstein/)
+[LinkedIn](https://www.linkedin.com/in/zbronstein/) <br>
 [X](https://twitter.com/_ZachBronstein)
