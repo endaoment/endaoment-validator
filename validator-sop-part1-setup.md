@@ -13,7 +13,7 @@
 - [Step 4 Configure Port Forwarding](#step-4-configure-port-forwarding)
 - [Step 5 Configure Timekeeping](#step-5-configure-timekeeping)
 - [Step 6 Generate Client Auth Secret](#step-6-generate-client-auth-secret)
-- [Step 7 Configure Geth](#step-7-configure-geth)
+- [Step 7 Install Geth](#step-7-install-geth)
 - [Step 8 Install Prysm](#step-8-install-prysm)
 - [Step 9 Configure the Beacon Node Service](#step-9-configure-the-beacon-node-service)
 - [Step 10 Configure the Validator Service](#step-10-configure-the-validator-service)
@@ -345,22 +345,22 @@ sudo nano /var/lib/jwtsecret/jwt.hex
 
 Press CTRL+X to exit
 
-### Step 7 Configure Geth
+### Step 7 Install Geth
 
-Time to install Geth! All commands provided below are based on the 1.13.8 version of Geth (current as of 12.22.23), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
+Time to install Geth! All commands provided below are based on the 1.13.10 version of Geth (current as of 1.11.24), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
 
 Curl the Geth build from the above link:
 
 ```console
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.8-b20b4a71.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
 ```
 
 Extract the files from the archive and copy to the /usr/local/bin directory. The Geth service will run it from there. Modify the file name to match the downloaded version:
 
 ```console
-tar xvf geth-linux-amd64-1.13.8-b20b4a71.tar.gz
-cd geth-linux-amd64-1.13.8-b20b4a71
+tar xvf geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
+cd geth-linux-amd64-1.13.10-bc0be1b1
 sudo cp geth /usr/local/bin
 ```
 
@@ -368,8 +368,8 @@ Clean up the files. Modify the file name to match the downloaded version:
 
 ```console
 cd ~
-rm geth-linux-amd64-1.13.8-b20b4a71.tar.gz
-rm -r geth-linux-amd64-1.13.8-b20b4a71
+rm geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
+rm -r geth-linux-amd64-1.13.10-bc0be1b1
 ```
 
 Geth will be configured to run as a background service. Create an account for the service to run under. This type of account can’t log into the server:
@@ -480,22 +480,22 @@ After running Geth for ~10 or so minutes, check the peer count to ensure it's gr
 
 The Prysm Consensus Client is made up of two binaries that provide the functionality of the beacon node and validator, respectively. This step will download and prepare the Prysm binaries.
 
-Time to install Prysm! All commands provided below are based on the 4.1.1 version of Prysm (current as of 12.15.23), but should be adjusted based on whatever the latest version of Prysm is [here](https://github.com/prysmaticlabs/prysm/releases). Note that many commands below will need to update if this version is updated.
+Time to install Prysm! All commands provided below are based on the 4.2.0 version of Prysm (current as of 1.11.24), but should be adjusted based on whatever the latest version of Prysm is [here](https://github.com/prysmaticlabs/prysm/releases). Note that many commands below will need to update if this version is updated.
 
 In the Assets section (expand if necessary) copy the download links to the beacon-chain-v…-linux-amd64 file and the validator-v…-linux-amd64 file. Be sure to copy the correct links.
 Download the binaries using the commands below. Modify the URL to match the copied download links:
 
 ```console
 cd ~
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.1.1/beacon-chain-v4.1.1-linux-amd64
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.1.1/validator-v4.1.1-linux-amd64
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.2.0/beacon-chain-v4.2.0-linux-amd64
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.2.0/validator-v4.2.0-linux-amd64
 ```
 
 Now, let's rename the files and make them executable and copy them to the /usr/local/bin directory. The Prysm services will run them from there. Modify the file names to match the downloaded version:
 
 ```console
-mv beacon-chain-v4.1.1-linux-amd64 beacon-chain
-mv validator-v4.1.1-linux-amd64 validator
+mv beacon-chain-v4.2.0-linux-amd64 beacon-chain
+mv validator-v4.2.0-linux-amd64 validator
 ```
 
 ```console
