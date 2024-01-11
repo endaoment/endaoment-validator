@@ -11,7 +11,8 @@ This guide assumes use of MacOS on the connected device (LAN). While anyone can 
 ## Table of Contents
 
 0. [Validator Readme](./README.md)
-   - Background Information, Disclaimers
+   - Background Information
+   - Disclaimers
 1. [Validator SOP Part 1: Hardware, Software, & Deposit Setup](./validator-sop-part1-setup.md)
    - Purchase Equipment and Assemble NUC
    - Generate Staking Data
@@ -79,9 +80,9 @@ Overall flow of the guide is as follows:
 - Set up the Prysm Consensus Client and sync with other Beacon Nodes
 - Deposit 32 ETH to activate the staking Validator(s) **only if setting up a new validator**
 - Importing Validator Keystore(s) from depreciated Validator **only if re-creating a defunct or otherwise offline validator**
-- Appendices covering updates, pruning, exiting
-- Emergency Action Plans that cover the cases described above
-- Monitoring instructions for use of Grafana locally
+- Appendices covering updates, pruning, MEV-boost, exiting
+- Emergency Action Plans
+- Monitoring with for use of Grafana locally
 
 In addition to hardware as described in the next step, you should have a printed copy of the [Variables](.imgs/variables.xlsx) document, which will be used frequently to keep track of information that should **never be stored electronically or otherwise shared**.
 
