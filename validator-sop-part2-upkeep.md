@@ -33,11 +33,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Geth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.8-b20b4a71.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.8 in this example (current as of 12.22.23).
+First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.10-bc0be1b1.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.10 in this example (current as of 1.11.24).
 
 ```console
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.8-b20b4a71.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
 ```
 
 Then stop the Geth service
@@ -51,8 +51,8 @@ Note that stopping Geth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```console
-tar xvf geth-linux-amd64-1.13.8-b20b4a71.tar.gz
-cd geth-linux-amd64-1.13.8-b20b4a71
+tar xvf geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
+cd geth-linux-amd64-1.13.10-bc0be1b1
 sudo cp geth /usr/local/bin
 ```
 
@@ -72,8 +72,8 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```console
 cd ~
-rm geth-linux-amd64-1.13.8-b20b4a71.tar.gz
-rm -r geth-linux-amd64-1.13.8-b20b4a71
+rm geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
+rm -r geth-linux-amd64-1.13.10-bc0be1b1
 geth version
 ```
 
@@ -81,15 +81,15 @@ geth version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v4.1.1/beacon-chain-v4.1.1-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number (x6), which is v4.1.1 in this example (current as of 12.25.23).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v4.2.0/beacon-chain-v4.2.0-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number (x6), which is v4.2.0 in this example (current as of 1.11.24).
 
 Curl the latest software and rename:
 
 ```console
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.1.1/validator-v4.1.1-linux-amd64
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.1.1/beacon-chain-v4.1.1-linux-amd64
-mv beacon-chain-v4.1.1-linux-amd64 beacon-chain
-mv validator-v4.1.1-linux-amd64 validator
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.2.0/validator-v4.2.0-linux-amd64
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v4.2.0/beacon-chain-v4.2.0-linux-amd64
+mv beacon-chain-v4.2.0-linux-amd64 beacon-chain
+mv validator-v4.2.0-linux-amd64 validator
 ```
 
 Then stop the Prysm services:
@@ -133,7 +133,7 @@ journalctl --since -1hour -u prysmbeacon.service | grep version
 
 ### Appendix D Pruning Geth
 
-As of 12.25.23, Geth does **not** have online pruning capability (their 1.14 distribution should finally migrate to the path database as default, which will enable a new process, to be updated here after release).
+*As of 1.11.24, Geth does **not** have online pruning capability enabled by default (their 1.14 distribution should finally default to the path database , which will enable a new process, to be updated here after release).*
 
 You must turn Geth off before pruning, meaning that pruning time is spent offline missing attestations. Before turning off Geth as part of this process, it's recommended to go through the flow described in *Appendix F* to ensure the validator(s) are not off during sync committee duties.
 
