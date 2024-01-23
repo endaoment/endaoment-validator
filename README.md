@@ -82,7 +82,7 @@ Overall flow of the guide is as follows:
 - Importing Validator Keystore(s) from depreciated Validator **only if re-creating a defunct or otherwise offline validator**
 - Appendices covering updates, pruning, MEV-boost, exiting
 - Emergency Action Plans
-- Monitoring with for use of Grafana locally
+- Monitoring with use of Grafana locally
 
 In addition to hardware as described in the next step, you should have a printed copy of the [Variables](.imgs/variables.xlsx) document, which will be used frequently to keep track of information that should **never be stored electronically or otherwise shared**.
 
