@@ -33,11 +33,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Geth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.10-bc0be1b1.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.10 in this example (current as of 1.11.24).
+First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.11-8f7eb9cc.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.11 in this example (current as of 1.24.24).
 
 ```console
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.11-8f7eb9cc.tar.gz
 ```
 
 Then stop the Geth service
@@ -51,8 +51,8 @@ Note that stopping Geth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```console
-tar xvf geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
-cd geth-linux-amd64-1.13.10-bc0be1b1
+tar xvf geth-linux-amd64-1.13.11-8f7eb9cc.tar.gz
+cd geth-linux-amd64-1.13.11-8f7eb9cc
 sudo cp geth /usr/local/bin
 ```
 
@@ -72,8 +72,8 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```console
 cd ~
-rm geth-linux-amd64-1.13.10-bc0be1b1.tar.gz
-rm -r geth-linux-amd64-1.13.10-bc0be1b1
+rm geth-linux-amd64-1.13.11-8f7eb9cc.tar.gz
+rm -r geth-linux-amd64-1.13.11-8f7eb9cc
 geth version
 ```
 
