@@ -81,7 +81,7 @@ geth version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v4.2.1/beacon-chain-v4.2.1-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v4.2.01 in this example (current as of 1.30.24).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v4.2.1/beacon-chain-v4.2.1-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v4.2.1 in this example (current as of 1.30.24).
 
 Curl the latest software and rename:
 
