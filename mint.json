@@ -1,0 +1,53 @@
+{
+    "name": "Endaoment",
+    "logo": {
+      "light": "/logo/light.png",
+      "dark": "/logo/dark.png"
+    },
+    "favicon": "/images/favicon.png",
+    "colors": {
+      "primary": "#EA6B0E",
+      "light": "#F99246",
+      "dark": "#EA6B0E"
+    },
+    "topbarCtaButton": {
+      "name": "Launch App",
+      "url": "https://app.endaoment.org/?_gl=1*1ulxtj3*_gcl_au*NjkzMjE4MzgzLjE3MDE3Mzk3MzQ."
+    },
+    "anchors": [
+      {
+        "name": "Developers",
+        "icon": "code",
+        "url": "https://developers.endaoment.org/?_gl=1*1ulxtj3*_gcl_au*NjkzMjE4MzgzLjE3MDE3Mzk3MzQ."
+      },
+      {
+        "name": "GitHub",
+        "icon": "github",
+        "url": "https://github.com/endaoment/endaoment-validator"
+      },
+      {
+        "name": "Contact",
+        "icon": "mailbox",
+        "url": "mailto:partnerships@endaoment.org"
+      }
+    ],
+    "navigation": [
+        
+          {
+            "group": "Validators",
+            "pages": [
+              "validators/introduction",
+              "validators/validator-open-source-publish",
+              "validators/validator-sop-part1-setup",
+              "validators/validator-sop-part2-upkeep",
+              "validators/validator-sop-part3-emergency",
+              "validators/validator-sop-part4-monitoring"
+            ]
+          }
+    ],
+    "footerSocials":
+      {
+          "twitter": "https://twitter.com/endaomentdotorg?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor",
+          "linkedin": "https://www.linkedin.com/company/endaoment/"
+      }
+  }
