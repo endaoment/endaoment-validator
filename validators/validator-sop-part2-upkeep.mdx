@@ -243,6 +243,8 @@ There are trade-offs and choices to make in terms of which block-builders are us
 
 While Endaoment will be using this software to increase staking rewards, we are of the opinion that MEV-burn is a preferable system where MEV-boost is rendered useless _(in this system, any and all MEV is automatically burnt, as opposed to being rewarded to randomly chosen proposer based on their willingness to run ethical or unethical MEV)_.
 
+<Frame>![part2](/images/part2.png)</Frame>
+
 #### MEV Boost Set Up
 
 Let's get to installing! All commands below are based on the current version of MEV-boost as of 12.15.23, v1.6, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
@@ -380,9 +382,8 @@ journalctl -fu prysmbeacon
 journalctl -fu prysmvalidator
 ```
 
-<Frame caption="MEV-boost is now configured and set up!">
-  <img src="/images/part2.png" />
-</Frame>
+MEV-boost is now configured and set up!
+
 
 #### Update MEV Boost
 
