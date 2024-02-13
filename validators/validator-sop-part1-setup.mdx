@@ -2,9 +2,43 @@
 title: "Validator SOP Part 1: Hardware, Software, & Deposit Setup"
 ---
 
-<Frame caption="DaVinciNode">
-  <img src="/images/DaVinci-Node.jpeg" />
-</Frame>
+## Table of Contents
+
+* [Step 0 Purchase Equipment + Assemble NUC](/validators/validator-sop-part1-setup#step-0-purchase-equipment--assemble-nuc)
+
+
+* [Step 2 Install Linux Server](/validators/validator-sop-part1-setup#step-2-install-linux-server)
+
+* [Step 3 Secure the Server](/validators/validator-sop-part1-setup#step-3-secure-the-server)  
+   * [Modify the Default SSH Port](/validators/validator-sop-part1-setup#modify-the-default-ssh-port)  
+   * [Configure the Firewall](/validators/validator-sop-part1-setup#configure-the-firewall)  
+   * [Configure Fail2Ban](/validators/validator-sop-part1-setup#configure-fail2ban)  
+   * [Disable Root Access](/validators/validator-sop-part1-setup#disable-root-access)
+
+* [Step 4 Configure Port Forwarding](/validators/validator-sop-part1-setup#step-4-configure-port-forwarding)
+
+* [Step 5 Configure Timekeeping](/validators/validator-sop-part1-setup#step-5-configure-timekeeping)
+
+* [Step 6 Generate Client Auth Secret](/validators/validator-sop-part1-setup#step-6-generate-client-auth-secret)
+
+* [Step 7 Install Geth](/validators/validator-sop-part1-setup#step-7-install-geth)
+
+* [Step 8 Install Prysm](/validators/validator-sop-part1-setup#step-8-install-prysm)
+
+* [Step 9 Configure the Beacon Node Service](/validators/validator-sop-part1-setup#step-9-configure-the-beacon-node-service)
+
+* [Step 10 Configure the Validator Service](/validators/validator-sop-part1-setup#step-10-configure-the-validator-service)
+
+* [Step 11 Import Validator Keys](/validators/validator-sop-part1-setup#step-11-import-validator-keys)  
+   * [Import the Validator Keystore Files into Prysm](/validators/validator-sop-part1-setup#import-the-validator-keystore-files-into-prysm)  
+   * [Create a Wallet Password File](/validators/validator-sop-part1-setup#create-a-wallet-password-file)
+
+* [Step 12 Fund the Validators](/validators/validator-sop-part1-setup#step-12-fund-the-validators)  
+   * [Check the Status of Your Validator Deposits](/validators/validator-sop-part1-setup#check-the-status-of-your-validator-deposits)
+
+<Frame>![](/images/DaVinci-Node.jpeg)</Frame>
+
+DaVinciNode
 
 ### Step 0 Purchase Equipment + Assemble NUC
 
@@ -672,7 +706,7 @@ sudo systemctl enable prysmvalidator
 
 Now that the beacon-chain, validator, and execution client software is all set up, you should run the following Geth attach commands to check sync status:
 
-First, attach the Geth :
+First, attach the Geth console:
 
 ```
 sudo geth attach /var/lib/geth/geth.ipc
@@ -811,7 +845,7 @@ sudo systemctl daemon-reload
 
 Now that the Consensus Client is up and running, to actually begin staking on the Ethereum network you will need to deposit ETH to fund your validators.
 
-**Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through attaching the Geth , both methods are described above.**
+**Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through attaching the Geth console, both methods are described above.**
 
 With the deposit file in hand and an EOA with 32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
 
