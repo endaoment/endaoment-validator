@@ -52,7 +52,7 @@ Now extract the files from the archive and copy to the /usr/local/bin directory.
 
 ```console
 tar xvf geth-linux-amd64-1.13.13-7f131dcb.tar.gz
-cd ggeth-linux-amd64-1.13.13-7f131dcb
+cd geth-linux-amd64-1.13.13-7f131dcb
 sudo cp geth /usr/local/bin
 ```
 
