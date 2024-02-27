@@ -2,7 +2,13 @@
 title: "Validator SOP Part 3: Emergency Action Plans"
 ---
 
-### Emergency Action Plan α Validator Unrecoverable Error
+## Table of Contents
+
+* [Emergency Action Plan α Validator Unrecoverable Error](#emergency-action-plan-α-validator-unrecoverable-error)
+* [Emergency Action Plan β Validator Operator Missing](#emergency-action-plan-β-validator-operator-missing)
+* [Emergency Action Plan γ Validator Operator Missing and No Validator Access](#emergency-action-plan-γ-validator-operator-missing-and-no-validator-access)
+
+### <a id="emergency-action-plan-α-validator-unrecoverable-error"></a>Emergency Action Plan α Validator Unrecoverable Error
 
 In the instance of an unrecoverable error, we will need to accomplish two main goals:
 
@@ -22,7 +28,7 @@ sudo ./deposit existing-mnemonic --num_validators {#_Validators} --chain mainnet
 
 Following re-generation of the keystore files, simply continue to follow the guide through Step 10\. After importing the validator keystore files to the newly configured Node, you're all set!
 
-### Emergency Action Plan β Validator Operator Missing
+### <a id="emergency-action-plan-β-validator-operator-missing"></a>Emergency Action Plan β Validator Operator Missing
 
 This is actually a bit tricker of a situation than in EAP α. As previously described, it is **critical** that the same validator keystore files are not used by two validators at the same time. In the instance that the validator operator is abducted by aliens, etc., the first thing to determine is if the validators are still functional. If not, revert to EAP α, but if so, we need to gain access to the validators physically. Once access is gained, an evaluation should be done to determine if we should:
 
@@ -32,7 +38,7 @@ This is actually a bit tricker of a situation than in EAP α. As previously desc
 
 While option 2 above may seem preferable to save on the cost of a new build, option 1 is recommended in order to establish full reliable control over the Node.
 
-### Emergency Action Plan γ Validator Operator Missing + No Validator Access
+### <a id="emergency-action-plan-γ-validator-operator-missing-and-no-validator-access"></a>Emergency Action Plan γ Validator Operator Missing and No Validator Access
 
 What do we do in the event that the validator operator is missing and access to the validator is impossible? If we have backups of the keystore files (or the mnemonic with which they were generated, used to regenerate them) we issue an exit command from a different Node without getting slashed.
 

@@ -2,6 +2,19 @@
 title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
 ---
 
+## Table of Contents
+
+* [Appendix A Package Management Updates](/validators/validator-sop-part2-upkeep#appendix-a-package-management-updates)
+* [Appendix B Updating Geth](/validators/validator-sop-part2-upkeep#appendix-b-updating-geth)
+* [Appendix C Updating Prysm](/validators/validator-sop-part2-upkeep#appendix-c-updating-prysm)
+* [Appendix D Pruning Geth](/validators/validator-sop-part2-upkeep#appendix-d-pruning-geth)
+* [Appendix E Exiting a Validator](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator)
+* [Appendix F Checking Sync Committee Duties](/validators/validator-sop-part2-upkeep#appendix-f-checking-sync-committee-duties)
+* [Appendix G MEV-Boost](/validators/validator-sop-part2-upkeep#appendix-g-mev-boost)
+   * [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
+   * [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
+   * [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
+
 ### Appendix A Package Management Updates
 
 Regularly, you should run the following command on your Node:
@@ -183,9 +196,7 @@ Run the following command, it will show something like the below:
 ./check_sync_committee.sh 655257 655262 655258 655260 655226
 ```
 
-<Frame caption="sync-committee">
-  <img src="/images/synccommittee.png" />
-</Frame>
+<Frame>[](/images/synccommittee.png)</Frame>
 
 
 If any of the validators (as identified by the validator index numbers in the command) have upcoming duties, there will be additional output below this that says _"validator: 123511 found in next sync committee"_. If no such text is present, the validators in question do not have upcoming sync duties.
@@ -242,6 +253,8 @@ MEV-boost (Maximal Extractable Value) is software that allows stakers to access 
 There are trade-offs and choices to make in terms of which block-builders are used here, namely, _is the relay censoring aka OFAC compliant_ and _is the relay ethical aka does it employ frontrunning and sandwich attack methods to increase MEV_. Endaoment and this guide do not support or otherwise condone the use of unethical or illegal MEV-boost practices.
 
 While Endaoment will be using this software to increase staking rewards, we are of the opinion that MEV-burn is a preferable system where MEV-boost is rendered useless _(in this system, any and all MEV is automatically burnt, as opposed to being rewarded to randomly chosen proposer based on their willingness to run ethical or unethical MEV)_.
+
+<Frame>![](/images/part2.png)</Frame>
 
 #### MEV Boost Set Up
 
@@ -380,9 +393,8 @@ journalctl -fu prysmbeacon
 journalctl -fu prysmvalidator
 ```
 
-<Frame caption="MEV-boost is now configured and set up!">
-  <img src="/images/part2.png" />
-</Frame>
+MEV-boost is now configured and set up!
+
 
 #### Update MEV Boost
 
@@ -422,6 +434,4 @@ mev-boost --version
 
 Now you're really cooking.
 
-<Frame caption="SolarNode2">
-  <img src="/images/SolarNode2.png" />
-</Frame>
+<Frame>![](/images/SolarNode2.png)</Frame>
