@@ -15,10 +15,10 @@ title: "Validator SOP Part 4: Monitoring and Dashboard Creation"
     - [Grafana](/validators/validator-sop-part4-monitoring#grafana)
 - [Step 4 Configure Ethereum Clients](/validators/validator-sop-part4-monitoring#step-4-configure-ethereum-clients)
 - [Step 5 Configure Reporting Software](/validators/validator-sop-part4-monitoring#step-5-configure-reporting-software)
-    - [Configure JSON Exporter](/validators/validator-sop-part4-monitoring#configure-json_exporter)
+    - [Configure JSON Exporter](/validators/validator-sop-part4-monitoring#configure-json-exporter)
     - [Configure Prometheus Rules](/validators/validator-sop-part4-monitoring#configure-prometheus-rules)
     - [Configure Ethereum Metrics Exporter](/validators/validator-sop-part4-monitoring#configure-ethereum-metrics-exporter)
-- [Step 6 Configure Prometheus Jobs + Targets](/validators/validator-sop-part4-monitoring#step-6-configure-prometheus-jobs--targets)
+- [Step 6 Configure Prometheus Jobs and Targets](/validators/validator-sop-part4-monitoring#step-6-configure-prometheus-jobs-and-targets)
     - [Prometheus Jobs](/validators/validator-sop-part4-monitoring#prometheus-jobs)
     - [Base Targets](/validators/validator-sop-part4-monitoring#base-targets)
     - [Validator Public Key Targets](/validators/validator-sop-part4-monitoring#validator-public-key-targets)
@@ -607,7 +607,7 @@ pair:
 
 Then press CTRL + X followed by Y to save.
 
-### Step 6 Configure Prometheus Jobs + Targets
+### Step 6 Configure Prometheus Jobs and Targets
 
 A Prometheus `job` represents a set of rules for processing metrics from similar data sources/targets. A Prometheus target is a single data source from which Prometheus should collect and process data using the rules of a specific job. Prometheus jobs are collections of targets for which the same rules are applied. Here, we'll be setting up the Prometheus jobs that feed data to the dashboard.
 
