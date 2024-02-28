@@ -1,8 +1,0 @@
-    - targets: [ ]
-      labels:
-        network: 'Mainnet'
-        host: 'Default Host'
-        service: 'Geth'
-        group: 'Prysm/Geth'
-        instance: '127.0.0.1:8545'
-        explorer: 'etherscan.io'
