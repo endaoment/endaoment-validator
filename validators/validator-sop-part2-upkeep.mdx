@@ -4,16 +4,16 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
 
 ## Table of Contents
 
-* [Appendix A Package Management Updates](/validators/validator-sop-part2-upkeep#appendix-a-package-management-updates)
-* [Appendix B Updating Geth](/validators/validator-sop-part2-upkeep#appendix-b-updating-geth)
-* [Appendix C Updating Prysm](/validators/validator-sop-part2-upkeep#appendix-c-updating-prysm)
-* [Appendix D Pruning Geth](/validators/validator-sop-part2-upkeep#appendix-d-pruning-geth)
-* [Appendix E Exiting a Validator](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator)
-* [Appendix F Checking Sync Committee Duties](/validators/validator-sop-part2-upkeep#appendix-f-checking-sync-committee-duties)
-* [Appendix G MEV-Boost](/validators/validator-sop-part2-upkeep#appendix-g-mev-boost)
-   * [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
-   * [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
-   * [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
+- [Appendix A Package Management Updates](/validators/validator-sop-part2-upkeep#appendix-a-package-management-updates)
+- [Appendix B Updating Geth](/validators/validator-sop-part2-upkeep#appendix-b-updating-geth)
+- [Appendix C Updating Prysm](/validators/validator-sop-part2-upkeep#appendix-c-updating-prysm)
+- [Appendix D Pruning Geth](/validators/validator-sop-part2-upkeep#appendix-d-pruning-geth)
+- [Appendix E Exiting a Validator](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator)
+- [Appendix F Checking Sync Committee Duties](/validators/validator-sop-part2-upkeep#appendix-f-checking-sync-committee-duties)
+- [Appendix G MEV-Boost](/validators/validator-sop-part2-upkeep#appendix-g-mev-boost)
+  - [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
+  - [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
+  - [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
 
 ### Appendix A Package Management Updates
 
@@ -25,11 +25,11 @@ sudo apt update && sudo apt dist-upgrade && sudo apt auto-remove
 
 This will:
 
-* Update the package list for all configured repositories
+- Update the package list for all configured repositories
 
-* Upgrade all packages to their latest versions and install all new dependencies required by updated packages
+- Upgrade all packages to their latest versions and install all new dependencies required by updated packages
 
-* Remove any packages that were installed as dependencies that are no longer needed
+- Remove any packages that were installed as dependencies that are no longer needed
 
 Note that because it's a sudo command, you'll need to enter your password.
 
@@ -196,8 +196,7 @@ Run the following command, it will show something like the below:
 ./check_sync_committee.sh 655257 655262 655258 655260 655226
 ```
 
-<Frame>[](/images/synccommittee.png)</Frame>
-
+[](../images/synccommittee.png)
 
 If any of the validators (as identified by the validator index numbers in the command) have upcoming duties, there will be additional output below this that says _"validator: 123511 found in next sync committee"_. If no such text is present, the validators in question do not have upcoming sync duties.
 
@@ -254,11 +253,11 @@ There are trade-offs and choices to make in terms of which block-builders are us
 
 While Endaoment will be using this software to increase staking rewards, we are of the opinion that MEV-burn is a preferable system where MEV-boost is rendered useless _(in this system, any and all MEV is automatically burnt, as opposed to being rewarded to randomly chosen proposer based on their willingness to run ethical or unethical MEV)_.
 
-<Frame>![](/images/part2.png)</Frame>
+![](../images/part2.png)
 
 #### MEV Boost Set Up
 
-Let's get to installing! All commands below are based on the current version of MEV-boost as of 12.15.23, v1.6, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+Let's get to installing! All commands below are based on the current version of MEV-boost as of 2.29.24, v1.7, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
 
 Create mevboost service account:
 
@@ -270,21 +269,21 @@ Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.6/mev-boost_1.6_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.7/mev-boost_1.7_linux_amd64.tar.gz
 ```
 
 For additional security, you can verify the checksum against the checksum found on the releases link above:
 
 ```
-sha256sum mev-boost_1.6_linux_amd64.tar.gz
+sha256sum mev-boost_1.7_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, and remove downloaded leftovers:
 
 ```
-tar xvf mev-boost_1.6_linux_amd64.tar.gz
+tar xvf mev-boost_1.7_linux_amd64.tar.gz
 sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.6_linux_amd64.tar.gz
+rm mev-boost LICENSE README.md mev-boost_1.7_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 ```
 
@@ -313,7 +312,7 @@ ExecStart=/usr/local/bin/mev-boost \
   -min-bid {MinBid} \
   -relay-check \
   -relay {RelayAddress} \
-  -relay {RelayAddress} 
+  -relay {RelayAddress}
 
 [Install]
 WantedBy=multi-user.target
@@ -395,7 +394,6 @@ journalctl -fu prysmvalidator
 
 MEV-boost is now configured and set up!
 
-
 #### Update MEV Boost
 
 Before updating, always review the latest [MEV-boost release notes](https://github.com/flashbots/mev-boost/releases) for new requirements and any breaking changes. Typically, you need to ensure that you have the latest execution and consensus client versions installed in order for MEV-boost to work properly.
@@ -406,21 +404,22 @@ First, stop the service:
 sudo systemctl stop mevboost
 ```
 
-The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses version 1.6, latest as of 12.25.23.
+The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.7, latest as of 2.29.24.
 
 Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.6/mev-boost_1.6_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.7/mev-boost_1.7_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
 
 ```
-tar xvf mev-boost_1.6_linux_amd64.tar.gz
-sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.6_linux_amd64.tar.gz
+sudo systemctl stop mevboost
+tar xvf mev-boost_1.7_linux_amd64.tar.gz
+sudo mv mev-boost /usr/local/bin
+rm LICENSE README.md mev-boost_1.7_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 sudo systemctl start mevboost
 ```
@@ -434,4 +433,4 @@ mev-boost --version
 
 Now you're really cooking.
 
-<Frame>![](/images/SolarNode2.png)</Frame>
+![](../images/SolarNode2.png)
