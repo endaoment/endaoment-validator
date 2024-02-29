@@ -257,7 +257,7 @@ While Endaoment will be using this software to increase staking rewards, we are 
 
 #### MEV Boost Set Up
 
-Let's get to installing! All commands below are based on the current version of MEV-boost as of 12.15.23, v1.6, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+Let's get to installing! All commands below are based on the current version of MEV-boost as of 2.29.24, v1.7, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
 
 Create mevboost service account:
 
@@ -269,21 +269,21 @@ Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.6/mev-boost_1.6_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.7/mev-boost_1.7_linux_amd64.tar.gz
 ```
 
 For additional security, you can verify the checksum against the checksum found on the releases link above:
 
 ```
-sha256sum mev-boost_1.6_linux_amd64.tar.gz
+sha256sum mev-boost_1.7_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, and remove downloaded leftovers:
 
 ```
-tar xvf mev-boost_1.6_linux_amd64.tar.gz
+tar xvf mev-boost_1.7_linux_amd64.tar.gz
 sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.6_linux_amd64.tar.gz
+rm mev-boost LICENSE README.md mev-boost_1.7_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 ```
 
@@ -404,21 +404,21 @@ First, stop the service:
 sudo systemctl stop mevboost
 ```
 
-The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses version 1.6, latest as of 12.25.23.
+The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.7, latest as of 2.29.24.
 
 Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.6/mev-boost_1.6_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.7/mev-boost_1.7_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
 
 ```
-tar xvf mev-boost_1.6_linux_amd64.tar.gz
+tar xvf mev-boost_1.7_linux_amd64.tar.gz
 sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.6_linux_amd64.tar.gz
+rm mev-boost LICENSE README.md mev-boost_1.7_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 sudo systemctl start mevboost
 ```
