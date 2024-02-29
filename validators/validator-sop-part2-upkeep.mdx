@@ -416,9 +416,10 @@ curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.7/mev-boost
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
 
 ```
+sudo systemctl stop mevboost
 tar xvf mev-boost_1.7_linux_amd64.tar.gz
-sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.7_linux_amd64.tar.gz
+sudo mv mev-boost /usr/local/bin
+rm LICENSE README.md mev-boost_1.7_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 sudo systemctl start mevboost
 ```
