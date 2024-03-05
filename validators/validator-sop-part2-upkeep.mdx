@@ -14,6 +14,7 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
   - [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
   - [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
   - [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
+- [Appendix H EigenLayer Native Restaking](/validators/validator-sop-part2-upkeep#appendix-h-eigenlayer-native-restaking)
 
 ### Appendix A Package Management Updates
 
@@ -432,5 +433,62 @@ mev-boost --version
 ```
 
 Now you're really cooking.
+
+### Appendix H EigenLayer Native Restaking
+
+EigenLayer is a protocol built on Ethereum that introduces restaking, a new primitive in cryptoeconomic security. This primitive enables the reuse of ETH on the consensus layer. Users that stake ETH natively can opt-in to EigenLayer smart contracts and extend cryptoeconomic security to additional applications on the network to earn additional rewards.
+
+Please note that this guide assumes you have a validator with `0x01` withdrawal credentials, and to re-direct the withdrawal address you will need to exit your validator.
+
+#### Key Terms
+
+- Actively Validated Services (AVS): Any system that requires its own distributed validation semantics for verification, such as sidechains, data availability layers, new virtual machines, keeper networks, oracle networks, bridges, threshold cryptography schemes, and trusted execution environments.
+- [EigenPod](https://github.com/Layr-Labs/eigenlayer-contracts/blob/master/docs/core/EigenPodManager.md): An Ethereum smart contract managed by users, designed to facilitate the EigenLayer protocol in monitoring and managing balance and withdrawal statuses.
+  - Any number of validators can be pointed at a single EigenPod
+  - An Ethereum address can only deploy a single EigenPod
+  - The deploying address is the owner of the contract and has the only restaking and withdrawal operation permissions
+  - EigenPod ownership cannot be transferred
+- Native Restaking: A method where Ethereum stakers restake their staked ETH natively by pointing their withdrawal credentials to an EigenPod
+- On-chain slashing contract: A smart contract deployed by service modules on EigenLayer that enforces slashing, specifying and penalizing any misbehavior.
+- Operator: An Operator is a user who helps run the software build on top of EigenLayer. Operators register in EigenLayer and allow Stakers to delegate to them, then opt in to provide various services built on top of EigenLayer. Operators may themselves be Stakers; these are not mutually exclusive.
+- Pooled security (via restaking): Pooled security is when multiple parties combine their resources to provide greater security for a system. In EigenLayer, Ethereum stakers can restake their ETH/LSTs by opting into new services built on EigenLayer.
+
+#### EigenPod Deployment and Config
+
+First, open the [EigenLayer App](http://app.eigenlayer.xyz/) and connect your wallet on Ethereum mainnet. Remember that the wallet used in this process will become the irrevocable owner of the EigenPod.
+
+Next, click `Create EigenPod` and confirm the transaction in your connected wallet.
+
+![](../images/EL1.png)
+
+When the transaction has been validated and completes, your `EigenPod address` will become availiable in the upper right hand corner of the screen.
+
+WARNING: Do not direct exection rewards (via `suggested_fee_recipient`) to your EigenPod address. This address is used as the withdrawal address **only**.
+
+![](../images/EL2.png)
+
+#### Restaking Process and Withdrawl Credential Setting
+
+Here's the annoying part - if you've followed this guide, you've already set your withdrawal credentials in [Step 1](/validators/validator-sop-part1-setup#step-1-generate-staking-data), meaning you have `0x01` withdrawal credentials that cannot be altered. In order to natively restake, you'll need to:
+
+- [Exit the validator(s)](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator) and withdraw your ETH
+- [Regenerate staking data](/validators/validator-sop-part1-setup#step-1-generate-staking-data) using the `EigenPod` address you generated above as `{YourWithdrawalAddress}` - **do NOT use this address as your `suggested_fee_recipient`!**
+- [Re-Fund the validator(s)](/validators/validator-sop-part1-setup#step-12-fund-the-validators) and await activation.
+
+To verify things, navigate to the your EigenPod dashboard on the [EigenLayer App](http://app.eigenlayer.xyz/) and check that the number of restaked validators matches the number of validators whose withdrawal credentials you repointed.
+
+Nice going!
+
+#### Withdrawals
+
+Using your EigenPod on the [EigenLayer App](http://app.eigenlayer.xyz/), you can initiate either parial or full withdrawals. Partial withdrawals refer to moving swept rewards from your EigenPod address into your wallet. Full withdrawals refer to exiting the validator completely and moving all assets from your EigenPod address into your wallet.
+
+Please note that withdrawals from EigenPod smart contracts have a 7 day waiting period. This waiting period is applied to both partial and full withdrawals.
+
+Partial withdrawals (swept rewards) pool in the EigenPod contract automatically as rewards are [swept off the validator sequentially](https://ethereum.org/en/staking/withdrawals/#validator-sweeping) every ~4-5 days.
+
+Full withdrawals pool in the EigenPod contract only when triggered manually by [exiting the validator(s)](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator) linked to the EigenPod.
+
+Regardless, if you navigate to your EigenPod page on the [EigenLayer App](http://app.eigenlayer.xyz/), you'll see an EigenPod Balance listed if rewards have been swept since the last withdrawal. Click `Unstake`, and confirm the transaction. Once completed, return to your dashboard in 7 days time to complete the process by clicking `Withdraw` and confirming the transaction.
 
 ![](../images/SolarNode2.png)
