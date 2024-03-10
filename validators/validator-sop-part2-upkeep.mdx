@@ -179,10 +179,52 @@ sudo systemctl status geth
 
 ### Appendix E Exiting a Validator
 
-To exit Validator(s), simply issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
+To exit Validator(s), you'll need to know which ones! To check your accounts, you can use this command:
 
 ```
-sudo /usr/local/bin/validator accounts voluntary-exit --wallet-dir=/var/lib/prysm/validator
+sudo validator accounts list --wallet-dir=/var/lib/prysm/validator
+```
+
+Followed by typing in your wallet password. You'll see a list of your account(s) returned that looks something like the below:
+
+```
+Account 0 | officially-sunny-sloth
+[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d2
+
+Account 1 | preferably-amazing-frog
+[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d3
+```
+
+Make sure to keep note of this data for the validator you'd like to exit.
+
+Before we get started, we'll need bazel, set to v7.0.0 per [Prysm's documentation]():
+
+```
+sudo apt install apt-transport-https curl gnupg -y
+curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg
+sudo mv bazel-archive-keyring.gpg /usr/share/keyrings
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+sudo apt update && sudo apt install bazel
+sudo apt update && sudo apt full-upgrade
+sudo apt install bazel-7.0.0
+sudo ln -s /usr/bin/bazel-7.0.0 /usr/bin/bazel
+bazel --version  # 7.0.0
+```
+
+Now, we'll need to use prysmctl. Use the following commands to install and build the latest version:
+
+```
+git clone https://github.com/prysmaticlabs/prysm && cd prysm
+bazel build //cmd/prysmctl --config=release
+cd bazel-bin/cmd/prysmctl/prysmctl_
+```
+
+This will take some time.
+
+Armed with the required information and software, issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
+
+```
+sudo prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
 ```
 
 NOTE: It may take some time for the validators to exit, as issuing this command simply adds your validator to the exit queue. After a short amount of time you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/). Once the exit succeeds and you confirm receipt of the validator's ETH, you can stop all services on your Node and permanently shut down if you wish.
