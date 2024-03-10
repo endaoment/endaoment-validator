@@ -229,9 +229,12 @@ sudo prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
 
 It may take some time for the validators to exit - issuing this command simply adds your validator to the exit [queue](https://www.validatorqueue.com). After a few minutes you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/).
 
-Note that even if there is no exit queue, this process will still take time. Exiting requires at least \~30 minutes, and then up to \~27 hours to be swept into the withdrawal address.
+Note that even if there is no exit queue, this process will still take time. Exiting requires at least \~30 minutes, plus exit queue time, and then \~27 hours to be swept into the withdrawal address.
 
 Once the exit succeeds and you confirm receipt of the 32 (\* the number of exited validators) ETH, you can stop all services on your Node and permanently shut down if you wish.
+
+[[Zach, maybe some notes here about how after you exit a validaotr you can remove those keystore files and remove it from your account list or something?]]
+
 
 ### Appendix F Checking Sync Committee Duties
 
