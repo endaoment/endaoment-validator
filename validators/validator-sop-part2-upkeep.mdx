@@ -14,6 +14,7 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
   - [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
   - [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
   - [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
+- [Appendix H EigenLayer Native Restaking](/validators/validator-sop-part2-upkeep#appendix-h-eigenlayer-native-restaking)
 
 ### Appendix A Package Management Updates
 
@@ -178,13 +179,59 @@ sudo systemctl status geth
 
 ### Appendix E Exiting a Validator
 
-To exit Validator(s), simply issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
+To exit Validator(s), you'll need to know which ones! To check your accounts, you can use this command:
 
 ```
-sudo /usr/local/bin/validator accounts voluntary-exit --wallet-dir=/var/lib/prysm/validator
+sudo validator accounts list --wallet-dir=/var/lib/prysm/validator
 ```
 
-NOTE: It may take some time for the validators to exit, as issuing this command simply adds your validator to the exit queue. After a short amount of time you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/). Once the exit succeeds and you confirm receipt of the validator's ETH, you can stop all services on your Node and permanently shut down if you wish.
+Followed by typing in your wallet password. You'll see a list of your account(s) returned that looks something like the below:
+
+```
+Account 0 | officially-sunny-sloth
+[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d2
+
+Account 1 | preferably-amazing-frog
+[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d3
+```
+
+Make sure to keep note of this data for the validator you'd like to exit.
+
+Before we get started, we'll need bazel, set to v7.0.0:
+
+```
+sudo apt install apt-transport-https curl gnupg -y
+curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg
+sudo mv bazel-archive-keyring.gpg /usr/share/keyrings
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+sudo apt update && sudo apt install bazel
+sudo apt update && sudo apt full-upgrade
+sudo apt install bazel-7.0.0
+sudo ln -s /usr/bin/bazel-7.0.0 /usr/bin/bazel
+bazel --version  # 7.0.0
+```
+
+Now, we'll need to use prysmctl. Use the following commands to install and build the latest version:
+
+```
+git clone https://github.com/prysmaticlabs/prysm && cd prysm
+bazel build //cmd/prysmctl --config=release
+cd bazel-bin/cmd/prysmctl/prysmctl_
+```
+
+This will take some time.
+
+Armed with the required information and software, issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
+
+```
+sudo prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
+```
+
+It may take some time for the validators to exit - issuing this command simply adds your validator to the exit [queue](https://www.validatorqueue.com). After a few minutes you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/).
+
+Note that even if there is no exit queue, this process will still take non insiginificant time. Exiting requires at least \~30 minutes to show on Beaconchain, plus exit queue time, and then a variable amount of time depending on the [sweep timing](https://ethereum.org/en/staking/withdrawals/#validator-sweeping), which is impacted by the number of active validators that have either full or partial withdrawals.
+
+Once the exit succeeds and you confirm receipt of the 32 (\* the number of exited validators) ETH, you can stop all services on your Node and permanently shut down if you wish.
 
 ### Appendix F Checking Sync Committee Duties
 
@@ -432,5 +479,62 @@ mev-boost --version
 ```
 
 Now you're really cooking.
+
+### Appendix H EigenLayer Native Restaking
+
+EigenLayer is a protocol built on Ethereum that introduces restaking, a new primitive in cryptoeconomic security. This primitive enables the reuse of ETH on the consensus layer. Users that stake ETH natively can opt-in to EigenLayer smart contracts and extend cryptoeconomic security to additional applications on the network to earn additional rewards.
+
+Please note that this guide assumes you have a validator with `0x01` withdrawal credentials, and to re-direct the withdrawal address you will need to exit your validator.
+
+#### Key Terms
+
+- Actively Validated Services (AVS): Any system that requires its own distributed validation semantics for verification, such as sidechains, data availability layers, new virtual machines, keeper networks, oracle networks, bridges, threshold cryptography schemes, and trusted execution environments.
+- [EigenPod](https://github.com/Layr-Labs/eigenlayer-contracts/blob/master/docs/core/EigenPodManager.md): An Ethereum smart contract managed by users, designed to facilitate the EigenLayer protocol in monitoring and managing balance and withdrawal statuses.
+  - Any number of validators can be pointed at a single EigenPod
+  - An Ethereum address can only deploy a single EigenPod
+  - The deploying address is the owner of the contract and has the only restaking and withdrawal operation permissions
+  - EigenPod ownership cannot be transferred
+- Native Restaking: A method where Ethereum stakers restake their staked ETH natively by pointing their withdrawal credentials to an EigenPod
+- On-chain slashing contract: A smart contract deployed by service modules on EigenLayer that enforces slashing, specifying and penalizing any misbehavior.
+- Operator: An Operator is a user who helps run the software build on top of EigenLayer. Operators register in EigenLayer and allow Stakers to delegate to them, then opt in to provide various services built on top of EigenLayer. Operators may themselves be Stakers; these are not mutually exclusive.
+- Pooled security (via restaking): Pooled security is when multiple parties combine their resources to provide greater security for a system. In EigenLayer, Ethereum stakers can restake their ETH/LSTs by opting into new services built on EigenLayer.
+
+#### EigenPod Deployment and Config
+
+First, open the [EigenLayer App](http://app.eigenlayer.xyz/) and connect your wallet on Ethereum mainnet. Remember that the wallet used in this process will become the irrevocable owner of the EigenPod.
+
+Next, click `Create EigenPod` and confirm the transaction in your connected wallet.
+
+![](../images/EL1.png)
+
+When the transaction has been validated and completes, your `EigenPod address` will become availiable in the upper right hand corner of the screen. To see an example of a deployed EigenPod, checkout [Endaoment's EigenPod](https://etherscan.io/address/0x72590a43f28e5f280c2f73da1f043adf675fd2a6).
+
+WARNING: Do not direct exection rewards (via `suggested_fee_recipient`) to your EigenPod address. This address is used as the withdrawal address **only**.
+
+![](../images/EL2.png)
+
+#### Restaking Process and Withdrawl Credential Setting
+
+Here's the annoying part - if you've followed this guide, you've already set your withdrawal credentials in [Step 1](/validators/validator-sop-part1-setup#step-1-generate-staking-data), meaning you have `0x01` withdrawal credentials that cannot be altered. In order to natively restake, you'll need to:
+
+- [Exit the validator(s)](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator) and withdraw your ETH
+- [Regenerate staking data](/validators/validator-sop-part1-setup#step-1-generate-staking-data) using the `EigenPod` address you generated above as `{YourWithdrawalAddress}` - **do NOT use this address as your `suggested_fee_recipient`!**
+- [Re-Fund the validator(s)](/validators/validator-sop-part1-setup#step-12-fund-the-validators) and await activation.
+
+To verify things, navigate to the your EigenPod dashboard on the [EigenLayer App](http://app.eigenlayer.xyz/) and check that the number of restaked validators matches the number of validators whose withdrawal credentials you repointed.
+
+Nice going!
+
+#### Withdrawals
+
+Using your EigenPod on the [EigenLayer App](http://app.eigenlayer.xyz/), you can initiate either parial or full withdrawals. Partial withdrawals refer to moving swept rewards from your EigenPod address into your wallet. Full withdrawals refer to exiting the validator completely and moving all assets from your EigenPod address into your wallet.
+
+Please note that withdrawals from EigenPod smart contracts have a 7 day waiting period. This waiting period is applied to both partial and full withdrawals.
+
+Partial withdrawals (swept rewards) pool in the EigenPod contract automatically as rewards are [swept off the validator sequentially](https://ethereum.org/en/staking/withdrawals/#validator-sweeping) every ~4-5 days.
+
+Full withdrawals pool in the EigenPod contract only when triggered manually by [exiting the validator(s)](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator) linked to the EigenPod.
+
+Regardless, if you navigate to your EigenPod page on the [EigenLayer App](http://app.eigenlayer.xyz/), you'll see an EigenPod Balance listed if rewards have been swept since the last withdrawal. Click `Unstake`, and confirm the transaction. Once completed, return to your dashboard in 7 days time to complete the process by clicking `Withdraw` and confirming the transaction.
 
 ![](../images/SolarNode2.png)
