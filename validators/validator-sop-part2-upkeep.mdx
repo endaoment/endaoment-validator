@@ -69,8 +69,8 @@ sudo systemctl start geth
 
 ```
 sudo systemctl status geth # <-- Check for errors
-sudo journalctl -fu geth # <-- Monitor
-sudo journalctl -fu prysmbeacon # <-- Monitor
+sudo journalctl -fu geth | ccze # <-- Monitor
+sudo journalctl -fu prysmbeacon | ccze # <-- Monitor
 ```
 
 Finally, clean up the files, modifying the file name to match the downloaded version. Then check the Geth version to verify that all was installed correctly. This should match the Geth version shown on the repo site:
@@ -124,9 +124,9 @@ sudo rm beacon-chain && sudo rm validator
 
 ```
 sudo systemctl status prysmbeacon # <-- Check for errors
-sudo journalctl -fu prysmbeacon.service # <-- Monitor
+sudo journalctl -fu prysmbeacon.service | ccze # <-- Monitor
 sudo systemctl status prysmvalidator # <-- Check for errors
-sudo journalctl -fu prysmvalidator.service # <-- Monitor
+sudo journalctl -fu prysmvalidator.service | ccze # <-- Monitor
 ```
 
 Finally, check that you installed the right version. Note that this command may show you both the previous version and the current version. As long as both commands show the same data for the validator and beacon-chain software, you're all set:
@@ -384,7 +384,7 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu mevboost
+sudo journalctl -fu mevboost | ccze
 ```
 
 Finally, enable the service to automatically start on reboot:
