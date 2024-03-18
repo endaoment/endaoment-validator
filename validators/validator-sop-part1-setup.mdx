@@ -24,12 +24,13 @@ title: "Validator SOP Part 1: Hardware, Software, & Deposit Setup"
    * [Create a Wallet Password File](/validators/validator-sop-part1-setup#create-a-wallet-password-file)
 * [Step 12 Fund the Validators](/validators/validator-sop-part1-setup#step-12-fund-the-validators)  
    * [Check the Status of Your Validator Deposits](/validators/validator-sop-part1-setup#check-the-status-of-your-validator-deposits)
+* [Addendum Adding Validators to Existing Config](/validators/validator-sop-part1-setup#addendum-adding-validators-to-existing-config)
 
 ![](../images/DaVinci-Node.jpeg)
 
 ### Step 0 Purchase Equipment and Assemble NUC
 
-First, you'll need hardware to run the validator software on. [Requirements can be found here](https://www.quicknode.com/guides/infrastructure/node-setup/ethereum-full-node-vs-archive-node/), suggested hardware (slight overkill) are as follows:
+First, you'll need hardware to run the validator software on. [Requirements can be found here](https://www.quicknode.com/guides/infrastructure/node-setup/ethereum-full-node-vs-archive-node/), suggested hardware are as follows:
 
 * Intel NUC 11+ (tall) - bare-bones model with 6+ core CPU
 
@@ -61,6 +62,8 @@ If setting up a new validator (and haven't already generated deposit data and va
 
 **If you are not generating new keys, skip to step 2.**
 
+**If you are adding new validators to an existing config, please see the [Addendum](/validators/validator-sop-part1-setup#addendum-adding-validators-to-existing-config) at the bottom of this document**
+
 In order to have a machine ready to go, we will need to install an OS on your new validator hardware built in step 0\. We'll be using Ubuntu Desktop. On your laptop, navigate to [ubuntu.com](https://ubuntu.com/download/desktop), download the latest LTS copy of Ubuntu Desktop (as of 12.15.23, _22.04.3 LTS_). In addition, download and install the [Etcher tool](https://www.balena.io/etcher) which will allow you to flash the operating system onto the USB drive. Lastly, download the latest version of the [deposit CLI tool](https://github.com/ethereum/staking-deposit-cli/releases) \- you want the **AMD64** version (as of 12.15.23, _2.7.0_), and unzip the executable file.
 
 With all the software and data assembled, run the Etcher tool to flash the USB drive with Ubuntu Desktop using your laptop. Insert the USB into your air gapped machine (built in step 0), connect the machine to a monitor via HDMI (or USB), keyboard, and mouse, and go through the installation process (which should occur automatically). Make sure to choose the minimum settings allowed so things go quickly.
@@ -83,7 +86,7 @@ _NOTE: Once set, the withdrawal address_ _**CANNOT**_ _be changed, so be ABSOLUT
 
 **DO NOT** set the withdrawal address to a central exchange wallet or account. This MUST be an EOA or smart contract wallet, as ETH is not "transferred" but rather "generated" in the wallet via a state change, and that doesn't play nicely with Coinbase/Kraken/etc.
 
-Once you execute the above steps, confirm your withdrawal address within the generated files, and provide your language preferences. You will then be asked to create the validator keystore password. Note this password on the variables document. You will need this later to import the validator(s) into the Consensus Client.
+Once you execute the above steps, confirm your withdrawal address within the generated files, and provide your language preferences. You will then be asked to create the validator keystore password. Note this password on the [variables document](../images/variables.xlsx). You will need this later to import the validator(s) into the Consensus Client. Please note that this document will be referenced a number of times below, and is meant to serve as an example for a way to keep a secure paper record of your passwords, file locations, etc.
 
 Next, a seed phrase (mnemonic) will be generated. Back it up somewhere safe. This is **CRITICAL**. You will need this to add additional validators or to regenerate keys if lost. IF YOU LOSE THIS MNEMONIC, YOU MAY LOSE ACCESS TO THE VALIDATOR! _Not your keys, not your coins._
 
@@ -452,7 +455,8 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 The sync will begin immediately. Use the journal output to follow the progress or check for errors by running the following command.
 
 ```
-sudo journalctl -fu geth
+sudo apt install ccze
+sudo journalctl -fu geth | ccze
 ```
 
 Press CTRL+ C to exit (will not affect the Geth service).
@@ -597,7 +601,7 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu prysmbeacon
+sudo journalctl -fu prysmbeacon | ccze
 ```
 
 Finally, enable the service to automatically start on reboot:
@@ -684,7 +688,7 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu prysmvalidator
+sudo journalctl -fu prysmvalidator  | ccze
 ```
 
 Finally, enable the service to automatically start on reboot:
@@ -796,7 +800,9 @@ sudo umount /mnt/usb
 Now we will run the validator import process. You will need to provide the directory where the generated keystore-\[..\].json files are located. E.g. $HOME/staking-deposit-cli/validator\_keys (as determined above in this step)
 
 ```
+sudo systemctl stop prysmvalidator
 sudo /usr/local/bin/validator accounts import --keys-dir=$HOME/staking-deposit-cli/validator_keys --wallet-dir=/var/lib/prysm/validator --mainnet
+sudo systemctl start prysmvalidator
 ```
 
 You will then be presented with a terms of use which you will need to accept in order to continue.
@@ -873,3 +879,57 @@ That’s it. You now have a functioning Execution and Consensus client and the s
 Probably a good time to _touch grass_.
 
 ![](../images/SolarNode.jpg)
+
+### Addendum Adding Validators to Existing Config
+
+This section provides guidance for adding additional valiadtors to your existing config. In addition to all information required in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), you will also need to know the `validator_start_index`, which is the number of validators you already have created using your mnemonic.
+
+#### Clean Up `validator_keys`
+
+While not essential as you can always regenerate them using your mnemonic, it's good practive to back up the `validator_keys` directory (typically `$HOME/staking-deposit-cli/validator_keys`) on a USB for [emergencies](./validator-sop-part3-emergency.mdx).
+
+After ensuring you have a backup of these files  as described in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), you can safely remove the validator_keys directory. Note that this will not impact your existing validators, as in [Step 11 Import Validator Keys](/validators/validator-sop-part1-setup#step-11-import-validator-keys) the validator_keys are imported into the validator instance. The copies referenced above are "extra":
+
+```
+sudo rm -r $HOME/staking-deposit-cli/validator_keys
+```
+
+#### Generate Additional Staking Data
+
+Best practice is to complete this step on an airgapped machine as described in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), as you will need to directly enter your mnemonic in order to generate the staking data.
+
+Note: You **must** use the same keystore password as you used for the existing validators. This should be noted on the [variables document](../images/variables.xlsx) you created during your first set up.
+
+Please refer to [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data) to get set up with an airgapped machine running Ubuntu Desktop. We'll pick up again below starting with the deposit CLI commands.
+
+Now, run the binary file in a terminal window on your Linux desktop by using the below command (easier if you have your withdrawal address handy for a copy/paste!)
+
+```
+sudo ./deposit existing-mnemonic --validator_start_index {#_Existing_Validators} --num_validators {#_New_Validators} --chain mainnet --eth1_withdrawal_address {YourWithdrawalAddress}
+```
+
+Replace `{#_Existing_Validators}` with the number of validators you have already generated with this mnemonic, and replace `{#_New_Validators}` with the number of additional validators you want to run (32ETH per), and `{YourWithdrawalAddress}` with an Ethereum address you control.
+
+Note: If you plan to set up your validator and take advantage of restaking via [EigenLayer](https://www.eigenlayer.xyz/learn), you will likely want to check [this portion of the guide](/validators/validator-sop-part2-upkeep#appendix-h-eigenlayer-native-restaking) beofre completing this step.
+
+_NOTE: Once set, the withdrawal address_ _**CANNOT**_ _be changed, so be ABSOLUTELY SURE that it is an address you control the private keys for (or it's a multisig and you control the private keys to the underlying wallets) and correctly specified. For example: --eth1\_withdrawal\_address 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045_
+
+**DO NOT** set the withdrawal address to a central exchange wallet or account. This MUST be an EOA or smart contract wallet, as ETH is not "transferred" but rather "generated" in the wallet via a state change, and that doesn't play nicely with Coinbase/Kraken/etc.
+
+Once you execute the above steps, confirm your withdrawal address within the generated files, and provide your language preferences. You will then be asked to create the validator keystore password. **You must use the same one used with the other validators!**
+
+Once you have confirmed your mnemonic your validator(s) will be created. The following files will be generated and placed on your desktop.
+
+* The deposit\_data-\[timestamp\].json file contains the public key(s) for the validator(s) and information about the staking deposit. This file will be used to complete the ETH staking deposit process later in this guide. **This is where you can triple check the withdrawal address**
+
+* The keystore-\[..\].json files contain the encrypted validator signing key. There is one keystore file per validator that you are funding. These will be imported into the Consensus Client for use during validation operations.
+
+* If you lose or accidentally delete the files it is possible to regenerate them using the Staking Deposit CLI tool and your mnemonic via the existing-mnemonic command (see [here](https://github.com/ethereum/staking-deposit-cli#commands)).
+
+Now that you have generated the deposit data, keystore file(s), validator password, and the mnemonic, we can begin setting up the node. You should now copy the generated deposit and keystore files back onto your USB drive. We'll need them later on.
+
+Note: there are no other steps in this process that require you to enter or view your mnemonic phrase, so the air-gapped portion of this process is completed.
+
+Armed with the requisite data, please see above and complete [Step 11 Import Validator Keys](/validators/validator-sop-part1-setup#step-11-import-validator-keys) and [Step 12 Fund the Validators](/validators/validator-sop-part1-setup#step-12-fund-the-validators) to complete spinning up your additional validator(s). Please ensure you make a backup of any additional `validator_keys` generated during this process. Remember that they can be regenerated as needed!
+
+![](../images/Stacking-Staking.png)

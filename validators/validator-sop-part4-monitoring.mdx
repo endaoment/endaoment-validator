@@ -189,7 +189,7 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu prometheus
+sudo journalctl -fu prometheus | ccze
 ```
 
 Finally, enable the service to automatically start on reboot:
@@ -261,7 +261,7 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu node_exporter
+sudo journalctl -fu node_exporter | ccze
 ```
 
 Finally, enable the service to automatically start on reboot:
@@ -348,7 +348,7 @@ It will not say "active (running)" in green text, as `'/etc/json_exporter/json_e
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu json_exporter
+sudo journalctl -fu json_exporter | ccze
 ```
 
 Running this command will confirm the above, as you'll see the error.
@@ -418,7 +418,7 @@ It will not say "active (running)" in green text, as `'/etc/eth-metrics/eth-metr
 Use the journal output to follow the progress or check for errors by running the following command:
 
 ```
-sudo journalctl -fu eth-metrics
+sudo journalctl -fu eth-metrics | ccze
 ```
 
 Running this command will confirm the above, as you'll see the error.
@@ -476,7 +476,7 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 Use the journal output command to check for errors:
 
 ```
-sudo journalctl -fu grafana-server
+sudo journalctl -fu grafana-server | ccze
 ```
 
 Press CTRL+ C to exit (will not affect the Geth service).
@@ -705,11 +705,11 @@ sudo systemctl status prometheus grafana-server node_exporter json_exporter eth-
 If you need additional detail, you can check the logs:
 
 ```
-sudo journalctl -fu prometheus
-sudo journalctl -fu grafana-server
-sudo journalctl -fu node_exporter
-sudo journalctl -fu json_exporter
-sudo journalctl -fu eth-metrics
+sudo journalctl -fu prometheus | ccze
+sudo journalctl -fu grafana-server | ccze
+sudo journalctl -fu node_exporter | ccze
+sudo journalctl -fu json_exporter | ccze
+sudo journalctl -fu eth-metrics | ccze
 ```
 
 ### Step 7 Set up Dashboard
