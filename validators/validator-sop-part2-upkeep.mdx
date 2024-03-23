@@ -18,10 +18,10 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
 
 ### Appendix A Package Management Updates
 
-Regularly, you should run the following command on your Node:
+To maintain optimal performance and security of your Node, it is crucial to regularly execute the following command:
 
 ```
-sudo apt update && sudo apt dist-upgrade && sudo apt auto-remove
+sudo apt update && sudo apt -y full-upgrade && sudo apt -y autoremove && sudo apt -y autoclean
 ```
 
 This will:
@@ -31,6 +31,10 @@ This will:
 - Upgrade all packages to their latest versions and install all new dependencies required by updated packages
 
 - Remove any packages that were installed as dependencies that are no longer needed
+
+- Clean up the package cache
+
+- Not require your input (the -y flag prevents certain commands from being confirmed by you, you can feel free to remove if you'd like to see what will update and then permit that update in separate steps)
 
 Note that because it's a sudo command, you'll need to enter your password.
 
