@@ -228,7 +228,7 @@ This will take some time.
 Armed with the required information and software, issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
 
 ```
-sudo prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
+sudo ./prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
 ```
 
 It may take some time for the validators to exit - issuing this command simply adds your validator to the exit [queue](https://www.validatorqueue.com). After a few minutes you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/).
