@@ -247,45 +247,69 @@ rm -rf $HOME/prysm
 
 Before performing maintenance (like pruning Geth, or updating Geth or Prysm), it is prudent to check upcoming sync committee duties (described up to [\~27 hours in advance](https://github.com/ethereum/consensus-specs/pull/2453)) so as not to be offline when you would otherwise be part of a committee.
 
-Run the following command, it will show something like the below:
-
-```
-./check_sync_committee.sh 655262 655258 655260 655226 1296208
-```
-
-[](../images/synccommittee.png)
-
-If any of the validators (as identified by the validator index numbers in the command) have upcoming duties, there will be additional output below this that says _"validator: 123511 found in next sync committee"_. If no such text is present, the validators in question do not have upcoming sync duties.
+If any of the validators (as identified by the validator index numbers in the command) have upcoming duties, there will be additional output that says _"validator: 123511 found in next sync committee"_. If no such text is present, the validators in question do not have upcoming sync duties.
 
 Note that this requires the following script be set up and made executable:
 
 ```
 #!/bin/sh
 
+# Set the URL of the local beacon node
 BEACON_NODE="http://localhost:5052"
+
+# Convert space-separated validator indices from command line arguments to a regex pattern
 VALIDATOR_LIST=$(echo "$@" | tr ' ' '|')
 
-epoch_to_time(){
+# Function to convert epoch to Unix time
+epoch_to_time() {
     expr 1606824000 + \( $1 \* 384 \)
-    }
+}
 
-time_to_epoch(){
-    expr \( $1 - 1606824000 \) / 384
-    }
+# Function to convert Unix time to epoch
+time_to_epoch() {
+    expr \( $(date +%s) - 1606824000 \) / 384
+}
 
-get_committee(){
-    URLSTEM="${BEACON_NODE}/eth/v1/beacon/states/finalized"
-    curl -X GET "${URLSTEM}/sync_committees?epoch=$1" 2> /dev/null \
-    | sed -e 's/["]/''/g' | cut -d'[' -f2 | cut -d']' -f1 | tr ',' '\n'
-    }
+# Function to get committee member indices from the Beacon Node API
+get_committee() {
+    URL="${BEACON_NODE}/eth/v1/beacon/states/finalized/sync_committees?epoch=$1"
+    RESPONSE=$(curl -s -X GET "$URL")
+    if [ -z "$RESPONSE" ]; then
+        echo "Error fetching data from Beacon Node API."
+        exit 1
+    fi
+    echo "$RESPONSE" | sed -e 's/["]/''/g' | cut -d'[' -f2 | cut -d']' -f1 | tr ',' '\n'
+}
 
-search_committee(){
-    get_committee $2 | grep -Ex $VALIDATOR_LIST \
+# Function to search for validator indices in the committee
+search_committee() {
+    COMMITTEE=$(get_committee $2)
+    echo "$COMMITTEE" | grep -Ex $VALIDATOR_LIST \
     | awk -v c=$1 '{print "validator:", $1, "found in", c, "sync committee"}'
-    }
+}
 
-display_epoch(){
-    echo "epoch: $1 : $(date -d@$(epoch_to_time $1)) <-- 0 256 $2" }  curr_epoch="$(time_to_epoch" $(date +%s)) curr_start_epoch="`expr" \( $curr_epoch \) \* 256` next_start_epoch="`expr" $curr_start_epoch + nextb1_start_epoch="`expr" $next_start_epoch echo display_epoch "current sync committee start" "now" "next $nextb1_start_epoch "next-but-one if [ "$#" -gt ] then search_committee "current" "next" fi< code></-->
+# Function to display the epoch and its corresponding date
+display_epoch() {
+    EPOCH_TIME=$(epoch_to_time $1)
+    DATE=$(date -d @"$EPOCH_TIME" '+%Y-%m-%d %H:%M:%S')
+    echo "epoch: $1 : $DATE <-- $2"
+}
+
+# Main operation
+curr_epoch=$(time_to_epoch)
+curr_start_epoch=$(expr $curr_epoch / 256 \* 256)
+next_start_epoch=$(expr $curr_start_epoch + 256)
+nextb1_start_epoch=$(expr $next_start_epoch + 256)
+
+display_epoch $curr_start_epoch "current sync committee start"
+display_epoch $next_start_epoch "next sync committee start"
+display_epoch $nextb1_start_epoch "next-but-one sync committee start"
+
+if [ "$#" -gt 0 ]; then
+    search_committee "current" $curr_start_epoch
+    search_committee "next" $next_start_epoch
+    search_committee "next-but-one" $nextb1_start_epoch
+fi
 ```
 
 You can get this set up easily via:
@@ -294,13 +318,27 @@ You can get this set up easily via:
 sudo nano check_sync_committee.sh
 ```
 
-Then paste in the text of the script above, followed by:
+Then paste in the text of the script above, save and exit, followed by:
 
 ```
 sudo chmod +x check_sync_committee.sh
 ```
 
 to make the script executable.
+
+Also, run the following commpand to ensure you have prerequisite software set up:
+
+```
+sudo apt update && sudo apt install -y curl gawk sed coreutils
+```
+
+Run the following command, it will show something like the below:
+
+```
+./check_sync_committee.sh 655262 655258 655260 655226 1296208
+```
+
+[](../images/synccommittee.png)
 
 ### Appendix G MEV-Boost
 
