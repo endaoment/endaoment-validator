@@ -65,6 +65,14 @@ cd geth-linux-amd64-1.14.0-87246f3c
 sudo cp geth /usr/local/bin
 ```
 
+Note: [ONLY] If updating from a version prior to 1.14.0 (where you have yet to switch to the new database schema), you will need to delete your database and rebuild it. To delete the database, use the following command:
+
+```
+sudo -u geth geth removedb --datadir=/var/lib/geth
+```
+
+When you're asked if you want to delete the "state" and "ancient chain", answer Y to both promopts to start with a fresh database. Geth will automatically rebuild the database when you restart the service below.
+
 Next, restart the services and check for errors:
 
 ```
