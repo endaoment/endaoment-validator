@@ -42,11 +42,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Geth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.15-c5ba367e.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.13.15 in this example (current as of 3.17.24).
+First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.14.0-87246f3c.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.14.0 in this example (current as of 4.24.24).
 
 ```
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.15-c5ba367e.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.14.0-87246f3c.tar.gz
 ```
 
 Then stop the Geth service
@@ -60,10 +60,18 @@ Note that stopping Geth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf geth-linux-amd64-1.13.15-c5ba367e.tar.gz
-cd geth-linux-amd64-1.13.15-c5ba367e
+tar xvf geth-linux-amd64-1.14.0-87246f3c.tar.gz
+cd geth-linux-amd64-1.14.0-87246f3c
 sudo cp geth /usr/local/bin
 ```
+
+Note: [ONLY] If updating from a version prior to 1.14.0 (where you have yet to switch to the new database schema), you will need to delete your database and rebuild it. To delete the database, use the following command:
+
+```
+sudo -u geth geth removedb --datadir=/var/lib/geth
+```
+
+When you're asked if you want to delete the "state" and "ancient chain", answer Y to both promopts to start with a fresh database. Geth will automatically rebuild the database when you restart the service below.
 
 Next, restart the services and check for errors:
 
@@ -81,8 +89,8 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```
 cd ~
-rm geth-linux-amd64-1.13.15-c5ba367e.tar.gz
-rm -r geth-linux-amd64-1.13.15-c5ba367e
+rm geth-linux-amd64-1.14.0-87246f3c.tar.gz
+rm -r geth-linux-amd64-1.14.0-87246f3c
 geth version
 ```
 
@@ -142,44 +150,7 @@ journalctl --since -1hour -u prysmbeacon.service | grep version
 
 ### Appendix D Pruning Geth
 
-_As of 1.11.24, Geth does_ _**not**_ _have online pruning capability enabled by default (their 1.14 distribution should finally default to the path database , which will enable a new process, to be updated here after release)._
-
-You must turn Geth off before pruning, meaning that pruning time is spent offline missing attestations. Before turning off Geth as part of this process, it's recommended to go through the flow described in _Appendix F_ to ensure the validator(s) are not off during sync committee duties.
-
-Note that you **must** have at least 50GB of free space to do this. You can check free space:
-
-```
-df -h
-```
-
-First, stop Geth:
-
-```
-sudo systemctl stop geth
-```
-
-Next, open a tmux session and start the pruning process:
-
-```
-tmux
-sudo -u goeth geth --datadir /var/lib/geth snapshot prune-state
-```
-
-Note that this is expected to take a decently long time, at least 3-4 hours even on an NVMe M.2 drive.
-
-There are multiple operations occurring here: pruning state data, compacting database, etc. When you see the text "Database compaction finished" **and** "State pruning successful", you'll know the process has completed.
-
-Finally, restart Geth:
-
-```
-sudo systemctl start geth
-```
-
-You can also check Geth's status after restart to ensure it's running without error:
-
-```
-sudo systemctl status geth
-```
+Geth 1.14.0 and above manage pruning automatically.
 
 ### Appendix E Exiting a Validator
 
