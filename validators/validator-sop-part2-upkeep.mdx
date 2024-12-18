@@ -88,15 +88,15 @@ geth version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v5.1.2/beacon-chain-v5.1.2-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v5.1.2 in this example (current as of 10.16.24).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v5.2.0/beacon-chain-v5.2.0-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v5.2.0 in this example (current as of 12.16.24).
 
 Curl the latest software and rename:
 
 ```
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.1.2/validator-v5.1.2-linux-amd64
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.1.2/beacon-chain-v5.1.2-linux-amd64
-mv beacon-chain-v5.1.2-linux-amd64 beacon-chain
-mv validator-v5.1.2-linux-amd64 validator
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.2.0/validator-v5.2.0-linux-amd64
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.2.0/beacon-chain-v5.2.0-linux-amd64
+mv beacon-chain-v5.2.0-linux-amd64 beacon-chain
+mv validator-v5.2.0-linux-amd64 validator
 ```
 
 Then stop the Prysm services:

@@ -500,22 +500,22 @@ After running Geth for ~10 or so minutes, check the peer count to ensure it's gr
 
 The Prysm Consensus Client is made up of two binaries that provide the functionality of the beacon node and validator, respectively. This step will download and prepare the Prysm binaries.
 
-Time to install Prysm! All commands provided below are based on the 5.1.2 version of Prysm (current as of 10.16.24), but should be adjusted based on whatever the latest version of Prysm is [here](https://github.com/prysmaticlabs/prysm/releases). Note that many commands below will need to update if this version is updated.
+Time to install Prysm! All commands provided below are based on the 5.2.0 version of Prysm (current as of 12.16.24), but should be adjusted based on whatever the latest version of Prysm is [here](https://github.com/prysmaticlabs/prysm/releases). Note that many commands below will need to update if this version is updated.
 
 In the Assets section (expand if necessary) copy the download links to the beacon-chain-v…-linux-amd64 file and the validator-v…-linux-amd64 file. Be sure to copy the correct links.
 Download the binaries using the commands below. Modify the URL to match the copied download links:
 
 ```
 cd ~
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.1.2/beacon-chain-v5.1.2-linux-amd64
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.1.2/validator-v5.1.2-linux-amd64
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.2.0/beacon-chain-v5.2.0-linux-amd64
+curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.2.0/validator-v5.2.0-linux-amd64
 ```
 
 Now, let's rename the files and make them executable and copy them to the /usr/local/bin directory. The Prysm services will run them from there. Modify the file names to match the downloaded version:
 
 ```
-mv beacon-chain-v5.1.2-linux-amd64 beacon-chain
-mv validator-v5.1.2-linux-amd64 validator
+mv beacon-chain-v5.2.0-linux-amd64 beacon-chain
+mv validator-v5.2.0-linux-amd64 validator
 ```
 
 ```
