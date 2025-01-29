@@ -30,15 +30,15 @@ title: "Validator SOP Part 1: Hardware, Software, & Deposit Setup"
 
 ### Step 0 Purchase Equipment and Assemble NUC
 
-First, you'll need hardware to run the validator software on. [Requirements can be found here](https://www.quicknode.com/guides/infrastructure/node-setup/ethereum-full-node-vs-archive-node/), suggested hardware are as follows:
+First, you'll need hardware to run the validator software on. [Requirements can be found here](https://hackmd.io/G3MvgV2_RpKxbufsZO8VVg?view) as of 1/27/25, suggested hardware are as follows:
 
-* Intel NUC 11+ (tall) - bare-bones model with 6+ core CPU
+* Asus NUC 14+ Pro
 
-* 16GB RAM (**32GB** preferred) - 'laptop' RAM (not full size)
+* 32GB RAM (**64GB** preferred)
 
-* M.2 SSD 2TB (**4TB** preferred)
+* NVMe M.2 4TB
 
-* Ethernet connection with 300 Mbps symmetrical
+* Ethernet connection with 100 Mbps symmetrical (**300 Mbps** preferred)
 
 * USB drive (used to install Linux) 4GB+
 
@@ -50,9 +50,7 @@ While not a hard requirement, it's also recommended to purchase a 1000+VA sine w
 
 Once equipment has been obtained, simply install the RAM and SSD in the NUC. Because some of the below processes require using an air-gapped machine, **do not connect the device to the internet**.
 
-Note: You will also need a small screwdriver to handle installation.
-
-An example hardware list can be found [here](https://github.com/endaoment/endaoment-validator/blob/main/.imgs/validator%5Fhardware.xlsx).
+Note: You will also need a small screwdriver to handle installation if assembling yourself.
 
 ### Step 1 Generate Staking Data
 
@@ -69,8 +67,6 @@ In order to have a machine ready to go, we will need to install an OS on your ne
 With all the software and data assembled, run the Etcher tool to flash the USB drive with Ubuntu Desktop using your laptop. Insert the USB into your air gapped machine (built in step 0), connect the machine to a monitor via HDMI (or USB), keyboard, and mouse, and go through the installation process (which should occur automatically). Make sure to choose the minimum settings allowed so things go quickly.
 
 Once the installation is complete, remove the USB drive, and reformat the disk to exFAT so you can move the deposit CLI tool onto the USB drive. You may also want to drop a text file into the USB drive with your withdrawal address to make the next step easier.
-
-Note: If you plan to set up your validator and take advantage of restaking via [EigenLayer](https://www.eigenlayer.xyz/learn), you will likely want to check [this portion of the guide](/validators/validator-sop-part2-upkeep#appendix-h-eigenlayer-native-restaking) as you can avoid exiting and re-entering by setting up the wihdrawal address correctly during this step.
 
 Finally, re-insert the USB drive into the NUC and move the deposit CLI tool to your desktop.
 
@@ -886,7 +882,7 @@ This section provides guidance for adding additional valiadtors to your existing
 
 #### Clean Up `validator_keys`
 
-While not essential as you can always regenerate them using your mnemonic, it's good practive to back up the `validator_keys` directory (typically `$HOME/staking-deposit-cli/validator_keys`) on a USB for [emergencies](./validator-sop-part3-emergency.mdx).
+While not essential as you can always regenerate them using your mnemonic, it's good practice to back up the `validator_keys` directory (typically `$HOME/staking-deposit-cli/validator_keys`) on a USB for [emergencies](./validator-sop-part3-emergency.mdx).
 
 After ensuring you have a backup of these files  as described in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), you can safely remove the validator_keys directory. Note that this will not impact your existing validators, as in [Step 11 Import Validator Keys](/validators/validator-sop-part1-setup#step-11-import-validator-keys) the validator_keys are imported into the validator instance. The copies referenced above are "extra":
 
@@ -909,8 +905,6 @@ sudo ./deposit existing-mnemonic --validator_start_index {#_Existing_Validators}
 ```
 
 Replace `{#_Existing_Validators}` with the number of validators you have already generated with this mnemonic, and replace `{#_New_Validators}` with the number of additional validators you want to run (32ETH per), and `{YourWithdrawalAddress}` with an Ethereum address you control.
-
-Note: If you plan to set up your validator and take advantage of restaking via [EigenLayer](https://www.eigenlayer.xyz/learn), you will likely want to check [this portion of the guide](/validators/validator-sop-part2-upkeep#appendix-h-eigenlayer-native-restaking) beofre completing this step.
 
 _NOTE: Once set, the withdrawal address_ _**CANNOT**_ _be changed, so be ABSOLUTELY SURE that it is an address you control the private keys for (or it's a multisig and you control the private keys to the underlying wallets) and correctly specified. For example: --eth1\_withdrawal\_address 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045_
 
