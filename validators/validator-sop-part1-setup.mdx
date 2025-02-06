@@ -62,7 +62,7 @@ If setting up a new validator (and haven't already generated deposit data and va
 
 **If you are adding new validators to an existing config, please see the [Addendum](/validators/validator-sop-part1-setup#addendum-adding-validators-to-existing-config) at the bottom of this document**
 
-In order to have a machine ready to go, we will need to install an OS on your new validator hardware built in step 0\. We'll be using Ubuntu Desktop. On your laptop, navigate to [ubuntu.com](https://ubuntu.com/download/desktop), download the latest LTS copy of Ubuntu Desktop (as of 12.15.23, _22.04.3 LTS_). In addition, download and install the [Etcher tool](https://www.balena.io/etcher) which will allow you to flash the operating system onto the USB drive. Lastly, download the latest version of the [deposit CLI tool](https://github.com/ethereum/staking-deposit-cli/releases) \- you want the **AMD64** version (as of 12.15.23, _2.7.0_), and unzip the executable file.
+In order to have a machine ready to go, we will need to install an OS on your new validator hardware built in step 0\. We'll be using Ubuntu Desktop. On your laptop, navigate to [ubuntu.com](https://ubuntu.com/download/desktop), download the latest LTS copy of Ubuntu Desktop (as of 2025, _24.04.1 LTS_). In addition, download and install the [Etcher tool](https://www.balena.io/etcher) which will allow you to flash the operating system onto the USB drive. Lastly, download the latest version of the [deposit CLI tool](https://github.com/ethereum/staking-deposit-cli/releases) \- you want the **AMD64** version - unzip the executable file.
 
 With all the software and data assembled, run the Etcher tool to flash the USB drive with Ubuntu Desktop using your laptop. Insert the USB into your air gapped machine (built in step 0), connect the machine to a monitor via HDMI (or USB), keyboard, and mouse, and go through the installation process (which should occur automatically). Make sure to choose the minimum settings allowed so things go quickly.
 
@@ -100,7 +100,7 @@ Note: there are no other steps in this process that require you to enter or view
 
 ### Step 2 Install Linux Server
 
-Navigate to [ubuntu.com](https://ubuntu.com/download/server), download the latest LTS copy of Ubuntu Server (as of 12.15.23, _22.04.3 LTS_). In addition, download and install the [Etcher tool](https://www.balena.io/etcher) which will allow you to flash the operating system onto the USB drive. Then, run the Etcher tool to flash the USB drive with Ubuntu Server.
+Navigate to [ubuntu.com](https://ubuntu.com/download/server), download the latest LTS copy of Ubuntu Server (as of 2025, _24.04.1 LTS_). In addition, download and install the [Etcher tool](https://www.balena.io/etcher) which will allow you to flash the operating system onto the USB drive. Then, run the Etcher tool to flash the USB drive with Ubuntu Server.
 
 Once that's complete, pop the USB drive into your NUC, and restart it - also connect it to Ethernet if you haven't already. Upon restart, hold fn+F10 in order to boot from USB. Follow the installation instructions, making sure to select the following settings:
 
