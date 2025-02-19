@@ -1,2 +1,49 @@
-
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mintlify specific
+.mintlify/
+.vercel/
+
+# Vale
+.vale/
+# Don't ignore styles directory as it contains our style guides
+!styles/
+
+# IDE/Editor specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+out/
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.npm/
