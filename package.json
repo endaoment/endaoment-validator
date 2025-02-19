@@ -1,0 +1,12 @@
+{
+  "name": "endaoment-validator-docs",
+  "version": "1.0.0",
+  "description": "Endaoment Validator Documentation",
+  "scripts": {
+    "dev": "mintlify dev",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+} 
