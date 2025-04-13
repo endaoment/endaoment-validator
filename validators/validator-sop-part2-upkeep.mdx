@@ -158,7 +158,7 @@ Account 1 | preferably-amazing-frog
 
 Make sure to keep note of this data for the validator you'd like to exit.
 
-Before we get started, we'll need bazel, set to v7.1.0:
+Before we get started, we'll need bazel, set to v7.4.1 (as of 4.11.25):
 
 ```
 sudo apt install apt-transport-https curl gnupg -y
@@ -167,9 +167,9 @@ sudo mv bazel-archive-keyring.gpg /usr/share/keyrings
 echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
 sudo apt update && sudo apt install bazel
 sudo apt update && sudo apt full-upgrade
-sudo apt install bazel-7.1.0
-sudo ln -s /usr/bin/bazel-7.1.0 /usr/bin/bazel
-bazel --version  # 7.1.0
+sudo apt install bazel-7.4.1
+sudo ln -s /usr/bin/bazel-7.4.1 /usr/bin/bazel
+bazel --version  # 7.4.1
 ```
 
 Now, we'll need to use prysmctl (note that this command is not setting up a service, but instead running prysmctl directory and one time). Use the following commands to install and build the latest version:
@@ -180,7 +180,7 @@ bazel build //cmd/prysmctl --config=release
 cd bazel-bin/cmd/prysmctl/prysmctl_
 ```
 
-This will take some time.
+This will take a few minutes.
 
 Armed with the required information and software, issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
 
