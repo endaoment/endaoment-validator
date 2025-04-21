@@ -88,13 +88,13 @@ geth version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v6.0.0/beacon-chain-v6.0.0-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v6.0.0 in this example (current as of 4.21.25).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v6.0.0/beacon-chain-v6.0.0-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v6.0.0 in this example (current as of 4.21.25).
 
 Curl the latest software and rename:
 
 ```
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v6.0.0/validator-v6.0.0-linux-amd64
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v6.0.0/beacon-chain-v6.0.0-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v6.0.0/validator-v6.0.0-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v6.0.0/beacon-chain-v6.0.0-linux-amd64
 mv beacon-chain-v6.0.0-linux-amd64 beacon-chain
 mv validator-v6.0.0-linux-amd64 validator
 ```
@@ -175,7 +175,7 @@ bazel --version  # 7.4.1
 Now, we'll need to use prysmctl (note that this command is not setting up a service, but instead running prysmctl directory and one time). Use the following commands to install and build the latest version:
 
 ```
-git clone https://github.com/prysmaticlabs/prysm && cd prysm
+git clone https://github.com/OffchainLabs/prysm && cd prysm
 bazel build //cmd/prysmctl --config=release
 cd bazel-bin/cmd/prysmctl/prysmctl_
 ```

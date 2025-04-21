@@ -10,7 +10,7 @@
     - targets: [ 'hyperledger/besu' ]
       labels:
         client: 'Besu'
-    - targets: [ 'prysmaticlabs/prysm' ]
+    - targets: [ 'OffchainLabs/prysm' ]
       labels:
         client: 'Prysm'
     - targets: [ 'consensys/teku' ]
