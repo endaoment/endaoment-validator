@@ -40,11 +40,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Geth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.15.8-f8ff24e8.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.15.8 in this example (current as of 4.11.25).
+First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.15.9-74165a8f.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.15.9 in this example (current as of 4.21.25).
 
 ```
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.15.8-f8ff24e8.tar.gz
+curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.15.9-74165a8f.tar.gz
 ```
 
 Then stop the Geth service
@@ -58,8 +58,8 @@ Note that stopping Geth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf geth-linux-amd64-1.15.8-f8ff24e8.tar.gz
-cd geth-linux-amd64-1.15.8-f8ff24e8
+tar xvf geth-linux-amd64-1.15.9-74165a8f.tar.gz
+cd geth-linux-amd64-1.15.9-74165a8f
 sudo cp geth /usr/local/bin
 ```
 
@@ -79,8 +79,8 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```
 cd ~
-rm geth-linux-amd64-1.15.8-f8ff24e8.tar.gz
-rm -r geth-linux-amd64-1.15.8-f8ff24e8
+rm geth-linux-amd64-1.15.9-74165a8f.tar.gz
+rm -r geth-linux-amd64-1.15.9-74165a8f
 geth version
 ```
 
@@ -88,15 +88,15 @@ geth version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/prysmaticlabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/prysmaticlabs/prysm/releases/download/v5.3.0/beacon-chain-v5.3.0-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v5.3.0 in this example (current as of 2.14.25).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v6.0.0/beacon-chain-v6.0.0-darwin-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v6.0.0 in this example (current as of 4.21.25).
 
 Curl the latest software and rename:
 
 ```
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.3.0/validator-v5.3.0-linux-amd64
-curl -LO https://github.com/prysmaticlabs/prysm/releases/download/v5.3.0/beacon-chain-v5.3.0-linux-amd64
-mv beacon-chain-v5.3.0-linux-amd64 beacon-chain
-mv validator-v5.3.0-linux-amd64 validator
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v6.0.0/validator-v6.0.0-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v6.0.0/beacon-chain-v6.0.0-linux-amd64
+mv beacon-chain-v6.0.0-linux-amd64 beacon-chain
+mv validator-v6.0.0-linux-amd64 validator
 ```
 
 Then stop the Prysm services:
@@ -175,7 +175,7 @@ bazel --version  # 7.4.1
 Now, we'll need to use prysmctl (note that this command is not setting up a service, but instead running prysmctl directory and one time). Use the following commands to install and build the latest version:
 
 ```
-git clone https://github.com/prysmaticlabs/prysm && cd prysm
+git clone https://github.com/OffchainLabs/prysm && cd prysm
 bazel build //cmd/prysmctl --config=release
 cd bazel-bin/cmd/prysmctl/prysmctl_
 ```
