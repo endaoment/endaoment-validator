@@ -13,6 +13,7 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
   - [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
   - [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
   - [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
+- [Appendix G Launchpad Validaor Actions](/validators/validator-sop-part2-upkeep#appendix-g-launchpad-validator-actions)
 
 ### Appendix A Package Management Updates
 
@@ -139,6 +140,8 @@ journalctl --since -1hour -u prysmbeacon.service | grep version
 ```
 
 ### Appendix D Exiting a Validator
+
+As of May 2025, you can now use the [Ethereum Launchpad Validator Actions](https://launchpad.ethereum.org/en/validator-actions) to perform a validator exit using its UI. Note that you will need to be able to connect your withdrawal address to the site in order to proceed. While easier, this method will not work for everyone and brings with it some safety concerns that don't exist in the below CLI method.
 
 To exit Validator(s), you'll need to know which ones! To check your accounts, you can use this command:
 
@@ -486,3 +489,16 @@ mev-boost --version
 Now you're really cooking.
 
 ![](../images/SolarNode2.png)
+
+### Appendix G Launchpad Validaor Actions
+
+As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upgraded the list of actions you can take using the UI beyond simply making deposits into validators. If you navigate to the [Validator Actions](https://launchpad.ethereum.org/en/validator-actions) page and connect the wallet that represents your **withdrawal address**, you'll be able to select a current validator and take a number of different actions with it depending on your withdrawal credentials.
+
+#### Validator Actions
+
+- **Update account to compounding** - this process converts your existing `0x00` or `0x01` withdrawal credentials to `0x02` (new in the Pectra hardfork). Having `0x02` withdrawal crednetials allows you to increase your effective balance from 32 ETH to 2048 ETH so that you need not spin up a new validator for each tranche. When you make this change, regular withdrawals will cease, and partial withdrawals may be requested using this UI (see "Request partial withdrawal" below). In addition, rewards will be based on your current validator balance and increase as that balance increases, essentially compounding your rewards.
+- **Add funds to your validator** - only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to add additional ETH to your validator that is currently held elsewhere. This allows compounding rewards, and has a minimum deposit amount of 1 ETH.
+- **Request partial withdrawal** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to withdraw any portion of staked ETH over 32 to your withdrawal address.
+- **Absorb another validator** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to transfer the entire balance of another validator you control to the one you have selected, consolidating those validators into one.
+- **Migrate funds** -  this action allows you to transfer the entire balance of the validator you have selected to another one of your validators. The target consolidation validator must be using `0x02` withdrawal credentials (see "Update account to compounding" above).
+- **Exit validator** - this action allows you to perform a full exit of your validator and withdraw the entire balance thereof.
