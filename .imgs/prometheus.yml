@@ -44,14 +44,14 @@ scrape_configs:
         source_labels: [ pubkey ]
         regex: ^(.{12}).*$
         target_label: pubkey_short
-  - job_name: geth
+  - job_name: reth
     metrics_path: /debug/metrics/prometheus
     static_configs:
       - targets:
           - localhost:6060
     file_sd_configs:
       - files:
-          - '/etc/prometheus/files_sd/stakelocal/execution_metrics/geth*.yml'
+          - '/etc/prometheus/files_sd/stakelocal/execution_metrics/reth*.yml'
 
   ###
   ### Other Metrics
@@ -466,7 +466,7 @@ scrape_configs:
   ## is also available through the metrics of supported
   ## clients.
   ##
-  ## Supported by: Geth, Erigon
+  ## Supported by: Reth, Erigon
   ## Required by: None
   ## Not supported by: Nethermind, Besu
   ##
@@ -478,7 +478,7 @@ scrape_configs:
     file_sd_configs:
     - files:
       - '/etc/prometheus/files_sd/stakelocal/execution_apis/erigon*.yml'
-      - '/etc/prometheus/files_sd/stakelocal/execution_apis/geth*.yml'
+      - '/etc/prometheus/files_sd/stakelocal/execution_apis/reth*.yml'
     relabel_configs:
     - action: replace
       target_label: __tmp_scheme
@@ -538,7 +538,7 @@ scrape_configs:
     file_sd_configs:
     - files:
       - '/etc/prometheus/files_sd/stakelocal/execution_apis/nethermind*.yml'
-      - '/etc/prometheus/files_sd/stakelocal/execution_apis/geth*.yml'
+      - '/etc/prometheus/files_sd/stakelocal/execution_apis/reth*.yml'
       - '/etc/prometheus/files_sd/stakelocal/execution_apis/erigon*.yml'
     relabel_configs:
     - action: replace
@@ -679,7 +679,7 @@ scrape_configs:
   ## Job to pull finalized block information from Besu execution client.
   ##
   ## Required by: Besu
-  ## Works with: Besu, Geth
+  ## Works with: Besu, Reth
   ##
   ## Configure: network, host, service, group
   ##

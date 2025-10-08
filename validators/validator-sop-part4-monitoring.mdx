@@ -27,7 +27,7 @@ title: "Validator SOP Part 4: Monitoring and Dashboard Creation"
 
 ## Abstract
 
-This document will detail the process for setting up a Grafana monitoring dashboard for an Ethereum validator. This guide assumes you followed [Validator SOP Part 1: Set Up](/validators/validator-sop-part1-setup). Please note that dashboards are highly customizable, and as such small changes can be made to either the reporting software or the dashboard itself to accommodate specific use cases. This guide is written with the initial Endaoment node set up in mind, a node with five validators utilizing Geth/Prysm. While the majority of things covered by this guide do not touch the underlying services that run the validator, caution should be exercised as there are some changes that must be made to validator/beacon-chain service files.
+This document will detail the process for setting up a Grafana monitoring dashboard for an Ethereum validator. This guide assumes you followed [Validator SOP Part 1: Set Up](/validators/validator-sop-part1-setup). Please note that dashboards are highly customizable, and as such small changes can be made to either the reporting software or the dashboard itself to accommodate specific use cases. This guide is written with the initial Endaoment node set up in mind, a node with five validators utilizing Reth/Prysm. While the majority of things covered by this guide do not touch the underlying services that run the validator, caution should be exercised as there are some changes that must be made to validator/beacon-chain service files.
 
 ### Step 1 Adjust Firewall
 
@@ -479,9 +479,9 @@ Use the journal output command to check for errors:
 sudo journalctl -fu grafana-server | ccze
 ```
 
-Press CTRL+ C to exit (will not affect the Geth service).
+Press CTRL+ C to exit (will not affect the Grafana service).
 
-Next, enable the Geth service to automatically start on reboot:
+Next, enable the Grafana service to automatically start on reboot:
 
 ```
 sudo systemctl enable grafana-server
@@ -495,7 +495,7 @@ If you see `Successfully queried the Prometheus API`, you're all set!
 
 ### Step 4 Configure Ethereum Clients
 
-Each consensus and execution client must have the appropriate metrics services and APIs enabled and accessible to the reporting software. As a reminder, the below instructions assume Prysm/Geth.
+Each consensus and execution client must have the appropriate metrics services and APIs enabled and accessible to the reporting software. As a reminder, the below instructions assume Prysm/Reth.
 
 Adjust your Prysm Beacon service file:
 
@@ -521,15 +521,17 @@ Add the following flag at the bottom of the `ExecStart` list, note that you may 
 
 Press CTRL + X then Y then ENTER to save and exit.
 
-Adjust your Geth service file:
+Adjust your Reth service file:
 
 ```
-sudo nano /etc/systemd/system/geth.service
+sudo nano /etc/systemd/system/reth.service
 ```
 
-Add the following flag at the bottom of the `ExecStart` list, note that you may need to add a`\` at the end of the previous line, depending on how your file is formatted.
+Verify the following flags are present at the bottom of the `ExecStart` list (they should already be there from the installation):
 
-`--metrics \ --http \ --http.api net,web3,eth,txpool`
+`--http \
+  --http.api eth,net,web3,txpool \
+  --metrics 127.0.0.1:6060`
 
 Press CTRL + X then Y then ENTER to save and exit.
 
@@ -537,7 +539,7 @@ Finally, restart everything you just adjusted. Please note that if the validator
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl restart geth
+sudo systemctl restart reth
 sudo systemctl restart prysmbeacon
 sudo systemctl restart prysmvalidator
 ```
@@ -545,7 +547,7 @@ sudo systemctl restart prysmvalidator
 You should then check the status of each of the services you just restarted to ensure that changing the configuration files haven't messed with anything:
 
 ```
-sudo systemctl status geth
+sudo systemctl status reth
 sudo systemctl status prysmbeacon
 sudo systemctl status prysmvalidator
 ```
@@ -595,7 +597,7 @@ consensus:
 execution:
   enabled: true
   url: ""
-  name: “Geth”
+  name: "Reth"
   modules:
     - "eth"
     - "net"
@@ -674,7 +676,7 @@ Copy and paste the following into that file:
         network: 'Mainnet'
         host: 'Default Host'
         service: 'Prysm Beacon'
-        group: 'Prysm/Geth'
+        group: 'Prysm/Reth'
         instance: '127.0.0.1:3500'
         explorer: 'beaconcha.in'
 ```

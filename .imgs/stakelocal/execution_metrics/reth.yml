@@ -2,6 +2,6 @@
       labels:
         network: 'Mainnet'
         host: 'Default Host'
-        service: 'Geth'
-        group: 'Prysm/Geth'
+        service: 'Reth'
+        group: 'Prysm/Reth'
         explorer: 'etherscan.io'
