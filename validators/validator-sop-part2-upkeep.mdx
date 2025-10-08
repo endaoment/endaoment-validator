@@ -5,7 +5,7 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
 ## Table of Contents
 
 - [Appendix A Package Management Updates](/validators/validator-sop-part2-upkeep#appendix-a-package-management-updates)
-- [Appendix B Updating Geth](/validators/validator-sop-part2-upkeep#appendix-b-updating-geth)
+- [Appendix B Updating Reth](/validators/validator-sop-part2-upkeep#appendix-b-updating-reth)
 - [Appendix C Updating Prysm](/validators/validator-sop-part2-upkeep#appendix-c-updating-prysm)
 - [Appendix D Exiting a Validator](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator)
 - [Appendix E Checking Sync Committee Duties](/validators/validator-sop-part2-upkeep#appendix-f-checking-sync-committee-duties)
@@ -39,50 +39,48 @@ Note that because it's a sudo command, you'll need to enter your password.
 
 It is not irregular for your Node to prompt you to restart it after some particular updates are made. Sometimes this is requested after packages are updated, other times it's requested and shown to you upon your next login.
 
-### Appendix B Updating Geth
+### Appendix B Updating Reth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.16.7 in this example (current as of 11.4.25).
+First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v1.1.4/reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v1.1.4 in this example (current as of 1/27/25).
 
 ```
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.1.4/reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
 ```
 
-Then stop the Geth service
+Then stop the Reth service
 
 ```
-sudo systemctl stop geth
+sudo systemctl stop reth
 ```
 
-Note that stopping Geth always takes a moment and is not expected to complete immediately, don't stress, just be patient.
+Note that stopping Reth always takes a moment and is not expected to complete immediately, don't stress, just be patient.
 
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-cd geth-linux-amd64-1.16.7-b9f3a3d9
-sudo cp geth /usr/local/bin
+tar xvf reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
+sudo cp reth /usr/local/bin
 ```
 
 Next, restart the services and check for errors:
 
 ```
-sudo systemctl start geth
+sudo systemctl start reth
 ```
 
 ```
-sudo systemctl status geth # <-- Check for errors
-sudo journalctl -fu geth | ccze # <-- Monitor
+sudo systemctl status reth # <-- Check for errors
+sudo journalctl -fu reth | ccze # <-- Monitor
 sudo journalctl -fu prysmbeacon | ccze # <-- Monitor
 ```
 
-Finally, clean up the files, modifying the file name to match the downloaded version. Then check the Geth version to verify that all was installed correctly. This should match the Geth version shown on the repo site:
+Finally, clean up the files, modifying the file name to match the downloaded version. Then check the Reth version to verify that all was installed correctly. This should match the Reth version shown on the repo site:
 
 ```
 cd ~
-rm geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-rm -r geth-linux-amd64-1.16.7-b9f3a3d9
-geth version
+rm reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
+reth --version
 ```
 
 ### Appendix C Updating Prysm
@@ -205,7 +203,7 @@ rm -rf $HOME/prysm
 
 ### Appendix E Checking Sync Committee Duties
 
-Before performing maintenance (like pruning Geth, or updating Geth or Prysm), it is prudent to check upcoming sync committee duties (described up to [\~27 hours in advance](https://github.com/ethereum/consensus-specs/pull/2453)) so as not to be offline when you would otherwise be part of a committee.
+Before performing maintenance (like updating Reth or Prysm), it is prudent to check upcoming sync committee duties (described up to [\~27 hours in advance](https://github.com/ethereum/consensus-specs/pull/2453)) so as not to be offline when you would otherwise be part of a committee.
 
 If any of the validators (as identified by the validator index numbers in the command) have upcoming duties, there will be additional output that says _"validator: 123511 found in next sync committee"_. If no such text is present, the validators in question do not have upcoming sync duties.
 

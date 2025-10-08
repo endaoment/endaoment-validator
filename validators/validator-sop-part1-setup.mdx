@@ -15,7 +15,7 @@ title: "Validator SOP Part 1: Hardware, Software, & Deposit Setup"
 * [Step 4 Configure Port Forwarding](/validators/validator-sop-part1-setup#step-4-configure-port-forwarding)
 * [Step 5 Configure Timekeeping](/validators/validator-sop-part1-setup#step-5-configure-timekeeping)
 * [Step 6 Generate Client Auth Secret](/validators/validator-sop-part1-setup#step-6-generate-client-auth-secret)
-* [Step 7 Install Geth](/validators/validator-sop-part1-setup#step-7-install-geth)
+* [Step 7 Install Reth](/validators/validator-sop-part1-setup#step-7-install-reth)
 * [Step 8 Install Prysm](/validators/validator-sop-part1-setup#step-8-install-prysm)
 * [Step 9 Configure the Beacon Node Service](/validators/validator-sop-part1-setup#step-9-configure-the-beacon-node-service)
 * [Step 10 Configure the Validator Service](/validators/validator-sop-part1-setup#step-10-configure-the-validator-service)
@@ -197,7 +197,7 @@ Allow Execution Client Port 30303:
 sudo ufw allow 30303
 ```
 
-_Note that if the --port and --discovery.port flags are used in the Geth configuration file in step 7, you will need to ensure the ports used are allowed as described above._
+_Note that if the --port and --discovery.port flags are used in the Reth configuration file in step 7, you will need to ensure the ports used are allowed as described above._
 
 Allow Prysm:
 
@@ -316,9 +316,9 @@ From your laptop (or whichever device on the local network you plan on accessing
 
 Once you've logged in to your router, edit the port forwarding settings for your Node such that port 30303 is forwarded to port 30303 for both UDP and TCP protocols.
 
-This is the same port we allowed above in the _Secure the Server_ step - port forwarding 30303 will make it easier for the execution client (Geth) to find suitable peers. Failure to do some may result in sub optimal syncing.
+This is the same port we allowed above in the _Secure the Server_ step - port forwarding 30303 will make it easier for the execution client (Reth) to find suitable peers. Failure to do some may result in sub optimal syncing.
 
-If the --port and --discovery.port flags are used in the Geth configuration file in step 7, you will need to ensure the ports used are forwarded as described above.
+If the --port and --discovery.port flags are used in the Reth configuration file in step 7, you will need to ensure the ports used are forwarded as described above.
 
 ### Step 5 Configure Timekeeping
 
@@ -360,137 +360,131 @@ sudo nano /var/lib/jwtsecret/jwt.hex
 
 Press CTRL+X to exit
 
-### Step 7 Install Geth
+### Step 7 Install Reth
 
-Time to install Geth! All commands provided below are based on the 1.16.7 version of Geth (current as of 11.4.25), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
+Time to install Reth! All commands provided below are based on the v1.1.4 version of Reth (current as of 1/27/25), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
 
-Curl the Geth build from the above link:
+Curl the Reth build from the above link:
 
 ```
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.1.4/reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
 ```
 
-Extract the files from the archive and copy to the /usr/local/bin directory. The Geth service will run it from there. Modify the file name to match the downloaded version:
+Extract the files from the archive and copy to the /usr/local/bin directory. The Reth service will run it from there. Modify the file name to match the downloaded version:
 
 ```
-tar xvf geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-cd geth-linux-amd64-1.16.7-b9f3a3d9
-sudo cp geth /usr/local/bin
+tar xvf reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
+sudo cp reth /usr/local/bin
 ```
 
 Clean up the files. Modify the file name to match the downloaded version:
 
 ```
 cd ~
-rm geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-rm -r geth-linux-amd64-1.16.7-b9f3a3d9
+rm reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
 ```
 
-Geth will be configured to run as a background service. Create an account for the service to run under. This type of account can’t log into the server:
+Reth will be configured to run as a background service. Create an account for the service to run under. This type of account can't log into the server:
 
 ```
-sudo useradd --no-create-home --shell /bin/false geth
+sudo useradd --no-create-home --shell /bin/false reth
 ```
 
 Create the data directory. This is required for storing the Ethereum blockchain data:
 
 ```
-sudo mkdir -p /var/lib/geth
+sudo mkdir -p /var/lib/reth
 ```
 
-Set directory permissions. The Geth user account needs permission to modify the data directory:
+Set directory permissions. The Reth user account needs permission to modify the data directory:
 
 ```
-sudo chown -R geth:geth /var/lib/geth
+sudo chown -R reth:reth /var/lib/reth
 ```
 
 Create a systemd service config file to configure the service:
 
 ```
-sudo nano /etc/systemd/system/geth.service
+sudo nano /etc/systemd/system/reth.service
 ```
 
 Then, paste the following configuration into the file:
 
 ```
 [Unit]
-Description=geth Execution Client (Mainnet)
+Description=Reth Execution Client (Mainnet)
 After=network.target
 Wants=network.target
 [Service]
-User=geth
-Group=geth
+User=reth
+Group=reth
 Type=simple
 Restart=always
 RestartSec=5
 TimeoutStopSec=600
-ExecStart=/usr/local/bin/geth \
-  --mainnet \
-  --datadir /var/lib/geth \
+ExecStart=/usr/local/bin/reth node \
+  --chain mainnet \
+  --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
-  --db.engine pebble
+  --http \
+  --http.api eth,net,web3,txpool \
+  --metrics 127.0.0.1:6060
 [Install]
 WantedBy=default.target
 ```
 
-NOTE: The inclusion of TimeoutStopSec=600 is to allow the Geth service sufficient time to write cached data to disk on ***clean*** shutdown.
+NOTE: The inclusion of TimeoutStopSec=600 is to allow the Reth service sufficient time to write cached data to disk on ***clean*** shutdown.
 
 Press CTRL + X then Y then ENTER to save and exit.
 
-Reload systemd to reflect the changes and start the service. Check the status to make sure it’s running correctly:
+Reload systemd to reflect the changes and start the service. Check the status to make sure it's running correctly:
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl start geth
-sudo systemctl status geth
+sudo systemctl start reth
+sudo systemctl status reth
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the Geth service)
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the Reth service)
 
 The sync will begin immediately. Use the journal output to follow the progress or check for errors by running the following command.
 
 ```
 sudo apt install ccze
-sudo journalctl -fu geth | ccze
+sudo journalctl -fu reth | ccze
 ```
 
-Press CTRL+ C to exit (will not affect the Geth service).
+Press CTRL+ C to exit (will not affect the Reth service).
 
-Next, enable the Geth service to automatically start on reboot:
-
-```
-sudo systemctl enable geth
-```
-
-Finally, stop and start geth so it's using all the latest config information:
+Next, enable the Reth service to automatically start on reboot:
 
 ```
-sudo systemctl stop geth
-sudo systemctl start geth
+sudo systemctl enable reth
 ```
 
-Now that Geth is all set up, you can run the Geth attach command, and check things like sync status as well as connected peers.
-
-First, attach the Geth console:
+Finally, stop and start reth so it's using all the latest config information:
 
 ```
-sudo geth attach /var/lib/geth/geth.ipc
+sudo systemctl stop reth
+sudo systemctl start reth
 ```
 
-Now, you can check the sync status, **but this won't be working until after we install Prysm** (see steps 7-9):
+Now that Reth is all set up, you can check sync status and connected peers using JSON-RPC calls, as Reth doesn't have an interactive console like Geth.
+
+Check the sync status using curl (this won't work until after we install Prysm in steps 8-10):
 
 ```
-eth.syncing
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
 ```
 
 You can also check the count of connected peers by running:
 
 ```
-net.peerCount
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://localhost:8545
 ```
 
-After running Geth for ~10 or so minutes, check the peer count to ensure it's greater than 0.
+After running Reth for ~10 or so minutes, check the peer count to ensure it's greater than 0x0.
 
 ### Step 8 Install Prysm
 
@@ -693,21 +687,19 @@ Finally, enable the service to automatically start on reboot:
 sudo systemctl enable prysmvalidator
 ```
 
-Now that the beacon-chain, validator, and execution client software is all set up, you should run the following Geth attach commands to check sync status:
+Now that the beacon-chain, validator, and execution client software is all set up, you should run the following commands to check sync status:
 
-First, attach the Geth console:
-
-```
-sudo geth attach /var/lib/geth/geth.ipc
-```
-
-Now, you can check the sync status (it will work now!):
+Check the sync status using JSON-RPC (it will work now!):
 
 ```
->eth.syncing
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
 ```
 
-Press CTRL + D to exit.
+You can also check the peer count:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://localhost:8545
+```
 
 ### Step 11 Import Validator Keys
 
@@ -836,7 +828,7 @@ sudo systemctl daemon-reload
 
 Now that the Consensus Client is up and running, to actually begin staking on the Ethereum network you will need to deposit ETH to fund your validators.
 
-**Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through attaching the Geth console, both methods are described above.**
+**Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through JSON-RPC calls to Reth, both methods are described above.**
 
 With the deposit file in hand and an EOA with 32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
 
