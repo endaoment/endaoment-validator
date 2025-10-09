@@ -139,67 +139,7 @@ journalctl --since -1hour -u prysmbeacon.service | grep version
 
 ### Appendix D Exiting a Validator
 
-As of May 2025, you can now use the [Ethereum Launchpad Validator Actions](https://launchpad.ethereum.org/en/validator-actions) to perform a validator exit using its UI. Note that you will need to be able to connect your withdrawal address to the site in order to proceed. While easier, this method will not work for everyone and brings with it some safety concerns that don't exist in the below CLI method.
-
-To exit Validator(s), you'll need to know which ones! To check your accounts, you can use this command:
-
-```
-sudo validator accounts list --wallet-dir=/var/lib/prysm/validator
-```
-
-Followed by typing in your wallet password. You'll see a list of your account(s) returned that looks something like the below:
-
-```
-Account 0 | officially-sunny-sloth
-[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d2
-
-Account 1 | preferably-amazing-frog
-[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d3
-```
-
-Make sure to keep note of this data for the validator you'd like to exit.
-
-Before we get started, we'll need bazel, set to v7.4.1 (as of 4.11.25):
-
-```
-sudo apt install apt-transport-https curl gnupg -y
-curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg
-sudo mv bazel-archive-keyring.gpg /usr/share/keyrings
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-sudo apt update && sudo apt install bazel
-sudo apt update && sudo apt full-upgrade
-sudo apt install bazel-7.4.1
-sudo ln -s /usr/bin/bazel-7.4.1 /usr/bin/bazel
-bazel --version  # 7.4.1
-```
-
-Now, we'll need to use prysmctl (note that this command is not setting up a service, but instead running prysmctl directory and one time). Use the following commands to install and build the latest version:
-
-```
-git clone https://github.com/OffchainLabs/prysm && cd prysm
-bazel build //cmd/prysmctl --config=release
-cd bazel-bin/cmd/prysmctl/prysmctl_
-```
-
-This will take a few minutes.
-
-Armed with the required information and software, issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
-
-```
-sudo ./prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
-```
-
-It may take some time for the validators to exit - issuing this command simply adds your validator to the exit [queue](https://www.validatorqueue.com). After a few minutes you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/).
-
-Note that even if there is no exit queue, this process will still take non insiginificant time. Exiting requires at least \~30 minutes to show on Beaconchain, plus exit queue time, and then a variable amount of time depending on the [sweep timing](https://ethereum.org/en/staking/withdrawals/#validator-sweeping), which is impacted by the number of active validators that have either full or partial withdrawals.
-
-Once the exit succeeds and you confirm receipt of the 32 (\* the number of exited validators) ETH, you can stop all services on your Node and permanently shut down if you wish.
-
-If you are only exiting temporarily and are going to use this same confirmation (or are using it) for other validators, you should remove the directory you created here so that you can repeat this process in the future, rebuilding the latest version of prysmctl:
-
-```
-rm -rf $HOME/prysm
-```
+As of May 2025, you can now use the [Ethereum Launchpad Validator Actions](https://launchpad.ethereum.org/en/validator-actions) to perform a validator exit via GUI. Note that you will need to be able to connect your withdrawal address to the site in order to proceed. If this is not possible or you would prefer to use the CLI method, please consult the [Prysm documentation](https://prysm.offchainlabs.com/docs/manage-validator/exiting-a-validator/). Otherwise, refer to Appendix G Launchpad Validator Actions.
 
 ### Appendix E Checking Sync Committee Duties
 
@@ -490,7 +430,7 @@ Now you're really cooking.
 
 ### Appendix G Launchpad Validator Actions
 
-As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upgraded the list of actions you can take using the UI beyond simply making deposits into validators. If you navigate to the [Validator Actions](https://launchpad.ethereum.org/en/validator-actions) page and connect the wallet that represents your **withdrawal address**, you'll be able to select a current validator and take a number of different actions with it depending on your withdrawal credentials.
+As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upgraded the list of actions you can take using the UI beyond simply making deposits into validators. If you navigate to the [Validator Actions](https://launchpad.ethereum.org/en/validator-actions) page and connect the wallet that represents your **withdrawal address**, you'll be able to select a current validator and take a number of different actions with it depending on your withdrawal credentials (`0x00`, `0x01`, or `0x02`).
 
 - **Update account to compounding** - this process converts your existing `0x00` or `0x01` withdrawal credentials to `0x02` (new in the Pectra hardfork). Having `0x02` withdrawal crednetials allows you to increase your effective balance from 32 ETH to 2048 ETH so that you need not spin up a new validator for each tranche. When you make this change, regular withdrawals will cease, and partial withdrawals may be requested using this UI (see "Request partial withdrawal" below). In addition, rewards will be based on your current validator balance and increase as that balance increases, essentially compounding your rewards.
 - **Add funds to your validator** - only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to add additional ETH to your validator that is currently held elsewhere. This allows compounding rewards, and has a minimum deposit amount of 1 ETH.
