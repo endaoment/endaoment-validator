@@ -534,14 +534,17 @@ ExecStart=/usr/local/bin/reth node \
   --chain mainnet \
   --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
+  --authrpc.addr 127.0.0.1 \
+  --authrpc.port 8551 \
   --http \
+  --http.addr 127.0.0.1 \
   --http.api eth,net,web3,txpool \
-  --metrics 127.0.0.1:6060
+  --metrics 127.0.0.1:9001
 ```
 
 The changes from the basic installation are:
 - Updated `--http.api` to include `txpool` (was `eth,net,web3`)  
-- Added `--metrics 127.0.0.1:6060` for Prometheus monitoring
+- Added `--metrics 127.0.0.1:9001` for Prometheus monitoring
 
 Press CTRL + X then Y then ENTER to save and exit.
 

@@ -432,7 +432,10 @@ ExecStart=/usr/local/bin/reth node \
   --chain mainnet \
   --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
+  --authrpc.addr 127.0.0.1 \
+  --authrpc.port 8551 \
   --http \
+  --http.addr 127.0.0.1 \
   --http.api eth,net,web3
 [Install]
 WantedBy=default.target
