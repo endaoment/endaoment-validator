@@ -45,10 +45,9 @@ scrape_configs:
         regex: ^(.{12}).*$
         target_label: pubkey_short
   - job_name: reth
-    metrics_path: /debug/metrics/prometheus
     static_configs:
       - targets:
-          - localhost:6060
+          - localhost:9001
     file_sd_configs:
       - files:
           - '/etc/prometheus/files_sd/stakelocal/execution_metrics/reth*.yml'
