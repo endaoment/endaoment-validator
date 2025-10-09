@@ -491,7 +491,7 @@ You can also check the count of connected peers by running:
 curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://localhost:8545
 ```
 
-After running Reth for ~10 or so minutes, check the peer count to ensure it's greater than 0.
+After running Reth for a few minutes, check the peer count to ensure it's greater than 0.
 
 ### Step 8 Install Prysm
 
@@ -837,7 +837,7 @@ Now that the Consensus Client is up and running, to actually begin staking on th
 
 **Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through JSON-RPC calls to Reth, both methods are described above.**
 
-With the deposit file in hand and an EOA with 32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
+With the deposit file in hand and an EOA with >=32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
 
 Click on Become a Validator, click through the warning steps and continue through the screens until you get to the Generate Key Pairs section. Select the number of validators you are going to run. Choose a value that matches the number of validators you created in Step 1.
 
@@ -875,10 +875,6 @@ Probably a good time to _touch grass_.
 
 ![](../images/SolarNode.jpg)
 
-### Addendum Adding Validators to Existing Config
-
-This section provides guidance for adding additional valiadtors to your existing config. In addition to all information required in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), you will also need to know the `validator_start_index`, which is the number of validators you already have created using your mnemonic.
-
 #### Clean Up `validator_keys`
 
 While not essential as you can always regenerate them using your mnemonic, it's good practice to back up the `validator_keys` directory (typically `$HOME/staking-deposit-cli/validator_keys`) on a USB for [emergencies](./validator-sop-part3-emergency.mdx).
@@ -888,41 +884,5 @@ After ensuring you have a backup of these files  as described in [Step 1 Generat
 ```
 sudo rm -r $HOME/staking-deposit-cli/validator_keys
 ```
-
-#### Generate Additional Staking Data
-
-Best practice is to complete this step on an airgapped machine as described in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), as you will need to directly enter your mnemonic in order to generate the staking data.
-
-Note: You **must** use the same keystore password as you used for the existing validators. This should be noted on the [variables document](../images/variables.xlsx) you created during your first set up.
-
-Please refer to [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data) to get set up with an airgapped machine running Ubuntu Desktop. We'll pick up again below starting with the deposit CLI commands.
-
-Now, run the binary file in a terminal window on your Linux desktop by using the below command (easier if you have your withdrawal address handy for a copy/paste!)
-
-```
-sudo ./deposit existing-mnemonic --validator_start_index {#_Existing_Validators} --num_validators {#_New_Validators} --chain mainnet --eth1_withdrawal_address {YourWithdrawalAddress}
-```
-
-Replace `{#_Existing_Validators}` with the number of validators you have already generated with this mnemonic, and replace `{#_New_Validators}` with the number of additional validators you want to run (32ETH per), and `{YourWithdrawalAddress}` with an Ethereum address you control.
-
-_NOTE: Once set, the withdrawal address_ _**CANNOT**_ _be changed, so be ABSOLUTELY SURE that it is an address you control the private keys for (or it's a multisig and you control the private keys to the underlying wallets) and correctly specified. For example: --eth1\_withdrawal\_address 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045_
-
-**DO NOT** set the withdrawal address to a central exchange wallet or account. This MUST be an EOA or smart contract wallet, as ETH is not "transferred" but rather "generated" in the wallet via a state change, and that doesn't play nicely with Coinbase/Kraken/etc.
-
-Once you execute the above steps, confirm your withdrawal address within the generated files, and provide your language preferences. You will then be asked to create the validator keystore password. **You must use the same one used with the other validators!**
-
-Once you have confirmed your mnemonic your validator(s) will be created. The following files will be generated and placed on your desktop.
-
-* The deposit\_data-\[timestamp\].json file contains the public key(s) for the validator(s) and information about the staking deposit. This file will be used to complete the ETH staking deposit process later in this guide. **This is where you can triple check the withdrawal address**
-
-* The keystore-\[..\].json files contain the encrypted validator signing key. There is one keystore file per validator that you are funding. These will be imported into the Consensus Client for use during validation operations.
-
-* If you lose or accidentally delete the files it is possible to regenerate them using the Staking Deposit CLI tool and your mnemonic via the existing-mnemonic command (see [here](https://github.com/ethereum/staking-deposit-cli#commands)).
-
-Now that you have generated the deposit data, keystore file(s), validator password, and the mnemonic, we can begin setting up the node. You should now copy the generated deposit and keystore files back onto your USB drive. We'll need them later on.
-
-Note: there are no other steps in this process that require you to enter or view your mnemonic phrase, so the air-gapped portion of this process is completed.
-
-Armed with the requisite data, please see above and complete [Step 11 Import Validator Keys](/validators/validator-sop-part1-setup#step-11-import-validator-keys) and [Step 12 Fund the Validators](/validators/validator-sop-part1-setup#step-12-fund-the-validators) to complete spinning up your additional validator(s). Please ensure you make a backup of any additional `validator_keys` generated during this process. Remember that they can be regenerated as needed!
 
 ![](../images/Stacking-Staking.png)
