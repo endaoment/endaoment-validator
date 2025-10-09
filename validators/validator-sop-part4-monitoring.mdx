@@ -527,11 +527,21 @@ Adjust your Reth service file:
 sudo nano /etc/systemd/system/reth.service
 ```
 
-Verify the following flags are present at the bottom of the `ExecStart` list (they should already be there from the installation):
+Update the `ExecStart` section to add monitoring support. Change the `--http.api` line and add the `--metrics` flag:
 
-`--http \
+```
+ExecStart=/usr/local/bin/reth node \
+  --chain mainnet \
+  --datadir /var/lib/reth \
+  --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
+  --http \
   --http.api eth,net,web3,txpool \
-  --metrics 127.0.0.1:6060`
+  --metrics 127.0.0.1:6060
+```
+
+The changes from the basic installation are:
+- Updated `--http.api` to include `txpool` (was `eth,net,web3`)  
+- Added `--metrics 127.0.0.1:6060` for Prometheus monitoring
 
 Press CTRL + X then Y then ENTER to save and exit.
 

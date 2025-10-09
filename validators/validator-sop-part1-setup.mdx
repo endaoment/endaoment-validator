@@ -160,7 +160,7 @@ Press CTRL + X then Y then ENTER to save and exit.
 Restart the SSH service to reflect the changes.
 
 ```
-sudo systemctl restart ssh
+sudo systemctl daemon-reload && sudo systemctl restart ssh && sudo systemctl restart ssh.socket
 ```
 
 #### Configure the Firewall
@@ -197,7 +197,7 @@ Allow Execution Client Port 30303:
 sudo ufw allow 30303
 ```
 
-_Note that if the --port and --discovery.port flags are used in the Reth configuration file in step 7, you will need to ensure the ports used are allowed as described above._
+_Note: Reth uses port 30303 by default for P2P networking. If you need to customize the networking ports, consult the [Reth documentation](https://github.com/paradigmxyz/reth) for the appropriate flags and ensure those ports are allowed in your firewall._
 
 Allow Prysm:
 
@@ -302,7 +302,7 @@ Now, lock the root account:
 sudo passwd -l root
 ```
 
-You should see the text "passwd: password expiry information changed."
+You should see the text "passwd: password changed."
 
 If for any reason you need to unlock the root account:
 
@@ -316,9 +316,7 @@ From your laptop (or whichever device on the local network you plan on accessing
 
 Once you've logged in to your router, edit the port forwarding settings for your Node such that port 30303 is forwarded to port 30303 for both UDP and TCP protocols.
 
-This is the same port we allowed above in the _Secure the Server_ step - port forwarding 30303 will make it easier for the execution client (Reth) to find suitable peers. Failure to do some may result in sub optimal syncing.
-
-If the --port and --discovery.port flags are used in the Reth configuration file in step 7, you will need to ensure the ports used are forwarded as described above.
+This is the same port we allowed above in the _Secure the Server_ step - port forwarding 30303 will make it easier for the execution client (Reth) to find suitable peers. Failure to do so may result in sub optimal syncing.
 
 ### Step 5 Configure Timekeeping
 
@@ -362,19 +360,19 @@ Press CTRL+X to exit
 
 ### Step 7 Install Reth
 
-Time to install Reth! All commands provided below are based on the v1.1.4 version of Reth (current as of 1/27/25), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
+Time to install Reth! All commands provided below are based on the v1.8.2 version of Reth (current as of Oct 2025), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
 
 Curl the Reth build from the above link:
 
 ```
 cd ~
-curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.1.4/reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.8.2/reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Extract the files from the archive and copy to the /usr/local/bin directory. The Reth service will run it from there. Modify the file name to match the downloaded version:
 
 ```
-tar xvf reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
+tar xvf reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz
 sudo cp reth /usr/local/bin
 ```
 
@@ -382,7 +380,7 @@ Clean up the files. Modify the file name to match the downloaded version:
 
 ```
 cd ~
-rm reth-v1.1.4-x86_64-unknown-linux-gnu.tar.gz
+rm reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Reth will be configured to run as a background service. Create an account for the service to run under. This type of account can't log into the server:
@@ -401,6 +399,13 @@ Set directory permissions. The Reth user account needs permission to modify the 
 
 ```
 sudo chown -R reth:reth /var/lib/reth
+```
+
+Create a home directory for the Reth user. This is required for Reth's logging functionality:
+
+```
+sudo mkdir -p /home/reth
+sudo chown reth:reth /home/reth
 ```
 
 Create a systemd service config file to configure the service:
@@ -428,8 +433,7 @@ ExecStart=/usr/local/bin/reth node \
   --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
   --http \
-  --http.api eth,net,web3,txpool \
-  --metrics 127.0.0.1:6060
+  --http.api eth,net,web3
 [Install]
 WantedBy=default.target
 ```
@@ -472,7 +476,7 @@ sudo systemctl start reth
 
 Now that Reth is all set up, you can check sync status and connected peers using JSON-RPC calls, as Reth doesn't have an interactive console like Geth.
 
-Check the sync status using curl (this won't work until after we install Prysm in steps 8-10):
+Check the sync status using curl:
 
 ```
 curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
@@ -484,7 +488,7 @@ You can also check the count of connected peers by running:
 curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://localhost:8545
 ```
 
-After running Reth for ~10 or so minutes, check the peer count to ensure it's greater than 0x0.
+After running Reth for ~10 or so minutes, check the peer count to ensure it's greater than 0.
 
 ### Step 8 Install Prysm
 
