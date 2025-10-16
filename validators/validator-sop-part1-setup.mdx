@@ -116,12 +116,15 @@ Once that's complete, pop the USB drive into your NUC, and restart it - also con
 
 Once this process is complete, you should be presented with a terminal window on screen. Likely, you will need to enter your password to gain access to the server.
 
-Next, update the server by running the following commands:
+Next, update the server and install useful utilities by running the following commands:
 
 ```
 sudo apt -y update && sudo apt -y upgrade && sudo apt dist-upgrade && sudo apt autoremove
+sudo apt install -y ccze jq
 sudo reboot
 ```
+
+**Note:** `ccze` provides colorized log output, and `jq` is a JSON parser useful for formatting RPC responses.
 
 After rebooting:
 
@@ -160,7 +163,7 @@ Press CTRL + X then Y then ENTER to save and exit.
 Restart the SSH service to reflect the changes.
 
 ```
-sudo systemctl daemon-reload && sudo systemctl restart ssh && sudo systemctl restart ssh.socket
+sudo systemctl restart ssh
 ```
 
 #### Configure the Firewall
@@ -191,13 +194,14 @@ Deny Default SSH Port:
 sudo ufw deny 22/tcp
 ```
 
-Allow Execution Client Port 30303:
+Allow Execution Client Ports:
 
 ```
 sudo ufw allow 30303
+sudo ufw allow 30305/udp
 ```
 
-_Note: Reth uses port 30303 by default for P2P networking. If you need to customize the networking ports, consult the [Reth documentation](https://github.com/paradigmxyz/reth) for the appropriate flags and ensure those ports are allowed in your firewall._
+_Note: Port 30303 is used for P2P networking and Discovery v4. Port 30305 is used for Discovery v5 (improved peer discovery protocol). If you need to customize the networking ports, consult the [Reth documentation](https://github.com/paradigmxyz/reth) for the appropriate flags and ensure those ports are allowed in your firewall._
 
 Allow Prysm:
 
@@ -302,7 +306,7 @@ Now, lock the root account:
 sudo passwd -l root
 ```
 
-You should see the text "passwd: password changed."
+You should see the text "passwd: password expiry information changed."
 
 If for any reason you need to unlock the root account:
 
@@ -314,25 +318,59 @@ sudo passwd -u root
 
 From your laptop (or whichever device on the local network you plan on accessing the Node from), log into your router to edit the port forwarding settings. While access is different for each network set up and router, usually you can access your router at 192.168.1.1 or a similar local IP address. Occasionally, instructions can be found on the router itself.
 
-Once you've logged in to your router, edit the port forwarding settings for your Node such that port 30303 is forwarded to port 30303 for both UDP and TCP protocols.
+Once you've logged in to your router, edit the port forwarding settings for your Node to forward the following ports:
 
-This is the same port we allowed above in the _Secure the Server_ step - port forwarding 30303 will make it easier for the execution client (Reth) to find suitable peers. Failure to do so may result in sub optimal syncing.
+* **Port 30303** - TCP and UDP - P2P networking and Discovery v4
+* **Port 30305** - UDP only - Discovery v5 (improved peer discovery)
+
+These are the same ports we allowed above in the _Secure the Server_ step. Port forwarding these will make it easier for the execution client (Reth) to find suitable peers and accept inbound connections. Failure to do so may result in sub optimal syncing and reduced peer discovery.
 
 ### Step 5 Configure Timekeeping
 
-Running validators against a blockchain requires accurate timekeeping in order to ensure proper synchronization with the network. Ubuntu has time synchronization built in and activated by default using timedatectl.
+Running validators against a blockchain requires accurate timekeeping in order to ensure proper synchronization with the network. Validators need time accuracy within **0.5 seconds** for proper attestations.
 
-Verify this system is running:
+While Ubuntu has time synchronization built in using `systemd-timesyncd`, we'll use **`chrony`** instead, which provides more accurate time synchronization - critical for validators.
 
-```
-timedatectl
-```
-
-In the returning dialogue, it should show `NTP service: active`. If for some reason it is not, run the following command:
+Install chrony (this will replace systemd-timesyncd):
 
 ```
-sudo timedatectl set-ntp on
+sudo apt-get install chrony -y
 ```
+
+Verify chrony is running and check synchronization sources:
+
+```
+sudo systemctl status chrony
+```
+
+Check the time servers chrony is using:
+
+```
+chronyc sources
+```
+
+You should see multiple time servers with various symbols (^*, ^+, ^-, ^?) indicating their status.
+
+Check synchronization accuracy:
+
+```
+chronyc tracking
+```
+
+**Important values to check:**
+* **Leap status**: Should say "Normal" (after a few minutes)
+* **System time**: Should show offset in milliseconds (< 100ms is good, < 10ms is excellent)
+* **Stratum**: Should be 2-4 (lower is better)
+
+**Note:** Right after installation, chrony needs 5-10 minutes to synchronize with time servers. The "Leap status" will show "Not synchronised" initially - this is normal.
+
+Optionally, set your timezone (affects log timestamps only, doesn't impact validation):
+
+```
+sudo dpkg-reconfigure tzdata
+```
+
+Select your geographic region and city from the menu.
 
 ### Step 6 Generate Client Auth Secret
 
@@ -361,6 +399,15 @@ Press CTRL+X to exit
 ### Step 7 Install Reth
 
 Time to install Reth! All commands provided below are based on the v1.8.2 version of Reth (current as of Oct 2025), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
+
+**Full Node vs Archive Node:**
+
+This guide configures Reth as a **full node** (using the `--full` flag), which is the optimal configuration for validators:
+
+* **Full Node**: Stores recent state and enough history to validate the chain. Syncs in hours (especially with snapshots), requires ~1-2TB storage, and is sufficient for all validation operations.
+* **Archive Node**: Stores complete historical state since genesis. Takes weeks to sync, requires 3-4TB+ storage, and is only needed for specialized applications like block explorers or historical data analysis.
+
+**For validators, always use a full node.** Archive nodes provide no benefit for validation and waste time and resources.
 
 Curl the Reth build from the above link:
 
@@ -421,29 +468,118 @@ Then, paste the following configuration into the file:
 Description=Reth Execution Client (Mainnet)
 After=network.target
 Wants=network.target
+
 [Service]
 User=reth
 Group=reth
 Type=simple
 Restart=always
 RestartSec=5
-TimeoutStopSec=600
+TimeoutStopSec=900
+KillSignal=SIGINT
+
 ExecStart=/usr/local/bin/reth node \
   --chain mainnet \
+  --full \
   --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
   --authrpc.addr 127.0.0.1 \
   --authrpc.port 8551 \
+  --port 30303 \
+  --discovery.port 30303 \
+  --enable-discv5-discovery \
+  --discovery.v5.port 30305 \
+  --max-outbound-peers 35 \
+  --max-inbound-peers 35 \
   --http \
   --http.addr 127.0.0.1 \
   --http.api eth,net,web3
+
 [Install]
 WantedBy=default.target
 ```
 
-NOTE: The inclusion of TimeoutStopSec=600 is to allow the Reth service sufficient time to write cached data to disk on ***clean*** shutdown.
+**IMPORTANT NOTES:**
+* **`--full` flag**: Runs Reth as a **full node** (not archive). For validators, you only need a full node which stores recent state. Archive nodes store all historical state since genesis and are unnecessary for validation, taking significantly longer to sync (weeks vs hours) and requiring much more disk space.
+* **`TimeoutStopSec=900`**: Allows the Reth service 15 minutes to write cached data to disk on ***clean*** shutdown (important for large databases).
+* **`KillSignal=SIGINT`**: Explicitly tells systemd to use SIGINT for graceful shutdown (same as Ctrl+C).
+* **Port configuration**: Explicitly sets P2P networking ports to 30303 (default) for better peer discovery. This is the default, but better to make explicit.
+* **Discovery v5**: Enables the newer, more resilient peer discovery protocol on port 30305 UDP. Improves peer finding and network connectivity.
+* **Peer limits**: Limits connections to 35 outbound + 35 inbound (70 total) to reduce bandwidth and resource usage while maintaining excellent connectivity. For gigabit home validators, this balances network contribution with efficiency.
 
 Press CTRL + X then Y then ENTER to save and exit.
+
+#### Optional: Use Merkle Snapshot for Faster Initial Sync
+
+**Why use a snapshot?** Syncing Reth from genesis can take days even with a full node. Using a recent snapshot from Merkle.io can reduce initial sync time to just a few hours.
+
+[Merkle.io](https://www.merkle.io/snapshots) publishes Reth snapshots every Monday and Thursday at `downloads.merkle.io`. Using a snapshot is particularly recommended for new installations or after database corruption.
+
+**To use a Merkle snapshot:**
+
+First, install required dependencies:
+
+```
+sudo apt-get update
+sudo apt-get install -y lz4 tmux
+```
+
+**CRITICAL DISK SPACE WARNING:**
+* Compressed snapshot: ~2.1TB
+* Uncompressed database: ~3TB
+* **With a 4TB SSD, you MUST use streaming method** - downloading tar first requires 5TB+ (2.1TB tar + 3TB extracted)
+* Streaming only stores the extracted database (~3TB), leaving adequate free space
+
+**IMPORTANT:** Use `tmux` to run the download to prevent it from being killed if your SSH connection drops. The download takes 18-20 hours.
+
+Start a tmux session:
+
+```
+tmux new -s reth-download
+```
+
+Then, inside the tmux session, stream download and extract the snapshot:
+
+```
+cd /var/lib/reth
+sudo -u reth wget -O - https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | \
+  sudo -u reth tar -I lz4 -xvf -
+```
+
+**Replace `YYYY-MM-DD`** with the latest snapshot date (most recent Monday or Thursday). Check [Merkle's snapshot page](https://www.merkle.io/snapshots) for the current available dates.
+
+Example for October 16, 2025:
+```
+cd /var/lib/reth
+sudo -u reth wget -O - https://downloads.merkle.io/reth-2025-10-16.tar.lz4 | \
+  sudo -u reth tar -I lz4 -xvf -
+```
+
+**If download gets interrupted:**
+
+The streaming method is NOT resumable. If interrupted, you must clean up and start over:
+```
+sudo rm -rf /var/lib/reth/*
+# Then rerun the full streaming command from the beginning
+```
+
+This is why tmux is critical - it keeps the process running even if SSH disconnects.
+
+**Tmux controls:**
+* **Detach from session** (leaves download running): Press `Ctrl+B` then `D`
+* **Reattach to session**: `tmux attach -t reth-download`
+* **Monitor progress** in another terminal: `watch -n 30 'df -h /var/lib/reth'` or `tail -f /var/lib/reth/wget-log` or `watch -n 60 'du -sh /var/lib/reth'`
+
+This command will:
+* Download the Merkle snapshot
+* Extract it directly into your data directory (streaming, no temp file)
+* Set proper ownership as the reth user
+
+Once the snapshot extraction completes, proceed with starting the service as normal.
+
+**If not using a snapshot:** Reth will sync from genesis with the `--full` flag, which takes 1-3 days. Skip the snapshot download and proceed directly to starting the service.
+
+#### Start Reth Service
 
 Reload systemd to reflect the changes and start the service. Check the status to make sure it's running correctly:
 
@@ -458,7 +594,6 @@ If it says "active (running)" in green text, you've done it! Press Q to quit (th
 The sync will begin immediately. Use the journal output to follow the progress or check for errors by running the following command.
 
 ```
-sudo apt install ccze
 sudo journalctl -fu reth | ccze
 ```
 
@@ -651,7 +786,6 @@ ExecStart=/usr/local/bin/validator \
   --wallet-dir=/var/lib/prysm/validator \
   --wallet-password-file=/var/lib/prysm/validator/password.txt \
   --suggested-fee-recipient={FeeRecipientAddress} \
-  --graffiti="{yourgraffiti}" \
   --accept-terms-of-use
 [Install]
 WantedBy=multi-user.target
@@ -659,18 +793,7 @@ WantedBy=multi-user.target
 
 **Make sure** to replace `{FeeRecipientAddress}` with the address you'd like to receive the validator tip fees.
 
-**Make sure** to replace `{yourgraffiti}` with your own graffiti string (max 32 bytes). (e.g. --graffiti="Endaoment.org")
-
 Press CTRL + X then Y then ENTER to save and exit.
-
-Note that you can check the byte count by running a simple python command from terminal on your laptop:
-
-```
-python3
->> len("{yourgraffiti}".encode())
-```
-
-If the result is 32 or less, you're in the clear.
 
 Reload systemd to reflect the changes and start the service. Check the status to make sure it’s running correctly:
 
@@ -837,7 +960,7 @@ Now that the Consensus Client is up and running, to actually begin staking on th
 
 **Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through JSON-RPC calls to Reth, both methods are described above.**
 
-With the deposit file in hand and an EOA with >=32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
+With the deposit file in hand and an EOA with 32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
 
 Click on Become a Validator, click through the warning steps and continue through the screens until you get to the Generate Key Pairs section. Select the number of validators you are going to run. Choose a value that matches the number of validators you created in Step 1.
 
