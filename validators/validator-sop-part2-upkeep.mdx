@@ -381,8 +381,8 @@ sudo systemctl restart prysmbeacon prysmvalidator
 Verify your logs look error-free and show use of the new MEV configurations.
 
 ```
-journalctl -fu prysmbeacon
-journalctl -fu prysmvalidator
+journalctl -fu prysmbeacon | ccze
+journalctl -fu prysmvalidator | ccze
 ```
 
 MEV-boost is now configured and set up!
