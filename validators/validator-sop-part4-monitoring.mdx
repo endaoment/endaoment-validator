@@ -71,7 +71,7 @@ Check to ensure it was properly installed:
 make --version
 ```
 
-Install go (or skip to Step 3 if you did this while setting up MEV-Boost)
+Install go
 
 ```
 cd
@@ -98,23 +98,23 @@ We'll now install Grafana, Prometheus, Node\_Exporter and JSON\_exporter softwar
 
 #### Prometheus
 
-Download the latest release of Prometheus by going [here](https://prometheus.io/download/) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. As of 6/11/23, version 2.44.0 is current. Download the repository, extract the files, and move them to the /bin:
+Download the latest release of Prometheus by going [here](https://prometheus.io/download/) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository, extract the files, and move them to the /bin:
 
 ```
 cd ~
-curl -LO https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz
-tar xvf prometheus-2.44.0.linux-amd64.tar.gz
-sudo cp prometheus-2.44.0.linux-amd64/prometheus /usr/local/bin/
-sudo cp prometheus-2.44.0.linux-amd64/promtool /usr/local/bin/
+curl -LO https://github.com/prometheus/prometheus/releases/download/v3.7.2/prometheus-3.7.2.linux-amd64.tar.gz
+tar xvf prometheus-3.7.2.linux-amd64.tar.gz
+sudo cp prometheus-3.7.2.linux-amd64/prometheus /usr/local/bin/
+sudo cp prometheus-3.7.2.linux-amd64/promtool /usr/local/bin/
 ```
 
 Modify file names and clean up:
 
 ```
-sudo cp -r prometheus-2.44.0.linux-amd64/consoles /etc/prometheus
-sudo cp -r prometheus-2.44.0.linux-amd64/console_libraries /etc/prometheus
-rm prometheus-2.44.0.linux-amd64.tar.gz
-rm -r prometheus-2.44.0.linux-amd64
+sudo cp -r prometheus-3.7.2.linux-amd64/consoles /etc/prometheus
+sudo cp -r prometheus-3.7.2.linux-amd64/console_libraries /etc/prometheus
+rm prometheus-3.7.2.linux-amd64.tar.gz
+rm -r prometheus-3.7.2.linux-amd64
 ```
 
 Set up an account for the services to run under (note: this type of account cannot log into the server):
@@ -126,7 +126,7 @@ sudo useradd --no-create-home --shell /bin/false prometheus
 Set up the directories for prometheus:
 
 ```
-sudo mkdir -p /var/lib/prometheus
+sudo mkdir -p /etc/prometheus /var/lib/prometheus
 ```
 
 Create a configuration file for prometheus:
@@ -200,20 +200,20 @@ sudo systemctl enable prometheus
 
 #### Node Exporter
 
-Download the latest release of Node Explorer by going [here](https://prometheus.io/download/#node%5Fexporter) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. As of 6/11/23, version 1.6.0 is current. Download the repository, extract the files, and move them to the /bin:
+Download the latest release of Node Explorer by going [here](https://prometheus.io/download/#node%5Fexporter) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository, extract the files, and move them to the /bin:
 
 ```
 cd ~
-wget https://github.com/prometheus/node_exporter/releases/download/v1.6.0/node_exporter-1.6.0.linux-amd64.tar.gz
-tar xvf node_exporter-1.6.0.linux-amd64.tar.gz
-sudo cp node_exporter-1.6.0.linux-amd64/node_exporter /usr/local/bin/
+wget https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz
+tar xvf node_exporter-1.10.2.linux-amd64.tar.gz
+sudo cp node_exporter-1.10.2.linux-amd64/node_exporter /usr/local/bin/
 ```
 
 Clean up:
 
 ```
-rm node_exporter-1.6.0.linux-amd64.tar.gz
-rm -r node_exporter-1.6.0.linux-amd64
+rm node_exporter-1.10.2.linux-amd64.tar.gz
+rm -r node_exporter-1.10.2.linux-amd64
 ```
 
 Set up an account for the services to run under (note: this type of account cannot log into the server):
@@ -272,7 +272,7 @@ sudo systemctl enable node_exporter
 
 #### JSON Exporter
 
-Download the latest release of Node Explorer by going [here](https://github.com/prometheus-community/json%5Fexporter/releases) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. As of 6/11/23, version 0.6.0 is current. Download the repository and move them to /git:
+Download the latest release of Node Explorer by going [here](https://github.com/prometheus-community/json%5Fexporter/releases) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository and move them to /git:
 
 ```
 mkdir ~/git
@@ -343,7 +343,7 @@ sudo systemctl start json_exporter
 sudo systemctl status json_exporter
 ```
 
-It will not say "active (running)" in green text, as `'/etc/json_exporter/json_exporter.yml' does not exist`, this is expected. We will configure the YML file in step 5.
+It will **NOT** say "active (running)" in green text, as `'/etc/json_exporter/json_exporter.yml' does not exist`, this is expected. We will configure the YML file in step 5.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -413,7 +413,7 @@ sudo systemctl start eth-metrics
 sudo systemctl status eth-metrics
 ```
 
-It will not say "active (running)" in green text, as `'/etc/eth-metrics/eth-metrics.yml' does not exist`, this is expected. We will configure the YML file in step 5.
+It will **NOT** say "active (running)" in green text, as `'/etc/eth-metrics/eth-metrics.yml' does not exist`, this is expected. We will configure the YML file in step 5.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -446,17 +446,7 @@ Refresh the apt cache:
 sudo apt install grafana && sudo apt update
 ```
 
-Ensure Grafana is linked to the repository:
-
-```
-apt-cache policy grafana
-```
-
-Ensure the output looks like the below and matches the latest [version](https://grafana.com/grafana/download)
-
-`grafana: Installed: 9.5.3 Candidate: 9.5.3 Version table:`
-
-Note that Grafana version 9.5.3 is current as of 6/11/23.
+You may need to press `Y` to continue.
 
 Install Grafana:
 
@@ -541,10 +531,6 @@ ExecStart=/usr/local/bin/reth node \
   --http.api eth,net,web3,txpool \
   --metrics 127.0.0.1:9001
 ```
-
-The changes from the basic installation are:
-- Updated `--http.api` to include `txpool` (was `eth,net,web3`)  
-- Added `--metrics 127.0.0.1:9001` for Prometheus monitoring
 
 Press CTRL + X then Y then ENTER to save and exit.
 
@@ -646,31 +632,32 @@ Create the folder to store things in:
 sudo mkdir -p /etc/prometheus/files_sd
 ```
 
-In order to copy files from your local environment to your linux server (which you can SSH into), you'll need to use the scp command **from your laptop in a new terminal window**. Note that the specifics of this command may be different depending on where you've stored this repository (endaoment/endaoment-operations), and that the command should be run **from a new terminal window** on your laptop or PC.
+Download the stakelocal configuration files directly from the GitHub repository:
 
-Copy the folder and all files within to your node:
-
+```bash
+cd ~
+sudo apt install unzip
+wget https://github.com/endaoment/endaoment-validator/archive/refs/heads/main.zip
+unzip main.zip
 ```
-scp -r -P {YourSSHPortNumber} {repository/location}/endaoment/endaoment-operations/.imgs/stakelocal/ {yourusername}@{node_name OR node_IP}:~/files_sd
+
+Copy the stakelocal folder to the correct location:
+
+```bash
+sudo mkdir -p /etc/prometheus/files_sd/stakelocal/
+sudo cp -r endaoment-validator-main/.imgs/stakelocal/* /etc/prometheus/files_sd/stakelocal/
 ```
 
-Then, copy the files\_sd folder to the correct location:
+Clean up the downloaded files:
 
-```
-sudo mkdir /etc/prometheus/files_sd/stakelocal/
-sudo mv ~/files_sd/* /etc/prometheus/files_sd/stakelocal/
+```bash
+rm -rf endaoment-validator-main main.zip
 ```
 
 Finally, check to ensure things were copied correctly (you should see a folder called stakelocal):
 
 ```
 ls /etc/prometheus/files_sd/
-```
-
-Clean up:
-
-```
-rm -rf files_sd
 ```
 
 #### Validator Public Key Targets
@@ -711,7 +698,7 @@ sudo systemctl daemon-reload
 sudo systemctl restart prometheus grafana-server node_exporter json_exporter eth-metrics
 ```
 
-Now, check the status of each of these services (hold return to move down through the statuses called all at once):
+Now, check the status of each of these services:
 
 ```
 sudo systemctl status prometheus grafana-server node_exporter json_exporter eth-metrics
@@ -729,16 +716,16 @@ sudo journalctl -fu eth-metrics | ccze
 
 ### Step 7 Set up Dashboard
 
-Log into your Grafana instance `({YourIp}:3000)` using the password you set up earlier. In the menu, click on Dashboard > New > Import. Copy and paste [this file](../.imgs/grafana-dashboard.json) into the `Import via panel json` area and click `Load`. On the next screen, give your dashboard a unique name, feel free to change the UID, and click `Import`.
+Log into your Grafana instance `({YourIp}:3000)` using the password you set up earlier. In the menu, click on Dashboard > New > Import. Copy and paste [this file](../.imgs/grafana-dashboard.json) into the `Import via panel json` area and click `Load`. On the next screen, give your dashboard a unique name, feel free to change the UUID, and click `Import`.
 
 ⚠️ **You're going to see a lot of errors, that is expected!** ⚠️
 
-These errors are because we need to update the data source for all panels you just imported. Head back to the data sources menu (Home > Connection > Data sources) and click on Prometheus. From here, click on Dashboards, and click `Build a Dashboard` (we will delete this later). Click `Import dashboard` and use the import code `3662`, then click load, select the prometheus data source, then import.
+These errors are because we need to update the data source for all panels you just imported. Head back to the data sources menu (Home > Connection > Data sources) and click on Prometheus. From here, click on Dashboards, and click `Build a Dashboard` (we will delete this later). Click `Import dashboard` save the dashboard, and then click it again - finally, use the import code `3662`, then click load, select the prometheus data source, then import.
 
-Navigate to that dashboard (it should automatically open), click the gear to head to settings, and then click on JSON Model on the left menu. Copy the UID contained in line 19\. This is your data source's UUID!
+Navigate to that dashboard (it should automatically open), click edit and head to settings, and then click on JSON Model. Copy the UUID contained in line 19\. This is your data source's UUID!
 
-After ensuring you have the UID copied, click on General, scroll to the bottom, and click `Delete Dashboard`.
+After ensuring you have the UUID copied, You can head to Dashboards and delete all additional ones we just created. Just make sure you hang onto that UUID.
 
-Armed with the correct UID, let's fix the validator dashboard. Click on Dashboards at the top of the screen, and navigate back to your dashboard. From there, click the gear to head to settings, and then click on JSON Model. Press CTRL + F and click the down arrow to prepare a find and replace. Paste your data sources UID into the Replace section, and `bdaeb540-4cdb-4740-95d4-2fabfb32fb5b` into the Find section (note this is the UID in line 37). Finally, click the replace all button to update your dashboard. To save, FIRST click `save changes` at the bottom and THEN `save dashboard` at the top of the screen, and finally click `save`.
+Armed with the correct UUID, let's fix the validator dashboard. Click on Dashboards at the top of the screen, and navigate back to your dashboard. From there, click edit and head to settings, and then click on JSON Model. Press CTRL + F and click the down arrow to prepare a find and replace. Paste your data sources UUID into the Replace section, and `YOURUUID` into the Find section (note this is the UUID in line 37). Finally, click the replace all button to update your dashboard. To save, FIRST click `save changes` at the bottom and THEN `save dashboard` at the top of the screen, and finally click `save`.
 
 IT'S TIME! Head back to your dashboard and witness a thing of beauty. Well done kid.
