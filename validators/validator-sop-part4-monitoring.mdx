@@ -71,12 +71,12 @@ Check to ensure it was properly installed:
 make --version
 ```
 
-Install go
+Install go (version 1.23+ required for ethereum-metrics-exporter):
 
 ```
 cd
-wget https://go.dev/dl/go1.20.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.20.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.23.2.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.23.2.linux-amd64.tar.gz
 sudo ln -s /usr/local/go/bin/go /usr/bin/go
 ```
 
@@ -89,7 +89,7 @@ go version
 Clean up installation files:
 
 ```
-rm go1.20.linux-amd64.tar.gz
+rm go1.23.2.linux-amd64.tar.gz
 ```
 
 ### Step 3 Install Reporting Software
@@ -197,6 +197,8 @@ Finally, enable the service to automatically start on reboot:
 ```
 sudo systemctl enable prometheus
 ```
+
+**Troubleshooting Note:** If Prometheus fails to start with "address already in use" errors, you may have a snap-installed Prometheus conflicting with the manual installation. Check with `snap services` and if Prometheus is installed via snap, remove it with `sudo snap remove prometheus`.
 
 #### Node Exporter
 
