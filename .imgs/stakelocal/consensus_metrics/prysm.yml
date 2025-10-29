@@ -3,5 +3,5 @@
         network: 'Mainnet'
         host: 'Default Host'
         service: 'Prysm Beacon'
-        group: 'Prysm/Geth'
+        group: 'Prysm/Reth'
         explorer: 'beaconcha.in'

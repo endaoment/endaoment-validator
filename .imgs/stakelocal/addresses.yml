@@ -2,7 +2,7 @@
       labels:
         network: 'Mainnet'
         host: 'Default Host'
-        service: 'Geth'
-        group: 'Prysm/Geth'
+        service: 'Reth'
+        group: 'Prysm/Reth'
         instance: '127.0.0.1:8545'
         explorer: 'etherscan.io'
