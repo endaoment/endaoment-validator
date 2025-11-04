@@ -509,6 +509,8 @@ WantedBy=default.target
 
 Press CTRL + X then Y then ENTER to save and exit.
 
+**DO NOT add additional pruning flags** (`--prune.accounthistory.full`, `--prune.storagehistory.full`, etc.) as they will **conflict** with the `--full` flag's configuration and cause the pruner to fail. The `--full` flag handles all pruning automatically.
+
 #### Optional: Use Merkle Snapshot for Faster Initial Sync
 
 **Why use a snapshot?** Syncing Reth from genesis can take days even with a full node. Using a recent snapshot from Merkle.io can reduce initial sync time to just a few hours.

@@ -524,10 +524,17 @@ Update the `ExecStart` section to add monitoring support. Change the `--http.api
 ```
 ExecStart=/usr/local/bin/reth node \
   --chain mainnet \
+  --full \
   --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
   --authrpc.addr 127.0.0.1 \
   --authrpc.port 8551 \
+  --port 30303 \
+  --discovery.port 30303 \
+  --enable-discv5-discovery \
+  --discovery.v5.port 30305 \
+  --max-outbound-peers 35 \
+  --max-inbound-peers 35 \
   --http \
   --http.addr 127.0.0.1 \
   --http.api eth,net,web3,txpool \
