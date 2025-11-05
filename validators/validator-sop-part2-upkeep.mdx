@@ -41,11 +41,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Reth
 
-First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v1.8.2/reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v1.8.2 in this example (current as of Oct 2025).
+First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v1.9.0/reth-v1.9.0-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v1.9.0 in this example (current as of Nov 2025).
 
 ```
 cd ~
-curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.8.2/reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.9.0/reth-v1.9.0-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Then stop the Reth service
@@ -59,7 +59,7 @@ Note that stopping Reth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz
+tar xvf reth-v1.9.0-x86_64-unknown-linux-gnu.tar.gz
 sudo cp reth /usr/local/bin
 ```
 
@@ -79,7 +79,7 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```
 cd ~
-rm reth-v1.8.2-x86_64-unknown-linux-gnu.tar.gz
+rm reth-v1.9.0-x86_64-unknown-linux-gnu.tar.gz
 reth --version
 ```
 
