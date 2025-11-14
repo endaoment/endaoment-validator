@@ -156,10 +156,10 @@ journalctl --since -1hour -u prysmbeacon.service | grep version
 **Verify blob storage migration:**
 
 ```
-ls -l /var/lib/prysm/beacon/blobs/
+sudo ls -l /var/lib/prysm/beacon/blobs/
 ```
 
-You should now see `epoch_*` directories instead of individual blob files.
+You should now see a line of text that looks something like `drwx------ 4 prysmbeacon prysmbeacon 4096 {MMM DD HH:MM} by-epoch`.
 
 ### Appendix D Exiting a Validator
 
@@ -334,7 +334,7 @@ While Endaoment will be using this software to increase staking rewards, we are 
 
 #### MEV Boost Set Up
 
-Let's get to installing! All commands below are based on the current version of MEV-boost as of 11.3.25, v1.10.0, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+Let's get to installing! All commands below are based on the current version of MEV-boost as of 11.14.25, v1.10.1, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
 
 Create mevboost service account:
 
@@ -346,21 +346,21 @@ Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.0/mev-boost_1.10.0_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.1/mev-boost_1.10.1_linux_amd64.tar.gz
 ```
 
 For additional security, you can verify the checksum against the checksum found on the releases link above:
 
 ```
-sha256sum mev-boost_1.10.0_linux_amd64.tar.gz
+sha256sum mev-boost_1.10.1_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, and remove downloaded leftovers:
 
 ```
-tar xvf mev-boost_1.10.0_linux_amd64.tar.gz
+tar xvf mev-boost_1.10.1_linux_amd64.tar.gz
 sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.10.0_linux_amd64.tar.gz
+rm mev-boost LICENSE README.md mev-boost_1.10.1_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 ```
 
@@ -481,22 +481,22 @@ First, stop the service:
 sudo systemctl stop mevboost
 ```
 
-The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.10.0, latest as of 11.3.25.
+The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.10.1, latest as of 11.14.25.
 
 Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.0/mev-boost_1.10.0_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.1/mev-boost_1.10.1_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
 
 ```
 sudo systemctl stop mevboost
-tar xvf mev-boost_1.10.0_linux_amd64.tar.gz
+tar xvf mev-boost_1.10.1_linux_amd64.tar.gz
 sudo mv mev-boost /usr/local/bin
-rm LICENSE README.md mev-boost_1.10.0_linux_amd64.tar.gz
+rm LICENSE README.md mev-boost_1.10.1_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 sudo systemctl start mevboost
 ```
