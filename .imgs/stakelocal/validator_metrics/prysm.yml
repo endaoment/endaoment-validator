@@ -3,4 +3,4 @@
         network: 'Mainnet'
         host: 'Default Host'
         service: 'Prysm Validator'
-        group: 'Prysm/Geth'
+        group: 'Prysm/Reth'

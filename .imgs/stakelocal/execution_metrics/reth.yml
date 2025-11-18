@@ -1,7 +1,7 @@
-    - targets: ['127.0.0.1:6060']
+    - targets: ['127.0.0.1:9001']
       labels:
         network: 'Mainnet'
         host: 'Default Host'
-        service: 'Geth'
-        group: 'Prysm/Geth'
+        service: 'Reth'
+        group: 'Prysm/Reth'
         explorer: 'etherscan.io'
