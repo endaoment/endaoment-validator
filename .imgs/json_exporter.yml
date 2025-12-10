@@ -151,7 +151,7 @@ modules:
   ## - Note: There are two variations on this same endpoint. One accepts hex input,
   ##   while the other accepts integer input. 
   ##
-  ## Supported by: Erigon, Geth
+  ## Supported by: Erigon, Reth
   ##
   execution_txpool_status_hex:
     metrics:

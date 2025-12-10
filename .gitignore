@@ -47,3 +47,5 @@ logs/
 # Cache
 .cache/
 .npm/
+
+images/~$variables.xlsx
