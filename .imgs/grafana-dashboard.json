@@ -299,7 +299,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "(sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32)*absent(crypto_currency{pair=~\"eth$fiat\"})",
+          "expr": "(sum(validator_balance) - sum(validator_balance offset 1h))*absent(crypto_currency{pair=~\"eth$fiat\"})",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -311,7 +311,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "(sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32)*sum(crypto_currency{pair=\"eth$fiat\"})",
+          "expr": "(sum(validator_balance) - sum(validator_balance offset 1h))*sum(crypto_currency{pair=\"eth$fiat\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "$fiat",
@@ -322,7 +322,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "(sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32)/(avg_over_time(count(validator_balance > 16)[1h:30s])*32/24/365)*100",
+          "expr": "(sum(validator_balance) - sum(validator_balance offset 1h)) / avg_over_time(sum(validator_balance)[1h:30s]) * 24 * 365 * 100",
           "instant": true,
           "interval": "",
           "legendFormat": "Annualized %",
@@ -1045,7 +1045,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "(sum(validator_balance) - sum(validator_balance offset 1d) - count(validator_balance > 16)*32 + count(validator_balance offset 1d > 0)*32)*absent(crypto_currency{pair=~\"eth$fiat\"})",
+          "expr": "(sum(validator_balance) - sum(validator_balance offset 1d))*absent(crypto_currency{pair=~\"eth$fiat\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "ETH",
@@ -1056,7 +1056,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "(sum(validator_balance) - sum(validator_balance offset 1d) - count(validator_balance > 16)*32 + count(validator_balance offset 1d > 0)*32)*sum(crypto_currency{pair=\"eth$fiat\"})",
+          "expr": "(sum(validator_balance) - sum(validator_balance offset 1d))*sum(crypto_currency{pair=\"eth$fiat\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "$fiat",
@@ -1067,7 +1067,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "(sum(validator_balance) - sum(validator_balance offset 1d) - count(validator_balance > 16)*32 + count(validator_balance offset 1d > 0)*32)/(avg_over_time(count(validator_balance > 16)[1d:12m])*32/365)*100",
+          "expr": "(sum(validator_balance) - sum(validator_balance offset 1d)) / avg_over_time(sum(validator_balance)[1d:12m]) * 365 * 100",
           "instant": true,
           "interval": "",
           "legendFormat": "Annualized %",
@@ -4238,7 +4238,7 @@
             "type": "prometheus",
             "uid": "YOURUUID"
           },
-          "expr": "sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32",
+          "expr": "sum(validator_balance) - sum(validator_balance offset 1h)",
           "instant": false,
           "interval": "",
           "legendFormat": "validators earning on 1h",
