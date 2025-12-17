@@ -4,9 +4,9 @@
     - targets: [ 'nethermindeth/nethermind' ]
       labels:
         client: 'Nethermind'
-    - targets: [ 'ethereum/go-ethereum' ]
+    - targets: [ 'paradigmxyz/reth' ]
       labels:
-        client: 'Geth'
+        client: 'Reth'
     - targets: [ 'hyperledger/besu' ]
       labels:
         client: 'Besu'

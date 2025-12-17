@@ -15,7 +15,7 @@ title: "Validator SOP Part 1: Hardware, Software, & Deposit Setup"
 * [Step 4 Configure Port Forwarding](/validators/validator-sop-part1-setup#step-4-configure-port-forwarding)
 * [Step 5 Configure Timekeeping](/validators/validator-sop-part1-setup#step-5-configure-timekeeping)
 * [Step 6 Generate Client Auth Secret](/validators/validator-sop-part1-setup#step-6-generate-client-auth-secret)
-* [Step 7 Install Geth](/validators/validator-sop-part1-setup#step-7-install-geth)
+* [Step 7 Install Reth](/validators/validator-sop-part1-setup#step-7-install-reth)
 * [Step 8 Install Prysm](/validators/validator-sop-part1-setup#step-8-install-prysm)
 * [Step 9 Configure the Beacon Node Service](/validators/validator-sop-part1-setup#step-9-configure-the-beacon-node-service)
 * [Step 10 Configure the Validator Service](/validators/validator-sop-part1-setup#step-10-configure-the-validator-service)
@@ -116,12 +116,15 @@ Once that's complete, pop the USB drive into your NUC, and restart it - also con
 
 Once this process is complete, you should be presented with a terminal window on screen. Likely, you will need to enter your password to gain access to the server.
 
-Next, update the server by running the following commands:
+Next, update the server and install useful utilities by running the following commands:
 
 ```
 sudo apt -y update && sudo apt -y upgrade && sudo apt dist-upgrade && sudo apt autoremove
+sudo apt install -y ccze jq
 sudo reboot
 ```
+
+**Note:** `ccze` provides colorized log output, and `jq` is a JSON parser useful for formatting RPC responses.
 
 After rebooting:
 
@@ -191,13 +194,14 @@ Deny Default SSH Port:
 sudo ufw deny 22/tcp
 ```
 
-Allow Execution Client Port 30303:
+Allow Execution Client Ports:
 
 ```
 sudo ufw allow 30303
+sudo ufw allow 30305/udp
 ```
 
-_Note that if the --port and --discovery.port flags are used in the Geth configuration file in step 7, you will need to ensure the ports used are allowed as described above._
+_Note: Port 30303 is used for P2P networking and Discovery v4. Port 30305 is used for Discovery v5 (improved peer discovery protocol). If you need to customize the networking ports, consult the [Reth documentation](https://github.com/paradigmxyz/reth) for the appropriate flags and ensure those ports are allowed in your firewall._
 
 Allow Prysm:
 
@@ -314,27 +318,64 @@ sudo passwd -u root
 
 From your laptop (or whichever device on the local network you plan on accessing the Node from), log into your router to edit the port forwarding settings. While access is different for each network set up and router, usually you can access your router at 192.168.1.1 or a similar local IP address. Occasionally, instructions can be found on the router itself.
 
-Once you've logged in to your router, edit the port forwarding settings for your Node such that port 30303 is forwarded to port 30303 for both UDP and TCP protocols.
+Once you've logged in to your router, edit the port forwarding settings for your Node to forward the following ports:
 
-This is the same port we allowed above in the _Secure the Server_ step - port forwarding 30303 will make it easier for the execution client (Geth) to find suitable peers. Failure to do some may result in sub optimal syncing.
+**Reth (Execution Client):**
+* **Port 30303** - TCP and UDP - P2P networking and Discovery v4
+* **Port 30305** - UDP only - Discovery v5 (improved peer discovery)
 
-If the --port and --discovery.port flags are used in the Geth configuration file in step 7, you will need to ensure the ports used are forwarded as described above.
+**Prysm (Consensus Client):**
+* **Port 13000** - TCP and UDP - P2P networking
+* **Port 12000** - UDP only - QUIC discovery
+
+These are the same ports we allowed above in the _Secure the Server_ step. Port forwarding these will make it easier for both the execution client (Reth) and consensus client (Prysm) to find suitable peers and accept inbound connections. Failure to do so may result in sub-optimal syncing and significantly reduced peer discovery (especially for Prysm, which targets 70 peers).
 
 ### Step 5 Configure Timekeeping
 
-Running validators against a blockchain requires accurate timekeeping in order to ensure proper synchronization with the network. Ubuntu has time synchronization built in and activated by default using timedatectl.
+Running validators against a blockchain requires accurate timekeeping in order to ensure proper synchronization with the network. Validators need time accuracy within **0.5 seconds** for proper attestations.
 
-Verify this system is running:
+While Ubuntu has time synchronization built in using `systemd-timesyncd`, we'll use **`chrony`** instead, which provides more accurate time synchronization - critical for validators.
 
-```
-timedatectl
-```
-
-In the returning dialogue, it should show `NTP service: active`. If for some reason it is not, run the following command:
+Install chrony (this will replace systemd-timesyncd):
 
 ```
-sudo timedatectl set-ntp on
+sudo apt-get install chrony -y
 ```
+
+Verify chrony is running and check synchronization sources:
+
+```
+sudo systemctl status chrony
+```
+
+Check the time servers chrony is using:
+
+```
+chronyc sources
+```
+
+You should see multiple time servers with various symbols (^*, ^+, ^-, ^?) indicating their status.
+
+Check synchronization accuracy:
+
+```
+chronyc tracking
+```
+
+**Important values to check:**
+* **Leap status**: Should say "Normal" (after a few minutes)
+* **System time**: Should show offset in milliseconds (< 100ms is good, < 10ms is excellent)
+* **Stratum**: Should be 2-4 (lower is better)
+
+**Note:** Right after installation, chrony needs 5-10 minutes to synchronize with time servers. The "Leap status" will show "Not synchronised" initially - this is normal.
+
+Optionally, set your timezone (affects log timestamps only, doesn't impact validation):
+
+```
+sudo dpkg-reconfigure tzdata
+```
+
+Select your geographic region and city from the menu.
 
 ### Step 6 Generate Client Auth Secret
 
@@ -360,137 +401,247 @@ sudo nano /var/lib/jwtsecret/jwt.hex
 
 Press CTRL+X to exit
 
-### Step 7 Install Geth
+### Step 7 Install Reth
 
-Time to install Geth! All commands provided below are based on the 1.16.7 version of Geth (current as of 11.4.25), but should be adjusted based on whatever the latest version of Geth is [here](https://geth.ethereum.org/downloads) - simply right click and copy the URL on the 'FOR LINUX' box. Note that MANY commands below will need to update if this version is updated.
+Time to install Reth! All commands provided below are based on the v1.9.3 version of Reth (current as of Nov 2025), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
 
-Curl the Geth build from the above link:
+**Full Node vs Archive Node:**
+
+This guide configures Reth as a **full node** (using the `--full` flag), which is the optimal configuration for validators:
+
+* **Full Node**: Stores recent state and enough history to validate the chain. Syncs in hours (especially with snapshots), requires ~1-2TB storage, and is sufficient for all validation operations.
+* **Archive Node**: Stores complete historical state since genesis. Takes weeks to sync, requires 3-4TB+ storage, and is only needed for specialized applications like block explorers or historical data analysis.
+
+**For validators, always use a full node.** Archive nodes provide no benefit for validation and waste time and resources.
+
+Curl the Reth build from the above link:
 
 ```
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.9.3/reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
 ```
 
-Extract the files from the archive and copy to the /usr/local/bin directory. The Geth service will run it from there. Modify the file name to match the downloaded version:
+Extract the files from the archive and copy to the /usr/local/bin directory. The Reth service will run it from there. Modify the file name to match the downloaded version:
 
 ```
-tar xvf geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-cd geth-linux-amd64-1.16.7-b9f3a3d9
-sudo cp geth /usr/local/bin
+tar xvf reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
+sudo cp reth /usr/local/bin
 ```
 
 Clean up the files. Modify the file name to match the downloaded version:
 
 ```
 cd ~
-rm geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-rm -r geth-linux-amd64-1.16.7-b9f3a3d9
+rm reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
 ```
 
-Geth will be configured to run as a background service. Create an account for the service to run under. This type of account can’t log into the server:
+Reth will be configured to run as a background service. Create an account for the service to run under. This type of account can't log into the server:
 
 ```
-sudo useradd --no-create-home --shell /bin/false geth
+sudo useradd --no-create-home --shell /bin/false reth
 ```
 
 Create the data directory. This is required for storing the Ethereum blockchain data:
 
 ```
-sudo mkdir -p /var/lib/geth
+sudo mkdir -p /var/lib/reth
 ```
 
-Set directory permissions. The Geth user account needs permission to modify the data directory:
+Set directory permissions. The Reth user account needs permission to modify the data directory:
 
 ```
-sudo chown -R geth:geth /var/lib/geth
+sudo chown -R reth:reth /var/lib/reth
+```
+
+Create a home directory for the Reth user. This is required for Reth's logging functionality:
+
+```
+sudo mkdir -p /home/reth
+sudo chown reth:reth /home/reth
 ```
 
 Create a systemd service config file to configure the service:
 
 ```
-sudo nano /etc/systemd/system/geth.service
+sudo nano /etc/systemd/system/reth.service
 ```
 
 Then, paste the following configuration into the file:
 
 ```
 [Unit]
-Description=geth Execution Client (Mainnet)
+Description=Reth Execution Client (Mainnet)
 After=network.target
 Wants=network.target
+
 [Service]
-User=geth
-Group=geth
+User=reth
+Group=reth
 Type=simple
 Restart=always
 RestartSec=5
-TimeoutStopSec=600
-ExecStart=/usr/local/bin/geth \
-  --mainnet \
-  --datadir /var/lib/geth \
+TimeoutStopSec=900
+KillSignal=SIGINT
+
+ExecStart=/usr/local/bin/reth node \
+  --chain mainnet \
+  --full \
+  --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
-  --db.engine pebble
+  --authrpc.addr 127.0.0.1 \
+  --authrpc.port 8551 \
+  --port 30303 \
+  --discovery.port 30303 \
+  --enable-discv5-discovery \
+  --discovery.v5.port 30305 \
+  --max-outbound-peers 35 \
+  --max-inbound-peers 35 \
+  --http \
+  --http.addr 127.0.0.1 \
+  --http.api eth,net,web3
+
 [Install]
 WantedBy=default.target
 ```
 
-NOTE: The inclusion of TimeoutStopSec=600 is to allow the Geth service sufficient time to write cached data to disk on ***clean*** shutdown.
+**IMPORTANT NOTES:**
+* **`--full` flag**: Runs Reth as a **full node** (not archive). For validators, you only need a full node which stores recent state. Archive nodes store all historical state since genesis and are unnecessary for validation, taking significantly longer to sync (weeks vs hours) and requiring much more disk space.
+* **`TimeoutStopSec=900`**: Allows the Reth service 15 minutes to write cached data to disk on ***clean*** shutdown (important for large databases).
+* **`KillSignal=SIGINT`**: Explicitly tells systemd to use SIGINT for graceful shutdown (same as Ctrl+C).
+* **Port configuration**: Explicitly sets P2P networking ports to 30303 (default) for better peer discovery. This is the default, but better to make explicit.
+* **Discovery v5**: Enables the newer, more resilient peer discovery protocol on port 30305 UDP. Improves peer finding and network connectivity.
+* **Peer limits**: Limits connections to 35 outbound + 35 inbound (70 total) to reduce bandwidth and resource usage while maintaining excellent connectivity. For gigabit home validators, this balances network contribution with efficiency.
 
 Press CTRL + X then Y then ENTER to save and exit.
 
-Reload systemd to reflect the changes and start the service. Check the status to make sure it’s running correctly:
+**DO NOT add additional pruning flags** (`--prune.accounthistory.full`, `--prune.storagehistory.full`, etc.) as they will **conflict** with the `--full` flag's configuration and cause the pruner to fail. The `--full` flag handles all pruning automatically.
+
+#### Optional: Use Merkle Snapshot for Faster Initial Sync
+
+**Why use a snapshot?** Syncing Reth from genesis can take days even with a full node. Using a recent snapshot from Merkle.io can reduce initial sync time to just a few hours.
+
+[Merkle.io](https://www.merkle.io/snapshots) publishes Reth snapshots every Monday and Thursday at `downloads.merkle.io`. Using a snapshot is particularly recommended for new installations or after database corruption.
+
+<Warning>
+**Archive Node Snapshot Notice:** The Merkle snapshot is an **archive node** snapshot, not a full node snapshot. This means:
+
+- **Faster sync**: You'll catch up with the chain much faster than syncing from genesis
+- **Larger storage**: The resulting database will be larger than a pure full node sync (~2TB+ vs ~1TB)
+- **Pruning in progress**: The Reth team is actively working on improved pruning that will make it easy to convert from archive to full node storage
+
+As of December 2025, Georgios Konstantopoulos (Reth/Paradigm) noted in the Reth Telegram that upcoming changes will "basically remove pruning as an issue altogether" with different storage engines for different workloads. Our recommendation is to **use the snapshot to speed up your initial sync**, and trust that Reth's pruning improvements will soon make it trivial to reclaim the extra space.
+
+For now, ensure you have sufficient storage (>=4TB  recommended) when using the snapshot approach.
+</Warning>
+
+**To use a Merkle snapshot:**
+
+First, install required dependencies:
+
+```
+sudo apt-get update
+sudo apt-get install -y lz4 tmux
+```
+
+**IMPORTANT:** Use `tmux` to run the download to prevent it from being killed if your SSH connection drops.
+
+Start a tmux session:
+
+```
+tmux new -s reth-download
+```
+
+Then, inside the tmux session, stream download and extract the snapshot:
+
+```
+cd /var/lib/reth
+SIZE=$(curl -sI https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | grep -i content-length | awk '{print $2}' | tr -d '\r')
+sudo -u reth wget -q -O - https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | \
+  pv -s $SIZE -pterab | sudo -u reth tar -I lz4 -xf -
+```
+
+**Replace `YYYY-MM-DD`** with the latest snapshot date (most recent Monday or Thursday). Check [Merkle's snapshot page](https://www.merkle.io/snapshots) for the current available dates.
+
+Example for December 15, 2025:
+```
+cd /var/lib/reth
+SIZE=$(curl -sI https://downloads.merkle.io/reth-2025-12-15.tar.lz4 | grep -i content-length | awk '{print $2}' | tr -d '\r')
+sudo -u reth wget -q -O - https://downloads.merkle.io/reth-2025-12-15.tar.lz4 | \
+  pv -s $SIZE -pterab | sudo -u reth tar -I lz4 -xf -
+```
+
+**If download gets interrupted:**
+
+The streaming method is NOT resumable. If interrupted, you must clean up and start over:
+```
+sudo rm -rf /var/lib/reth/*
+# Then rerun the full streaming command from the beginning
+```
+
+This is why tmux is critical - it keeps the process running even if SSH disconnects.
+
+**Tmux controls:**
+* **Detach from session** (leaves download running): Press `Ctrl+B` then `D`
+* **Reattach to session**: `tmux attach -t reth-download`
+* **Monitor progress** in another terminal: `watch -n 30 'df -h /var/lib/reth'` or `tail -f /var/lib/reth/wget-log` or `watch -n 60 'du -sh /var/lib/reth'`
+
+This command will:
+* Download the Merkle snapshot
+* Extract it directly into your data directory (streaming, no temp file)
+* Set proper ownership as the reth user
+
+Once the snapshot extraction completes, proceed with starting the service as normal.
+
+**If not using a snapshot:** Reth will sync from genesis with the `--full` flag, which takes 1-3 days but results in a smaller database (~1TB). Skip the snapshot download and proceed directly to starting the service. This is a valid approach if you have time and want to minimize storage usage, though the Merkle snapshot approach is faster and Reth's upcoming pruning improvements will eventually make the difference negligible.
+
+#### Start Reth Service
+
+Reload systemd to reflect the changes and start the service. Check the status to make sure it's running correctly:
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl start geth
-sudo systemctl status geth
+sudo systemctl start reth
+sudo systemctl status reth
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the Geth service)
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the Reth service)
 
 The sync will begin immediately. Use the journal output to follow the progress or check for errors by running the following command.
 
 ```
-sudo apt install ccze
-sudo journalctl -fu geth | ccze
+sudo journalctl -fu reth | ccze
 ```
 
-Press CTRL+ C to exit (will not affect the Geth service).
+Press CTRL+ C to exit (will not affect the Reth service).
 
-Next, enable the Geth service to automatically start on reboot:
-
-```
-sudo systemctl enable geth
-```
-
-Finally, stop and start geth so it's using all the latest config information:
+Next, enable the Reth service to automatically start on reboot:
 
 ```
-sudo systemctl stop geth
-sudo systemctl start geth
+sudo systemctl enable reth
 ```
 
-Now that Geth is all set up, you can run the Geth attach command, and check things like sync status as well as connected peers.
-
-First, attach the Geth console:
+Finally, stop and start reth so it's using all the latest config information:
 
 ```
-sudo geth attach /var/lib/geth/geth.ipc
+sudo systemctl stop reth
+sudo systemctl start reth
 ```
 
-Now, you can check the sync status, **but this won't be working until after we install Prysm** (see steps 7-9):
+Now that Reth is all set up, you can check sync status and connected peers using JSON-RPC calls, as Reth doesn't have an interactive console like Geth.
+
+Check the sync status using curl:
 
 ```
-eth.syncing
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
 ```
 
 You can also check the count of connected peers by running:
 
 ```
-net.peerCount
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://localhost:8545
 ```
 
-After running Geth for ~10 or so minutes, check the peer count to ensure it's greater than 0.
+After running Reth for a few minutes, check the peer count to ensure it's greater than 0.
 
 ### Step 8 Install Prysm
 
@@ -572,7 +723,8 @@ ExecStart=/usr/local/bin/beacon-chain \
   --suggested-fee-recipient={FeeRecipientAddress} \
   --checkpoint-sync-url={CheckpointSyncURL} \
   --genesis-beacon-api-url={CheckpointSyncURL} \
-  --accept-terms-of-use
+  --accept-terms-of-use \
+  --blob-storage-layout=by-epoch
 Environment=USE_PRYSM_MODERN=true
 [Install]
 WantedBy=multi-user.target
@@ -650,7 +802,6 @@ ExecStart=/usr/local/bin/validator \
   --wallet-dir=/var/lib/prysm/validator \
   --wallet-password-file=/var/lib/prysm/validator/password.txt \
   --suggested-fee-recipient={FeeRecipientAddress} \
-  --graffiti="{yourgraffiti}" \
   --accept-terms-of-use
 [Install]
 WantedBy=multi-user.target
@@ -658,18 +809,7 @@ WantedBy=multi-user.target
 
 **Make sure** to replace `{FeeRecipientAddress}` with the address you'd like to receive the validator tip fees.
 
-**Make sure** to replace `{yourgraffiti}` with your own graffiti string (max 32 bytes). (e.g. --graffiti="Endaoment.org")
-
 Press CTRL + X then Y then ENTER to save and exit.
-
-Note that you can check the byte count by running a simple python command from terminal on your laptop:
-
-```
-python3
->> len("{yourgraffiti}".encode())
-```
-
-If the result is 32 or less, you're in the clear.
 
 Reload systemd to reflect the changes and start the service. Check the status to make sure it’s running correctly:
 
@@ -693,21 +833,19 @@ Finally, enable the service to automatically start on reboot:
 sudo systemctl enable prysmvalidator
 ```
 
-Now that the beacon-chain, validator, and execution client software is all set up, you should run the following Geth attach commands to check sync status:
+Now that the beacon-chain, validator, and execution client software is all set up, you should run the following commands to check sync status:
 
-First, attach the Geth console:
-
-```
-sudo geth attach /var/lib/geth/geth.ipc
-```
-
-Now, you can check the sync status (it will work now!):
+Check the sync status using JSON-RPC (it will work now!):
 
 ```
->eth.syncing
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
 ```
 
-Press CTRL + D to exit.
+You can also check the peer count:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://localhost:8545
+```
 
 ### Step 11 Import Validator Keys
 
@@ -793,7 +931,7 @@ sudo umount /mnt/usb
 
 **REMEMBER: If you import the same keystore twice OR run the same keystore on multiple nodes at the same time YOU WILL GET** [**SLASHED**](https://www.blocknative.com/blog/an-ethereum-stakers-guide-to-slashing-other-penalties)**!**
 
-Now we will run the validator import process. You will need to provide the directory where the generated keystore-\[..\].json files are located. E.g. $HOME/staking-deposit-cli/validator\_keys (as determined above in this step)
+Now we will run the validator import process. You will need to provide the directory where the generated keystore-\[..\].json files are located. E.g. $HOME/staking-deposit-cli/validator_keys (as determined above in this step)
 
 ```
 sudo systemctl stop prysmvalidator
@@ -836,7 +974,7 @@ sudo systemctl daemon-reload
 
 Now that the Consensus Client is up and running, to actually begin staking on the Ethereum network you will need to deposit ETH to fund your validators.
 
-**Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through attaching the Geth console, both methods are described above.**
+**Note: DO NOT continue until your execution and consensus clients are fully synced. If they have not and your validator(s) become active on the network, you would be subject to inactivity penalties. You can determine sync status by checking the status of the Beacon Chain or through JSON-RPC calls to Reth, both methods are described above.**
 
 With the deposit file in hand and an EOA with 32ETH per validator + some spare ETH for gas, head to the [Ethereum Launchpad](https://launchpad.ethereum.org/)
 
@@ -876,10 +1014,6 @@ Probably a good time to _touch grass_.
 
 ![](../images/SolarNode.jpg)
 
-### Addendum Adding Validators to Existing Config
-
-This section provides guidance for adding additional valiadtors to your existing config. In addition to all information required in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), you will also need to know the `validator_start_index`, which is the number of validators you already have created using your mnemonic.
-
 #### Clean Up `validator_keys`
 
 While not essential as you can always regenerate them using your mnemonic, it's good practice to back up the `validator_keys` directory (typically `$HOME/staking-deposit-cli/validator_keys`) on a USB for [emergencies](./validator-sop-part3-emergency.mdx).
@@ -889,41 +1023,5 @@ After ensuring you have a backup of these files  as described in [Step 1 Generat
 ```
 sudo rm -r $HOME/staking-deposit-cli/validator_keys
 ```
-
-#### Generate Additional Staking Data
-
-Best practice is to complete this step on an airgapped machine as described in [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data), as you will need to directly enter your mnemonic in order to generate the staking data.
-
-Note: You **must** use the same keystore password as you used for the existing validators. This should be noted on the [variables document](../images/variables.xlsx) you created during your first set up.
-
-Please refer to [Step 1 Generate Staking Data](/validators/validator-sop-part1-setup#step-1-generate-staking-data) to get set up with an airgapped machine running Ubuntu Desktop. We'll pick up again below starting with the deposit CLI commands.
-
-Now, run the binary file in a terminal window on your Linux desktop by using the below command (easier if you have your withdrawal address handy for a copy/paste!)
-
-```
-sudo ./deposit existing-mnemonic --validator_start_index {#_Existing_Validators} --num_validators {#_New_Validators} --chain mainnet --eth1_withdrawal_address {YourWithdrawalAddress}
-```
-
-Replace `{#_Existing_Validators}` with the number of validators you have already generated with this mnemonic, and replace `{#_New_Validators}` with the number of additional validators you want to run (32ETH per), and `{YourWithdrawalAddress}` with an Ethereum address you control.
-
-_NOTE: Once set, the withdrawal address_ _**CANNOT**_ _be changed, so be ABSOLUTELY SURE that it is an address you control the private keys for (or it's a multisig and you control the private keys to the underlying wallets) and correctly specified. For example: --eth1\_withdrawal\_address 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045_
-
-**DO NOT** set the withdrawal address to a central exchange wallet or account. This MUST be an EOA or smart contract wallet, as ETH is not "transferred" but rather "generated" in the wallet via a state change, and that doesn't play nicely with Coinbase/Kraken/etc.
-
-Once you execute the above steps, confirm your withdrawal address within the generated files, and provide your language preferences. You will then be asked to create the validator keystore password. **You must use the same one used with the other validators!**
-
-Once you have confirmed your mnemonic your validator(s) will be created. The following files will be generated and placed on your desktop.
-
-* The deposit\_data-\[timestamp\].json file contains the public key(s) for the validator(s) and information about the staking deposit. This file will be used to complete the ETH staking deposit process later in this guide. **This is where you can triple check the withdrawal address**
-
-* The keystore-\[..\].json files contain the encrypted validator signing key. There is one keystore file per validator that you are funding. These will be imported into the Consensus Client for use during validation operations.
-
-* If you lose or accidentally delete the files it is possible to regenerate them using the Staking Deposit CLI tool and your mnemonic via the existing-mnemonic command (see [here](https://github.com/ethereum/staking-deposit-cli#commands)).
-
-Now that you have generated the deposit data, keystore file(s), validator password, and the mnemonic, we can begin setting up the node. You should now copy the generated deposit and keystore files back onto your USB drive. We'll need them later on.
-
-Note: there are no other steps in this process that require you to enter or view your mnemonic phrase, so the air-gapped portion of this process is completed.
-
-Armed with the requisite data, please see above and complete [Step 11 Import Validator Keys](/validators/validator-sop-part1-setup#step-11-import-validator-keys) and [Step 12 Fund the Validators](/validators/validator-sop-part1-setup#step-12-fund-the-validators) to complete spinning up your additional validator(s). Please ensure you make a backup of any additional `validator_keys` generated during this process. Remember that they can be regenerated as needed!
 
 ![](../images/Stacking-Staking.png)

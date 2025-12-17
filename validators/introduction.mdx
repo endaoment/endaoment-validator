@@ -23,7 +23,7 @@ This guide assumes use of MacOS on the connected device (LAN). While anyone can 
    * Configure Port Forwarding  
    * Configure Timekeeping  
    * Generate Client Auth Secret  
-   * Configure Geth  
+   * Configure Reth  
    * Install Prysm  
    * Configure Beacon Node Service  
    * Configure Validator Service  
@@ -32,9 +32,8 @@ This guide assumes use of MacOS on the connected device (LAN). While anyone can 
 
 3. [Validator SOP Part 2: Upkeep, Updates, & Ongoing Management](/validators/validator-sop-part2-upkeep)  
    * Package Management Updates  
-   * Updating Geth  
+   * Updating Reth  
    * Updating Prysm  
-   * Pruning Geth  
    * Exiting a Validator  
    * Checking Sync Committee Duties  
    * MEV Boost
@@ -65,7 +64,7 @@ Overall flow of the guide is as follows:
 
 * Prepare the Ubuntu Server (updates, firewall, security, etc.)
 
-* Set up the Geth Execution Client node and sync it with the Ethereum mainnet
+* Set up the Reth Execution Client node and sync it with the Ethereum mainnet
 
 * Set up the Prysm Consensus Client and sync with other Beacon Nodes
 
@@ -83,7 +82,7 @@ In addition to hardware as described in the next step, you should have a printed
 
 ## Disclaimer
 
-1. **Choice of Tools**: Our preference for utilizing Geth and Prysm in this guide is driven by the necessity for robust security and reliability—imperatives for our nonprofit operations. These platforms come with a wealth of community support and have undergone extensive audits, testing, and updates. While our choice may seem to marginalize other minority clients, it is purely a decision made in the interest of asset security. This is not a reflection of the quality or potential of alternative clients as generally we support client diversity.
+1. **Choice of Tools**: Our preference for utilizing Reth and Prysm in this guide is driven by the necessity for robust security and reliability—imperatives for our nonprofit operations. These platforms come with a wealth of community support and have undergone extensive audits, testing, and updates. While our choice may seem to marginalize other minority clients, it is purely a decision made in the interest of asset security. This is not a reflection of the quality or potential of alternative clients as generally we support client diversity.
 
 2. **Not Financial Advice**: This document is intended solely as a procedural guide for setting up and managing an Ethereum Validator. It should not be construed as financial advice or an endorsement of cryptocurrency investment. Always conduct your own research and consult with financial advisors before making any investment or taking actions you're unfamiliar with.
 

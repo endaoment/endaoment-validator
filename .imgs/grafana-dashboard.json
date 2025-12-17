@@ -34,7 +34,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "",
       "fieldConfig": {
@@ -92,7 +92,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "1",
           "interval": "",
@@ -106,7 +106,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "This panel shows the earning during the last hour, and the annualized % of the hourly earning.\n\nThose data won't be shown until the first validator is at least one hour old, or that you started prometheus at least one hour ago.\n\nAlso, the annualized % might be wrong if you have downtime while new validators are getting validated",
       "fieldConfig": {
@@ -297,7 +297,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "(sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32)*absent(crypto_currency{pair=~\"eth$fiat\"})",
           "hide": false,
@@ -309,7 +309,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "(sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32)*sum(crypto_currency{pair=\"eth$fiat\"})",
           "instant": true,
@@ -320,7 +320,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "(sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32)/(avg_over_time(count(validator_balance > 16)[1h:30s])*32/24/365)*100",
           "instant": true,
@@ -335,7 +335,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Current price of ETH in USD.",
       "fieldConfig": {
@@ -398,7 +398,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "builder",
           "exemplar": false,
@@ -416,7 +416,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Current price of ETH in $currency.",
       "fieldConfig": {
@@ -503,7 +503,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -521,7 +521,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "The mathematical expectation of time between proposals for an individual validator and across all local validators.",
       "fieldConfig": {
@@ -571,11 +571,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (network) (beacon_current_active_validators{group=\"Prysm/Geth\"}/7200)",
+          "expr": "max by (network) (beacon_current_active_validators{group=\"Prysm/Reth\"}/7200)",
           "format": "time_series",
           "instant": true,
           "legendFormat": "Individual Validator",
@@ -585,11 +585,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (network) (\r\n    (\r\n        max by (network) (beacon_current_active_validators{group=\"Prysm/Geth\",job!=\"prysmvalidator\"}) /\r\n        max by (network) (total_local_validators:active{group=\"Prysm/Geth\"})  /\r\n        7200\r\n    )\r\n    or\r\n    (\r\n        max by (network) (beacon_current_active_validators{group=\"Prysm/Geth\",job!=\"prysmvalidator\"}) / \r\n        count by (network) (count by (network, pubkey) (consensus_validator_balance:ETH{group=\"Prysm/Geth\"})) /\r\n        7200\r\n    )\r\n)",
+          "expr": "max by (network) (\r\n    (\r\n        max by (network) (beacon_current_active_validators{group=\"Prysm/Reth\",job!=\"prysmvalidator\"}) /\r\n        max by (network) (total_local_validators:active{group=\"Prysm/Reth\"})  /\r\n        7200\r\n    )\r\n    or\r\n    (\r\n        max by (network) (beacon_current_active_validators{group=\"Prysm/Reth\",job!=\"prysmvalidator\"}) / \r\n        count by (network) (count by (network, pubkey) (consensus_validator_balance:ETH{group=\"Prysm/Reth\"})) /\r\n        7200\r\n    )\r\n)",
           "hide": false,
           "instant": true,
           "legendFormat": "All Local Validators",
@@ -599,10 +599,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "(time() - (scalar(last_over_time(consensus_beacon_genesis_time{group=\"Mainnet Prysm/Geth\"}[2h])) + (max by (group,network) (validator_next_proposal_slot{group=\"Mainnet Prysm/Geth\"}) * 12))) / 86500",
+          "expr": "(time() - (scalar(last_over_time(consensus_beacon_genesis_time{group=\"Mainnet Prysm/Reth\"}[2h])) + (max by (group,network) (validator_next_proposal_slot{group=\"Mainnet Prysm/Reth\"}) * 12))) / 86500",
           "hide": false,
           "legendFormat": "Last Proposal",
           "range": true,
@@ -615,7 +615,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Latest base fee per gas. Full support: Besu, Erigon, Geth, Nethermind",
       "fieldConfig": {
@@ -663,10 +663,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "max by (network) (execution_fee_base_fee_per_gas{group=\"Prysm/Geth\"})/1000000000",
+          "expr": "max by (network) (execution_fee_base_fee_per_gas{group=\"Prysm/Reth\"})/1000000000",
           "legendFormat": "{{network}}",
           "range": true,
           "refId": "A"
@@ -678,7 +678,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "The percentage of the gas limit used.",
       "fieldConfig": {
@@ -747,10 +747,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "(max by (network) (besu_blockchain_chain_head_gas_used{group=\"Prysm/Geth\"}/besu_blockchain_chain_head_gas_limit{group=\"Prysm/Geth\"})) or\r\n(max by (network) (execution_fee_gas_used_ratio{group=\"Prysm/Geth\"})) or\r\n(max by (network) (eth_exe_block_head_gas_used{group=\"Prysm/Geth\"}/eth_exe_block_head_gas_limit{group=\"Prysm/Geth\"}))",
+          "expr": "(max by (network) (besu_blockchain_chain_head_gas_used{group=\"Prysm/Reth\"}/besu_blockchain_chain_head_gas_limit{group=\"Prysm/Reth\"})) or\r\n(max by (network) (execution_fee_gas_used_ratio{group=\"Prysm/Reth\"})) or\r\n(max by (network) (eth_exe_block_head_gas_used{group=\"Prysm/Reth\"}/eth_exe_block_head_gas_limit{group=\"Prysm/Reth\"}))",
           "legendFormat": "{{network}}",
           "range": true,
           "refId": "A"
@@ -762,7 +762,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Current count of consensus and execution client peers. Full support: Besu, Erigon, Geth, Lighthouse, Lodestar, Nethermind, Nimbus, Prysm, Teku",
       "fieldConfig": {
@@ -821,10 +821,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "max by (group,service) (consensus_node_peer_count:connected{group=\"Prysm/Geth\"}) or\r\nmax by (group,service) (p2p_peer_count{group=\"Prysm/Geth\",state=\"Connected\",job!=\"prysmvalidator\"}) ",
+          "expr": "max by (group,service) (consensus_node_peer_count:connected{group=\"Prysm/Reth\"}) or\r\nmax by (group,service) (p2p_peer_count{group=\"Prysm/Reth\",state=\"Connected\",job!=\"prysmvalidator\"}) ",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -834,11 +834,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (group,service) (execution_net_peerCount{group=\"Prysm/Geth\"}) or\r\nmax by (group,service) (p2p_peers{group=\"Prysm/Geth\"})",
+          "expr": "max by (group,service) (execution_net_peerCount{group=\"Prysm/Reth\"}) or\r\nmax by (group,service) (p2p_peers{group=\"Prysm/Reth\"})",
           "hide": false,
           "instant": true,
           "legendFormat": "{{service}}",
@@ -852,7 +852,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "This panel shows the earning during the last day, and the annualized % of the daily earning.\n\nThose data won't be shown until the first validator is at least one day old, or that you started prometheus at least one day ago.\n\nAlso, the annualized % might be wrong if you have downtime while new validators are getting validated",
       "fieldConfig": {
@@ -1043,7 +1043,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "(sum(validator_balance) - sum(validator_balance offset 1d) - count(validator_balance > 16)*32 + count(validator_balance offset 1d > 0)*32)*absent(crypto_currency{pair=~\"eth$fiat\"})",
           "instant": true,
@@ -1054,7 +1054,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "(sum(validator_balance) - sum(validator_balance offset 1d) - count(validator_balance > 16)*32 + count(validator_balance offset 1d > 0)*32)*sum(crypto_currency{pair=\"eth$fiat\"})",
           "instant": true,
@@ -1065,7 +1065,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "(sum(validator_balance) - sum(validator_balance offset 1d) - count(validator_balance > 16)*32 + count(validator_balance offset 1d > 0)*32)/(avg_over_time(count(validator_balance > 16)[1d:12m])*32/365)*100",
           "instant": true,
@@ -1080,7 +1080,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Sum of the current balance of all local validators",
       "fieldConfig": {
@@ -1128,11 +1128,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (group,network) (validator_balance{group=\"Prysm/Geth\",job=\"prysm-validator\"}) or\r\nsum by (group,network) (consensus_validator_balance:ETH{group=\"Prysm/Geth Group\"})",
+          "expr": "sum by (group,network) (validator_balance{group=\"Prysm/Reth\",job=\"prysm-validator\"}) or\r\nsum by (group,network) (consensus_validator_balance:ETH{group=\"Prysm/Reth Group\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "__auto",
@@ -1146,7 +1146,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Number of transactions, voluntary exits, attester slashings, and proposer slashing in the head block. Full support: Ethereum Metrics Exporter. Limited support: Besu.",
       "fieldConfig": {
@@ -1194,10 +1194,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "max by (network) (besu_blockchain_chain_head_transaction_count{group=\"Prysm/Geth\"}) or max by (network) (eth_con_beacon_transactions{group=\"Prysm/Geth\",block_id=\"head\"})",
+          "expr": "max by (network) (besu_blockchain_chain_head_transaction_count{group=\"Prysm/Reth\"}) or max by (network) (eth_con_beacon_transactions{group=\"Prysm/Reth\",block_id=\"head\"})",
           "legendFormat": "Transactions",
           "range": true,
           "refId": "A"
@@ -1205,10 +1205,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "max by (network) (eth_con_beacon_voluntary_exits{group=\"Prysm/Geth\",block_id=\"head\"})",
+          "expr": "max by (network) (eth_con_beacon_voluntary_exits{group=\"Prysm/Reth\",block_id=\"head\"})",
           "hide": false,
           "legendFormat": "Voluntary Exits",
           "range": true,
@@ -1217,10 +1217,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "eth_con_beacon_slashings{group=\"Prysm/Geth\",block_id=\"head\",type=\"attester\"}",
+          "expr": "eth_con_beacon_slashings{group=\"Prysm/Reth\",block_id=\"head\",type=\"attester\"}",
           "hide": false,
           "legendFormat": "Attester Slashings",
           "range": true,
@@ -1229,10 +1229,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "eth_con_beacon_slashings{group=\"Prysm/Geth\",block_id=\"head\",type=\"proposer\"}",
+          "expr": "eth_con_beacon_slashings{group=\"Prysm/Reth\",block_id=\"head\",type=\"proposer\"}",
           "hide": false,
           "legendFormat": "Proposer Slashings",
           "range": true,
@@ -1245,7 +1245,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "fieldConfig": {
         "defaults": {
@@ -1298,7 +1298,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "expr": "beacon_clock_time_slot-beacon_head_slot{job=\"prysm-beacon\"}",
@@ -1314,7 +1314,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "List of local validators and their scheduled attestations/proposals, and the amount of time remaining until those slots. Time remaining is as of the last Grafana data refresh. Full support: Prysm",
       "fieldConfig": {
@@ -1489,11 +1489,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(max by (network,pubkey_short,index) (validator_next_proposal_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12))))",
+          "expr": "(max by (network,pubkey_short,index) (validator_next_proposal_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12))))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1504,11 +1504,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(max by (network,pubkey_short,index) (validator_next_proposal_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12)))) * 12 + scalar(max by (network) (last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h])) -  time())",
+          "expr": "(max by (network,pubkey_short,index) (validator_next_proposal_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12)))) * 12 + scalar(max by (network) (last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h])) -  time())",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1519,11 +1519,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(max by (network,pubkey_short,index) (validator_next_attestation_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12))))",
+          "expr": "(max by (network,pubkey_short,index) (validator_next_attestation_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12))))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1534,11 +1534,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(max by (network,pubkey_short,index) (validator_next_attestation_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12)))) * 12 + scalar(max by (network) (last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h])) -  time())",
+          "expr": "(max by (network,pubkey_short,index) (validator_next_attestation_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12)))) * 12 + scalar(max by (network) (last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h])) -  time())",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1571,7 +1571,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "",
       "fieldConfig": {
@@ -1796,7 +1796,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by(pubkey) (validator_balance), \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -1808,7 +1808,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by(pubkey) (validator_statuses), \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -1841,7 +1841,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "fieldConfig": {
         "defaults": {
@@ -1940,10 +1940,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
-          "expr": "sum by (group,network) (validator_balance{group=\"Prysm/Geth\",job=\"prysm-validator\"}) or\nsum by (group,network) (consensus_validator_balance:ETH{group=\"Prysm/Geth\"})",
+          "expr": "sum by (group,network) (validator_balance{group=\"Prysm/Reth\",job=\"prysm-validator\"}) or\nsum by (group,network) (consensus_validator_balance:ETH{group=\"Prysm/Reth\"})",
           "interval": "",
           "legendFormat": "Total balance",
           "range": true,
@@ -1956,7 +1956,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Displays the current slot and the slot number for the next scheduled attestation across all local validators. Also displays the amount of time remaining until that slot. Time remaining is as of the last Grafana data refresh. Full support: Prysm",
       "fieldConfig": {
@@ -2049,11 +2049,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (group,service,explorer) (floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12))",
+          "expr": "max by (group,service,explorer) (floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12))",
           "hide": false,
           "instant": true,
           "legendFormat": "Current Slot",
@@ -2063,11 +2063,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min by (group,network,explorer) (max by (group,network,pubkey,explorer) (validator_next_attestation_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12))))",
+          "expr": "min by (group,network,explorer) (max by (group,network,pubkey,explorer) (validator_next_attestation_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12))))",
           "hide": false,
           "instant": true,
           "legendFormat": "Next Attestation",
@@ -2077,11 +2077,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min by (group,network,explorer) (max by (group,network,pubkey,explorer) (validator_next_attestation_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12)))) * 12 + scalar(max by (group,network,explorer) (last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h])) -  time())",
+          "expr": "min by (group,network,explorer) (max by (group,network,pubkey,explorer) (validator_next_attestation_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12)))) * 12 + scalar(max by (group,network,explorer) (last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h])) -  time())",
           "hide": false,
           "instant": true,
           "legendFormat": "Time Remaining",
@@ -2095,7 +2095,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "This panel will count only the votes done since your validator process started",
       "fieldConfig": {
@@ -2458,7 +2458,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by(pubkey) (validator_successful_attestations) , \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -2471,7 +2471,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by (pubkey)(validator_failed_attestations)  , \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -2483,7 +2483,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by (pubkey)(validator_successful_aggregations)    , \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -2495,7 +2495,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by (pubkey) (validator_failed_aggregations) , \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -2507,7 +2507,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by (pubkey) (validator_successful_proposals) , \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -2519,7 +2519,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "label_replace(max by (pubkey) (validator_failed_proposals) , \"pubkey\", \"$1\", \"pubkey\", \"(.{10}).*\")",
           "format": "table",
@@ -2560,7 +2560,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Displays the current slot and the slot number for the next scheduled proposal across all local validators. Also displays the amount of time remaining until that slot. Time remaining is as of the last Grafana data refresh. Full support: Prysm",
       "fieldConfig": {
@@ -2699,11 +2699,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (group,service,explorer) (floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12))",
+          "expr": "max by (group,service,explorer) (floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12))",
           "hide": false,
           "instant": true,
           "legendFormat": "Current Slot",
@@ -2713,11 +2713,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min by (group,network,explorer) (max by (group,network,pubkey) (validator_next_proposal_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12)))) or on() vector(-1)",
+          "expr": "min by (group,network,explorer) (max by (group,network,pubkey) (validator_next_proposal_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12)))) or on() vector(-1)",
           "hide": false,
           "instant": true,
           "legendFormat": "Proposal Slot",
@@ -2727,11 +2727,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min by (group,network,explorer) (max by (group,network,pubkey) (validator_next_proposal_slot{group=\"Prysm/Geth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Geth\"}[2h]))/12)))) * 12 + scalar(max by (group,network) (last_over_time(consensus_beacon_genesis_time{group=\"Goerli Prysm/Geth\"}[2h])) - time())",
+          "expr": "min by (group,network,explorer) (max by (group,network,pubkey) (validator_next_proposal_slot{group=\"Prysm/Reth\"} > scalar(floor((time() - last_over_time(consensus_beacon_genesis_time{group=\"Prysm/Reth\"}[2h]))/12)))) * 12 + scalar(max by (group,network) (last_over_time(consensus_beacon_genesis_time{group=\"Goerli Prysm/Reth\"}[2h])) - time())",
           "hide": false,
           "instant": true,
           "legendFormat": "Time Remaining",
@@ -2745,7 +2745,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "This graph is made for trading purpose mostly.\nSupposing that if a lot of validators are exiting, price is gonna dump.\n\nAlso this can prevent to exit while exiting queue is too long, same for depositing while pending queue is too long.\n\n",
       "fieldConfig": {
@@ -2918,7 +2918,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "validators_total_balance{state=\"Active\"} / 10e8",
           "interval": "",
@@ -2928,7 +2928,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "validators_total_balance{state=\"Pending\"} / 10e8",
           "interval": "",
@@ -2938,7 +2938,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "validators_total_balance{state=\"Exiting\"} / 10e8",
           "interval": "",
@@ -2948,7 +2948,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "beacon_prev_epoch_target_gwei/beacon_prev_epoch_active_gwei*100",
           "instant": false,
@@ -2994,7 +2994,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "fieldConfig": {
         "defaults": {
@@ -3051,7 +3051,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "1",
           "interval": "",
@@ -3065,7 +3065,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "This panel won't have consistant values during the first hour of the node started process",
       "fieldConfig": {
@@ -3136,7 +3136,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "sum(delta(log_entries_total{job=\"$node_job\", level=\"error\"}[1h]) > 0)",
           "instant": false,
@@ -3147,7 +3147,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "sum(delta(log_entries_total{job=\"$node_job\", level=\"warning\"}[1h]) > 0)",
           "instant": false,
@@ -3162,7 +3162,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Software client details, including version, latest release, uptime, and database size. Full support: Erigon,  Lighthouse, Prysm. Partial support: Besu, Ethereum Metrics Exporter, Geth, Lodestar, Nethermind, Nimbus, Teku",
       "fieldConfig": {
@@ -3633,11 +3633,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(\r\ntopk by (service) (1,version{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,lighthouse_info{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,prysm_version{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,beacon_teku_version{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,execution_version{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,prometheus_build_info{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,lodestar_version{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,blackbox_exporter_build_info{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,node_exporter_build_info{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,dirk_release{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,vouch_release{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,process_start_time_seconds{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,eth_exe_web3_client_version{group=\"Prysm/Geth\"}) or\r\non(service) topk by (service) (1,eth_con_node_version{group=\"Prysm/Geth\"})\r\n) * on(client) group_left(tag_name,html_url) topk by (client) (1,last_over_time(release_id{client!=\"\"}[2h]))",
+          "expr": "(\r\ntopk by (service) (1,version{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,lighthouse_info{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,prysm_version{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,beacon_teku_version{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,execution_version{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,prometheus_build_info{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,lodestar_version{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,blackbox_exporter_build_info{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,node_exporter_build_info{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,dirk_release{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,vouch_release{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,process_start_time_seconds{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,eth_exe_web3_client_version{group=\"Prysm/Reth\"}) or\r\non(service) topk by (service) (1,eth_con_node_version{group=\"Prysm/Reth\"})\r\n) * on(client) group_left(tag_name,html_url) topk by (client) (1,last_over_time(release_id{client!=\"\"}[2h]))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3648,11 +3648,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk by (service) (1,(time() - process_start_time_seconds{group=\"Prysm/Geth\"}))",
+          "expr": "topk by (service) (1,(time() - process_start_time_seconds{group=\"Prysm/Reth\"}))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3663,11 +3663,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (service) (bcnode_disk_beaconchain_bytes_total{group=\"Prysm/Geth\"}) or\r\nsum by (service) (eth_db_chaindata_disk_size{group=\"Prysm/Geth\"} + eth_db_chaindata_ancient_size{group=\"Prysm/Geth\"}) or\r\nsum by (service) (db_size{group=\"Prysm/Geth\"}) or\r\nsum by (service) (store_disk_db_size{group=\"Prysm/Geth\"})",
+          "expr": "sum by (service) (bcnode_disk_beaconchain_bytes_total{group=\"Prysm/Reth\"}) or\r\nsum by (service) (eth_db_chaindata_disk_size{group=\"Prysm/Reth\"} + eth_db_chaindata_ancient_size{group=\"Prysm/Reth\"}) or\r\nsum by (service) (db_size{group=\"Prysm/Reth\"}) or\r\nsum by (service) (store_disk_db_size{group=\"Prysm/Reth\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3779,7 +3779,7 @@
       },
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "fieldConfig": {
         "defaults": {
@@ -3861,7 +3861,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "beacon_clock_time_slot-beacon_head_slot",
           "interval": "",
@@ -3905,7 +3905,7 @@
       },
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "fieldConfig": {
         "defaults": {
@@ -3987,7 +3987,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "beacon_prev_epoch_target_gwei/beacon_prev_epoch_active_gwei*100",
           "interval": "",
@@ -4001,7 +4001,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "description": "Number of CPU seconds used by client software per minute. Full support: Besu, blackbox_exporter, Erigon, Ethereum Metrics Exporter, json_exporter, Lighthouse, Lodestar, Nethermind, Nimbus, node_exporter, Prometheus, Prysm, Teku. No support: Geth",
       "fieldConfig": {
@@ -4084,7 +4084,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "editorMode": "code",
           "expr": "sum by (service) (rate(process_cpu_seconds_total[1m]))*60",
@@ -4152,7 +4152,7 @@
       },
       "datasource": {
         "type": "prometheus",
-        "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+        "uid": "YOURUUID"
       },
       "fieldConfig": {
         "defaults": {
@@ -4236,7 +4236,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+            "uid": "YOURUUID"
           },
           "expr": "sum(validator_balance) - sum(validator_balance offset 1h) - count(validator_balance > 16)*32 + count(validator_balance offset 1h > 0)*32",
           "instant": false,
@@ -4270,7 +4270,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+          "uid": "YOURUUID"
         },
         "definition": "label_values(crypto_currency, pair)",
         "hide": 0,
@@ -4316,7 +4316,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "bdaeb540-4cdb-4740-95d4-2fabfb32fb5b"
+          "uid": "YOURUUID"
         },
         "filters": [
           {
