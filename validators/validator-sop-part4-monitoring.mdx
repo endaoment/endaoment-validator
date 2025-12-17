@@ -102,19 +102,19 @@ Download the latest release of Prometheus by going [here](https://prometheus.io/
 
 ```
 cd ~
-curl -LO https://github.com/prometheus/prometheus/releases/download/v3.7.2/prometheus-3.7.2.linux-amd64.tar.gz
-tar xvf prometheus-3.7.2.linux-amd64.tar.gz
-sudo cp prometheus-3.7.2.linux-amd64/prometheus /usr/local/bin/
-sudo cp prometheus-3.7.2.linux-amd64/promtool /usr/local/bin/
+curl -LO https://github.com/prometheus/prometheus/releases/download/v3.8.1/prometheus-3.8.1.linux-amd64.tar.gz
+tar xvf prometheus-3.8.1.linux-amd64.tar.gz
+sudo cp prometheus-3.8.1.linux-amd64/prometheus /usr/local/bin/
+sudo cp prometheus-3.8.1.linux-amd64/promtool /usr/local/bin/
 ```
 
 Modify file names and clean up:
 
 ```
-sudo cp -r prometheus-3.7.2.linux-amd64/consoles /etc/prometheus
-sudo cp -r prometheus-3.7.2.linux-amd64/console_libraries /etc/prometheus
-rm prometheus-3.7.2.linux-amd64.tar.gz
-rm -r prometheus-3.7.2.linux-amd64
+sudo cp -r prometheus-3.8.1.linux-amd64/consoles /etc/prometheus
+sudo cp -r prometheus-3.8.1.linux-amd64/console_libraries /etc/prometheus
+rm prometheus-3.8.1.linux-amd64.tar.gz
+rm -r prometheus-3.8.1.linux-amd64
 ```
 
 Set up an account for the services to run under (note: this type of account cannot log into the server):
@@ -272,14 +272,16 @@ Finally, enable the service to automatically start on reboot:
 sudo systemctl enable node_exporter
 ```
 
+**Note:** Some hardware configurations (particularly VMs or systems without thermal sensors) may trigger recurring `thermal_zone` collector errors in the logs. These warnings are harmless and can be safely ignored. If desired, you can disable this collector by adding `--no-collector.thermal_zone` to the `ExecStart` line in the service file.
+
 #### JSON Exporter
 
-Download the latest release of Node Explorer by going [here](https://github.com/prometheus-community/json%5Fexporter/releases) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository and move them to /git:
+Download the latest release of JSON Explorer by going [here](https://github.com/prometheus-community/json%5Fexporter/releases) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository and move them to /git:
 
 ```
 mkdir ~/git
 cd git
-git clone --depth 1 --branch v0.6.0 https://github.com/prometheus-community/json_exporter.git
+git clone --depth 1 --branch v0.7.0 https://github.com/prometheus-community/json_exporter.git
 cd ~
 ```
 
@@ -345,7 +347,7 @@ sudo systemctl start json_exporter
 sudo systemctl status json_exporter
 ```
 
-It will **NOT** say "active (running)" in green text, as `'/etc/json_exporter/json_exporter.yml' does not exist`, this is expected. We will configure the YML file in step 5.
+It may not say "active (running)" in green text, as `'/etc/json_exporter/json_exporter.yml' does not exist`, this is expected. We will configure the YML file in step 5 below.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -363,11 +365,28 @@ sudo systemctl enable json_exporter
 
 #### Ethereum Metrics Exporter
 
-Download and build the latest version of the Ethereum Metrics Exporter, and move it to the /bin:
+Clone and build the latest version of the Ethereum Metrics Exporter from source:
 
+```bash
+cd ~/git
+git clone https://github.com/ethpandaops/ethereum-metrics-exporter.git
+cd ethereum-metrics-exporter
+go build -o ethereum-metrics-exporter .
 ```
-go install github.com/ethpandaops/ethereum-metrics-exporter@latest
-sudo cp ~/go/bin/ethereum-metrics-exporter /usr/local/bin
+
+Copy the executable to /usr/local/bin and verify it works:
+
+```bash
+sudo cp ethereum-metrics-exporter /usr/local/bin/
+sudo chmod +x /usr/local/bin/ethereum-metrics-exporter
+/usr/local/bin/ethereum-metrics-exporter --help
+```
+
+Clean up the build files:
+
+```bash
+cd ~
+rm -rf ~/git/ethereum-metrics-exporter
 ```
 
 Set up an account for the services to run under (note: this type of account cannot log into the server):
@@ -415,7 +434,7 @@ sudo systemctl start eth-metrics
 sudo systemctl status eth-metrics
 ```
 
-It will **NOT** say "active (running)" in green text, as `'/etc/eth-metrics/eth-metrics.yml' does not exist`, this is expected. We will configure the YML file in step 5.
+It may not say "active (running)" in green text, as `'/etc/json_exporter/json_exporter.yml' does not exist`, this is expected. We will configure the YML file in step 5 below.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -727,11 +746,13 @@ sudo journalctl -fu eth-metrics | ccze
 
 ### Step 7 Set up Dashboard
 
-Log into your Grafana instance `({YourIp}:3000)` using the password you set up earlier. In the menu, click on Dashboard > New > Import. Copy and paste [this file](../.imgs/grafana-dashboard.json) into the `Import via panel json` area and click `Load`. On the next screen, give your dashboard a unique name, feel free to change the UUID, and click `Import`.
+Log into your Grafana instance `({YourIp}:3000)` using the password you set up earlier. In the menu, click on Dashboard > New > Import. Copy and paste [this file](../.imgs/grafana-dashboard.json) into the `Import via dashboard JSON model` area and click `Load`. On the next screen, give your dashboard a unique name, feel free to change the UUID, and click `Import`.
 
 ⚠️ **You're going to see a lot of errors, that is expected!** ⚠️
 
-These errors are because we need to update the data source for all panels you just imported. Head back to the data sources menu (Home > Connection > Data sources) and click on Prometheus. From here, click on Dashboards, and click `Build a Dashboard` (we will delete this later). Click `Import dashboard` save the dashboard, and then click it again - finally, use the import code `3662`, then click load, select the prometheus data source, then import.
+These errors are because we need to update the data source for all panels you just imported. Head back to the data sources menu (Home > Connection > Data sources) and click on Prometheus - ensure the connection is set to http://localhost:9090 with `No Authentication`, then scroll down and click `Save and Test`. 
+
+Next, click on Dashboards, and click `New` then `Import` (we will delete this later), use the import code `3662`, then click load, select the prometheus data source, then import.
 
 Navigate to that dashboard (it should automatically open), click edit and head to settings, and then click on JSON Model. Copy the UUID contained in line 19\. This is your data source's UUID!
 
