@@ -149,6 +149,28 @@ You should now see a line of text that looks something like `drwx------ 4 prysmb
 
 As of May 2025, you can now use the [Ethereum Launchpad Validator Actions](https://launchpad.ethereum.org/en/validator-actions) to perform a validator exit via GUI. Note that you will need to be able to connect your withdrawal address to the site in order to proceed. If this is not possible or you would prefer to use the CLI method, please consult the [Prysm documentation](https://prysm.offchainlabs.com/docs/manage-validator/exiting-a-validator/). Otherwise, refer to Appendix G Launchpad Validator Actions.
 
+#### Removing Exited Validators from Your Node
+
+After a validator has fully exited and you've withdrawn your funds, you may want to remove its keys from the validator client. This will clean up your Grafana dashboard and stop tracking the exited validator.
+
+First, list your current validator accounts to find the pubkey of the validator you want to remove:
+
+```
+sudo /usr/local/bin/validator accounts list --wallet-dir=/var/lib/prysm/validator
+```
+
+Then, stop the validator service, delete the specific key, and restart:
+
+```
+sudo systemctl stop prysmvalidator
+sudo /usr/local/bin/validator accounts delete --wallet-dir=/var/lib/prysm/validator --delete-public-keys=0xYOUR_PUBKEY_HERE
+sudo systemctl start prysmvalidator
+```
+
+Replace `0xYOUR_PUBKEY_HERE` with the full public key of the exited validator you want to remove. You can delete multiple validators at once by separating pubkeys with commas (no spaces).
+
+**Note:** Only remove validators that have **fully exited** and whose funds have been withdrawn. Removing an active validator's keys will cause missed attestations and penalties.
+
 ### Appendix E Checking Sync Committee Duties
 
 Before performing maintenance (like updating Reth or Prysm), it is prudent to check upcoming sync committee duties (described up to [\~27 hours in advance](https://github.com/ethereum/consensus-specs/pull/2453)) so as not to be offline when you would otherwise be part of a committee.

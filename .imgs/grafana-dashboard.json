@@ -577,6 +577,7 @@
           "exemplar": false,
           "expr": "max by (network) (beacon_current_active_validators{group=\"Prysm/Reth\"}/7200)",
           "format": "time_series",
+          "hide": true,
           "instant": true,
           "legendFormat": "Individual Validator",
           "range": false,
@@ -589,10 +590,10 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (network) (\r\n    (\r\n        max by (network) (beacon_current_active_validators{group=\"Prysm/Reth\",job!=\"prysmvalidator\"}) /\r\n        max by (network) (total_local_validators:active{group=\"Prysm/Reth\"})  /\r\n        7200\r\n    )\r\n    or\r\n    (\r\n        max by (network) (beacon_current_active_validators{group=\"Prysm/Reth\",job!=\"prysmvalidator\"}) / \r\n        count by (network) (count by (network, pubkey) (consensus_validator_balance:ETH{group=\"Prysm/Reth\"})) /\r\n        7200\r\n    )\r\n)",
+          "expr": "beacon_current_active_validators{group=\"Prysm/Reth\",job=\"prysm-beacon\"} / scalar(count(validator_balance)) / 7200",
           "hide": false,
           "instant": true,
-          "legendFormat": "All Local Validators",
+          "legendFormat": "~Time Between Proposals",
           "range": false,
           "refId": "B"
         },
@@ -603,13 +604,13 @@
           },
           "editorMode": "code",
           "expr": "(time() - (scalar(last_over_time(consensus_beacon_genesis_time{group=\"Mainnet Prysm/Reth\"}[2h])) + (max by (group,network) (validator_next_proposal_slot{group=\"Mainnet Prysm/Reth\"}) * 12))) / 86500",
-          "hide": false,
+          "hide": true,
           "legendFormat": "Last Proposal",
           "range": true,
           "refId": "C"
         }
       ],
-      "title": "Expected Time Between Proposals",
+      "title": "",
       "type": "stat"
     },
     {
