@@ -183,8 +183,8 @@ Note that this requires the following script be set up and made executable:
 ```
 #!/bin/sh
 
-# Set the URL of the local beacon node
-BEACON_NODE="http://localhost:5052"
+# Set the URL of the local beacon node (Prysm default port)
+BEACON_NODE="http://localhost:3500"
 
 # Convert space-separated validator indices from command line arguments to a regex pattern
 VALIDATOR_LIST=$(echo "$@" | tr ' ' '|')
