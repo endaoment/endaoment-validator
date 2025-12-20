@@ -14,6 +14,7 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
   - [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
   - [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
 - [Appendix G Launchpad Validaor Actions](/validators/validator-sop-part2-upkeep#appendix-g-launchpad-validator-actions)
+- [Appendix H Resetting Reth Database](/validators/validator-sop-part2-upkeep#appendix-h-resetting-reth-database)
 
 ### Appendix A Package Management Updates
 
@@ -470,3 +471,75 @@ As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upg
 - **Absorb another validator** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to transfer the entire balance of another validator you control to the one you have selected, consolidating those validators into one.
 - **Migrate funds** -  this action allows you to transfer the entire balance of the validator you have selected to another one of your validators. The target consolidation validator must be using `0x02` withdrawal credentials (see "Update account to compounding" above).
 - **Exit validator** - this action allows you to perform a full exit of your validator and withdraw the entire balance thereof.
+
+### Appendix H Resetting Reth Database
+
+In rare cases, you may need to reset the Reth database and re-sync from scratch. Common reasons include:
+
+- **Database corruption** from power outages or hardware failures
+- **Unclean shutdowns** that left the database in an inconsistent state
+- **Storage format upgrades** when a new Reth version requires a fresh sync
+- **Disk space recovery** if the database has grown unexpectedly large
+
+<Warning>
+**This will delete all synced execution layer data** and require a full re-sync, which can take hours to days depending on your sync method. Only proceed if other troubleshooting steps have failed.
+</Warning>
+
+#### Check If a Reset Is Necessary
+
+Before resetting, try restarting Reth first—many issues resolve with a clean restart:
+
+```
+sudo systemctl restart reth
+sudo journalctl -fu reth | ccze
+```
+
+If you see persistent errors like `Database corrupted`, `Checksum mismatch`, or `Failed to open database`, a reset may be necessary.
+
+#### Reset the Database
+
+First, stop the Reth service:
+
+```
+sudo systemctl stop reth
+```
+
+Remove all data from the Reth data directory:
+
+```
+sudo rm -rf /var/lib/reth/*
+```
+
+#### Re-sync Options
+
+**Option 1: Sync from Genesis (Slower, Smaller)**
+
+Simply restart Reth and it will begin syncing from genesis using the `--full` flag configuration:
+
+```
+sudo systemctl start reth
+```
+
+This takes 1-3 days but results in a smaller database (~1-2TB).
+
+**Option 2: Use Merkle Snapshot (Faster, Larger)**
+
+For faster recovery, use a [Merkle snapshot](/validators/validator-sop-part1-setup#optional-use-merkle-snapshot-for-faster-initial-sync) as described in Part 1. This reduces sync time to a few hours but results in a larger database.
+
+#### Monitor Re-sync Progress
+
+Watch the logs to monitor sync progress:
+
+```
+sudo journalctl -fu reth | ccze
+```
+
+Check sync status via JSON-RPC:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
+```
+
+A response of `{"jsonrpc":"2.0","id":1,"result":false}` indicates sync is complete.
+
+**Note:** Your beacon chain will show errors until Reth finishes syncing. This is expected—once Reth catches up, the beacon chain will resume normal operation.
