@@ -247,7 +247,7 @@ Enter your password when prompted. If you are able to log in and see `{user}@{no
 
 #### Configure Fail2Ban
 
-Fail2Ban is an intrusion-prevention program that scans log files and and bans IPs that show malicious activity. If a certain number of failed logins are detected from a specific IP address (within a specified amount of time), that IP address is blocked. This service provides basic protection against brute-force attacks, and can be configured to ignore local IPs.
+Fail2Ban is an intrusion-prevention program that scans log files and bans IPs that show malicious activity. If a certain number of failed logins are detected from a specific IP address (within a specified amount of time), that IP address is blocked. This service provides basic protection against brute-force attacks, and can be configured to ignore local IPs.
 
 Install fail2ban, and enable and start the service:
 
@@ -772,7 +772,7 @@ Create a directory to store the validator data:
 sudo mkdir -p /var/lib/prysm/validator
 ```
 
-Next, set up the directories and permissions for prysmbeacon:
+Next, set up the permissions for prysmvalidator:
 
 ```
 sudo chown -R prysmvalidator:prysmvalidator /var/lib/prysm/validator

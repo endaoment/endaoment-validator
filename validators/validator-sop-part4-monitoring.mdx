@@ -202,7 +202,7 @@ sudo systemctl enable prometheus
 
 #### Node Exporter
 
-Download the latest release of Node Explorer by going [here](https://prometheus.io/download/#node%5Fexporter) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository, extract the files, and move them to the /bin:
+Download the latest release of Node Exporter by going [here](https://prometheus.io/download/#node%5Fexporter) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository, extract the files, and move them to the /bin:
 
 ```
 cd ~
@@ -276,7 +276,7 @@ sudo systemctl enable node_exporter
 
 #### JSON Exporter
 
-Download the latest release of JSON Explorer by going [here](https://github.com/prometheus-community/json%5Fexporter/releases) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository and move them to /git:
+Download the latest release of JSON Exporter by going [here](https://github.com/prometheus-community/json%5Fexporter/releases) and copying the download link for the latest linux-amd64.tar.gz file. Please be sure to replace the link below using the current version. Download the repository and move them to /git:
 
 ```
 mkdir ~/git
@@ -434,7 +434,7 @@ sudo systemctl start eth-metrics
 sudo systemctl status eth-metrics
 ```
 
-It may not say "active (running)" in green text, as `'/etc/json_exporter/json_exporter.yml' does not exist`, this is expected. We will configure the YML file in step 5 below.
+It may not say "active (running)" in green text, as `'/etc/eth-metrics/eth-metrics.yml' does not exist`, this is expected. We will configure the YML file in step 5 below.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -692,7 +692,7 @@ ls /etc/prometheus/files_sd/
 
 #### Validator Public Key Targets
 
-Edit the validator configuration file to include a list of coma separated public keys of your validator(s):
+Edit the validator configuration file to include a list of comma separated public keys of your validator(s):
 
 ```
 sudo nano /etc/prometheus/files_sd/stakelocal/validators.yml
