@@ -271,7 +271,7 @@ Run the following command, it will show something like the below:
 
 ### Appendix F MEV-Boost
 
-MEV-boost (Maximal Extractable Value) is software that allows stakers to access MEV, earning them higher block rewards by using opensource middleware (MEV-boost by Flashbots) that allows access to the competitive block-building market. See more information about proposer-builder separation [here](https://ethresear.ch/t/proposer-block-builder-separation-friendly-fee-market-designs/9725).
+MEV-boost (Maximal Extractable Value) is software that allows stakers to access MEV, earning them higher block rewards by using open-source middleware (MEV-boost by Flashbots) that allows access to the competitive block-building market. See more information about proposer-builder separation [here](https://ethresear.ch/t/proposer-block-builder-separation-friendly-fee-market-designs/9725).
 
 There are trade-offs and choices to make in terms of which block-builders are used here, namely, _is the relay censoring aka OFAC compliant_ and _is the relay ethical aka does it employ frontrunning and sandwich attack methods to increase MEV_. Endaoment and this guide do not support or otherwise condone the use of unethical or illegal MEV-boost practices.
 
@@ -356,7 +356,7 @@ sudo systemctl start mevboost
 sudo systemctl status mevboost
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the mevboost service).
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not affect the mevboost service).
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -459,13 +459,11 @@ mev-boost --version
 
 Now you're really cooking.
 
-![](../images/SolarNode2.png)
-
 ### Appendix G Launchpad Validator Actions
 
 As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upgraded the list of actions you can take using the UI beyond simply making deposits into validators. If you navigate to the [Validator Actions](https://launchpad.ethereum.org/en/validator-actions) page and connect the wallet that represents your **withdrawal address**, you'll be able to select a current validator and take a number of different actions with it depending on your withdrawal credentials (`0x00`, `0x01`, or `0x02`).
 
-- **Update account to compounding** - this process converts your existing `0x00` or `0x01` withdrawal credentials to `0x02` (new in the Pectra hardfork). Having `0x02` withdrawal credentials allows you to increase your effective balance from 32 ETH to 2048 ETH so that you need not spin up a new validator for each tranche. When you make this change, regular withdrawals will cease, and partial withdrawals may be requested using this UI (see "Request partial withdrawal" below). In addition, rewards will be based on your current validator balance and increase as that balance increases, essentially compounding your rewards.
+- **Update account to compounding** - this process converts your existing `0x00` or `0x01` withdrawal credentials to `0x02` (new in the Pectra hard fork). Having `0x02` withdrawal credentials allows you to increase your effective balance from 32 ETH to 2048 ETH so that you need not spin up a new validator for each tranche. When you make this change, regular withdrawals will cease, and partial withdrawals may be requested using this UI (see "Request partial withdrawal" below). In addition, rewards will be based on your current validator balance and increase as that balance increases, essentially compounding your rewards.
 - **Add funds to your validator** - only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to add additional ETH to your validator that is currently held elsewhere. This allows compounding rewards, and has a minimum deposit amount of 1 ETH.
 - **Request partial withdrawal** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to withdraw any portion of staked ETH over 32 to your withdrawal address.
 - **Absorb another validator** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to transfer the entire balance of another validator you control to the one you have selected, consolidating those validators into one.

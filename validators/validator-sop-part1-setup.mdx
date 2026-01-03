@@ -24,9 +24,6 @@ title: "Validator SOP Part 1: Hardware, Software, & Deposit Setup"
    * [Create a Wallet Password File](/validators/validator-sop-part1-setup#create-a-wallet-password-file)
 * [Step 12 Fund the Validators](/validators/validator-sop-part1-setup#step-12-fund-the-validators)  
    * [Check the Status of Your Validator Deposits](/validators/validator-sop-part1-setup#check-the-status-of-your-validator-deposits)
-* [Addendum Adding Validators to Existing Config](/validators/validator-sop-part1-setup#addendum-adding-validators-to-existing-config)
-
-![](../images/DaVinci-Node.jpeg)
 
 ### Step 0 Purchase Equipment and Assemble NUC
 
@@ -59,8 +56,6 @@ Note: You will also need a small screwdriver to handle installation if assemblin
 If setting up a new validator (and haven't already generated deposit data and validator key(s)), you'll need to run the deposit tool CLI, and should do so from an **air-gapped machine**.
 
 **If you are not generating new keys, skip to step 2.**
-
-**If you are adding new validators to an existing config, please see the [Addendum](/validators/validator-sop-part1-setup#addendum-adding-validators-to-existing-config) at the bottom of this document**
 
 In order to have a machine ready to go, we will need to install an OS on your new validator hardware built in step 0\. We'll be using Ubuntu Desktop. On your laptop, navigate to [ubuntu.com](https://ubuntu.com/download/desktop), download the latest LTS copy of Ubuntu Desktop (as of 2025, _24.04.1 LTS_). In addition, download and install the [Etcher tool](https://www.balena.io/etcher) which will allow you to flash the operating system onto the USB drive. Lastly, download the latest version of the [deposit CLI tool](https://github.com/ethereum/staking-deposit-cli/releases) \- you want the **AMD64** version - unzip the executable file.
 
@@ -237,13 +232,13 @@ sudo nano /etc/hosts
 
 When prompted, enter your password. Now, above the final `::1 localhost line`, create a new line, and add the local IP of your node _(see: variables)_, then a few spaces so you're aligned with the localhost text, and then enter the name of the Node you used above _(see: variables)_.
 
-Now, lets test to see if you can SSH into your Node. Simply open a new terminal window, and enter the following command, subbing in the name of the Node, user, and the SSH port _(see: variables)_.
+Now, let's test to see if you can SSH into your Node. Simply open a new terminal window, and enter the following command, subbing in the name of the Node, user, and the SSH port _(see: variables)_.
 
 ```
 ssh {yourusername}@{node_name OR node_IP} -p {YourSSHPortNumber}
 ```
 
-Enter your password when prompted. If you are able to log in and see `{user}@{node_name}`, you're set! Once you see this, you can disconnect the Node from the monitor and keyboard, and can preform the remainder of tasks from any laptop or computer on the same LAN using the command above to SSH in. The Node **only** needs to remain connected to power and ethernet (powered via UPS if possible).
+Enter your password when prompted. If you are able to log in and see `{user}@{node_name}`, you're set! Once you see this, you can disconnect the Node from the monitor and keyboard, and can perform the remainder of tasks from any laptop or computer on the same LAN using the command above to SSH in. The Node **only** needs to remain connected to power and ethernet (powered via UPS if possible).
 
 #### Configure Fail2Ban
 
@@ -286,7 +281,7 @@ sudo systemctl start fail2ban
 sudo systemctl status fail2ban
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the fail2ban service)
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not affect the fail2ban service)
 
 #### Disable Root Access
 
@@ -367,7 +362,7 @@ chronyc tracking
 * **System time**: Should show offset in milliseconds (< 100ms is good, < 10ms is excellent)
 * **Stratum**: Should be 2-4 (lower is better)
 
-**Note:** Right after installation, chrony needs 5-10 minutes to synchronize with time servers. The "Leap status" will show "Not synchronised" initially - this is normal.
+**Note:** Right after installation, chrony needs 5-10 minutes to synchronize with time servers. The "Leap status" will show "Not synchronized" initially - this is normal.
 
 Optionally, set your timezone (affects log timestamps only, doesn't impact validation):
 
@@ -604,7 +599,7 @@ sudo systemctl start reth
 sudo systemctl status reth
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the Reth service)
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not affect the Reth service)
 
 The sync will begin immediately. Use the journal output to follow the progress or check for errors by running the following command.
 
@@ -744,7 +739,7 @@ sudo systemctl start prysmbeacon
 sudo systemctl status prysmbeacon
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the PrysmBeacon service) - the sync has already begun.
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not affect the PrysmBeacon service) - the sync has already begun.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -819,7 +814,7 @@ sudo systemctl start prysmvalidator
 sudo systemctl status prysmvalidator
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the PrysmValidator service) - the sync has already begun.
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not affect the PrysmValidator service) - the sync has already begun.
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -953,7 +948,7 @@ Create a file to store the wallet password so the Prysm validator service (set u
 sudo nano /var/lib/prysm/validator/password.txt
 ```
 
-This will create a new text file and open a nano text editor. Type your password you just created for your validator wallet into the the file.
+This will create a new text file and open a nano text editor. Type your password you just created for your validator wallet into the file.
 
 Press CTRL + X then Y then ENTER to save and exit.
 
@@ -1012,8 +1007,6 @@ That’s it. You now have a functioning Execution and Consensus client and the s
 
 Probably a good time to _touch grass_.
 
-![](../images/SolarNode.jpg)
-
 #### Clean Up `validator_keys`
 
 While not essential as you can always regenerate them using your mnemonic, it's good practice to back up the `validator_keys` directory (typically `$HOME/staking-deposit-cli/validator_keys`) on a USB for [emergencies](./validator-sop-part3-emergency.mdx).
@@ -1023,5 +1016,3 @@ After ensuring you have a backup of these files  as described in [Step 1 Generat
 ```
 sudo rm -r $HOME/staking-deposit-cli/validator_keys
 ```
-
-![](../images/Stacking-Staking.png)
