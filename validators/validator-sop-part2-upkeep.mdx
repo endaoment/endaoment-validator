@@ -5,15 +5,16 @@ title: "Validator SOP Part 2: Upkeep, Updates, & Ongoing Management"
 ## Table of Contents
 
 - [Appendix A Package Management Updates](/validators/validator-sop-part2-upkeep#appendix-a-package-management-updates)
-- [Appendix B Updating Geth](/validators/validator-sop-part2-upkeep#appendix-b-updating-geth)
+- [Appendix B Updating Reth](/validators/validator-sop-part2-upkeep#appendix-b-updating-reth)
 - [Appendix C Updating Prysm](/validators/validator-sop-part2-upkeep#appendix-c-updating-prysm)
-- [Appendix D Exiting a Validator](/validators/validator-sop-part2-upkeep#appendix-e-exiting-a-validator)
-- [Appendix E Checking Sync Committee Duties](/validators/validator-sop-part2-upkeep#appendix-f-checking-sync-committee-duties)
-- [Appendix F MEV-Boost](/validators/validator-sop-part2-upkeep#appendix-g-mev-boost)
+- [Appendix D Exiting a Validator](/validators/validator-sop-part2-upkeep#appendix-d-exiting-a-validator)
+- [Appendix E Checking Sync Committee Duties](/validators/validator-sop-part2-upkeep#appendix-e-checking-sync-committee-duties)
+- [Appendix F MEV-Boost](/validators/validator-sop-part2-upkeep#appendix-f-mev-boost)
   - [MEV Boost Set Up](/validators/validator-sop-part2-upkeep#mev-boost-set-up)
   - [Update BeaconChain and Validator Software](/validators/validator-sop-part2-upkeep#update-beaconchain-and-validator-software)
   - [Update MEV Boost](/validators/validator-sop-part2-upkeep#update-mev-boost)
-- [Appendix G Launchpad Validaor Actions](/validators/validator-sop-part2-upkeep#appendix-g-launchpad-validator-actions)
+- [Appendix G Launchpad Validator Actions](/validators/validator-sop-part2-upkeep#appendix-g-launchpad-validator-actions)
+- [Appendix H Resetting Reth Database](/validators/validator-sop-part2-upkeep#appendix-h-resetting-reth-database)
 
 ### Appendix A Package Management Updates
 
@@ -39,50 +40,48 @@ Note that because it's a sudo command, you'll need to enter your password.
 
 It is not irregular for your Node to prompt you to restart it after some particular updates are made. Sometimes this is requested after packages are updated, other times it's requested and shown to you upon your next login.
 
-### Appendix B Updating Geth
+### Appendix B Updating Reth
 
-First, go to the Geth Repository [here](https://geth.ethereum.org/downloads/) and right-click on the Geth for Linux button and then click copy link. Be sure to copy the correct link. It should look something like `https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version (x5), which is v1.16.7 in this example (current as of 11.4.25).
+First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v1.9.3/reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v1.9.3 in this example (current as of Nov 2025).
 
 ```
 cd ~
-curl -LO https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.9.3/reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
 ```
 
-Then stop the Geth service
+Then stop the Reth service
 
 ```
-sudo systemctl stop geth
+sudo systemctl stop reth
 ```
 
-Note that stopping Geth always takes a moment and is not expected to complete immediately, don't stress, just be patient.
+Note that stopping Reth always takes a moment and is not expected to complete immediately, don't stress, just be patient.
 
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-cd geth-linux-amd64-1.16.7-b9f3a3d9
-sudo cp geth /usr/local/bin
+tar xvf reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
+sudo cp reth /usr/local/bin
 ```
 
 Next, restart the services and check for errors:
 
 ```
-sudo systemctl start geth
+sudo systemctl start reth
 ```
 
 ```
-sudo systemctl status geth # <-- Check for errors
-sudo journalctl -fu geth | ccze # <-- Monitor
+sudo systemctl status reth # <-- Check for errors
+sudo journalctl -fu reth | ccze # <-- Monitor
 sudo journalctl -fu prysmbeacon | ccze # <-- Monitor
 ```
 
-Finally, clean up the files, modifying the file name to match the downloaded version. Then check the Geth version to verify that all was installed correctly. This should match the Geth version shown on the repo site:
+Finally, clean up the files, modifying the file name to match the downloaded version. Then check the Reth version to verify that all was installed correctly. This should match the Reth version shown on the repo site:
 
 ```
 cd ~
-rm geth-linux-amd64-1.16.7-b9f3a3d9.tar.gz
-rm -r geth-linux-amd64-1.16.7-b9f3a3d9
-geth version
+rm reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
+reth --version
 ```
 
 ### Appendix C Updating Prysm
@@ -115,20 +114,6 @@ sudo cp beacon-chain /usr/local/bin
 sudo cp validator /usr/local/bin
 sudo chown -R prysmbeacon:prysmbeacon /var/lib/prysm/validator/ && sudo chown -R prysmvalidator:prysmvalidator /var/lib/prysm/validator/
 ```
-
-**If upgrading to v7.0.0+:** Add blob storage layout flag to beacon service:
-
-```
-sudo nano /etc/systemd/system/prysmbeacon.service
-```
-
-Add `--blob-storage-layout=by-epoch` to the ExecStart section (add a `\` to the previous line):
-
-```
---blob-storage-layout=by-epoch
-```
-
-Press CTRL + X then Y then ENTER to save and exit.
 
 Next, restart services and check for errors, then clean up the files:
 
@@ -163,71 +148,33 @@ You should now see a line of text that looks something like `drwx------ 4 prysmb
 
 ### Appendix D Exiting a Validator
 
-As of May 2025, you can now use the [Ethereum Launchpad Validator Actions](https://launchpad.ethereum.org/en/validator-actions) to perform a validator exit using its UI. Note that you will need to be able to connect your withdrawal address to the site in order to proceed. While easier, this method will not work for everyone and brings with it some safety concerns that don't exist in the below CLI method.
+As of May 2025, you can now use the [Ethereum Launchpad Validator Actions](https://launchpad.ethereum.org/en/validator-actions) to perform a validator exit via GUI. Note that you will need to be able to connect your withdrawal address to the site in order to proceed. If this is not possible or you would prefer to use the CLI method, please consult the [Prysm documentation](https://prysm.offchainlabs.com/docs/manage-validator/exiting-a-validator/). Otherwise, refer to Appendix G Launchpad Validator Actions.
 
-To exit Validator(s), you'll need to know which ones! To check your accounts, you can use this command:
+#### Removing Exited Validators from Your Node
 
-```
-sudo validator accounts list --wallet-dir=/var/lib/prysm/validator
-```
+After a validator has fully exited and you've withdrawn your funds, you may want to remove its keys from the validator client. This will clean up your Grafana dashboard and stop tracking the exited validator.
 
-Followed by typing in your wallet password. You'll see a list of your account(s) returned that looks something like the below:
+First, list your current validator accounts to find the pubkey of the validator you want to remove:
 
 ```
-Account 0 | officially-sunny-sloth
-[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d2
-
-Account 1 | preferably-amazing-frog
-[validating public key] 0x84e475136f61f9031e9e8cbbdc96b37e5ada9c98467a8bca53c368de29653f9278ec2b32e0569ce786570e99aae799d3
+sudo /usr/local/bin/validator accounts list --wallet-dir=/var/lib/prysm/validator
 ```
 
-Make sure to keep note of this data for the validator you'd like to exit.
-
-Before we get started, we'll need bazel, set to v7.4.1 (as of 4.11.25):
+Then, stop the validator service, delete the specific key, and restart:
 
 ```
-sudo apt install apt-transport-https curl gnupg -y
-curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg
-sudo mv bazel-archive-keyring.gpg /usr/share/keyrings
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-sudo apt update && sudo apt install bazel
-sudo apt update && sudo apt full-upgrade
-sudo apt install bazel-7.4.1
-sudo ln -s /usr/bin/bazel-7.4.1 /usr/bin/bazel
-bazel --version  # 7.4.1
+sudo systemctl stop prysmvalidator
+sudo /usr/local/bin/validator accounts delete --wallet-dir=/var/lib/prysm/validator --delete-public-keys=0xYOUR_PUBKEY_HERE
+sudo systemctl start prysmvalidator
 ```
 
-Now, we'll need to use prysmctl (note that this command is not setting up a service, but instead running prysmctl directory and one time). Use the following commands to install and build the latest version:
+Replace `0xYOUR_PUBKEY_HERE` with the full public key of the exited validator you want to remove. You can delete multiple validators at once by separating pubkeys with commas (no spaces).
 
-```
-git clone https://github.com/OffchainLabs/prysm && cd prysm
-bazel build //cmd/prysmctl --config=release
-cd bazel-bin/cmd/prysmctl/prysmctl_
-```
-
-This will take a few minutes.
-
-Armed with the required information and software, issue the following command and use the arrow keys to select the validator(s) you'd like to exit, and continue to follow the instructions presented (including entering your wallet password):
-
-```
-sudo ./prysmctl validator exit --wallet-dir=/var/lib/prysm/validator
-```
-
-It may take some time for the validators to exit - issuing this command simply adds your validator to the exit [queue](https://www.validatorqueue.com). After a few minutes you should be able to to check the status of the voluntary exit by searching for the validator on [Beaconcha.in](https://beaconcha.in/).
-
-Note that even if there is no exit queue, this process will still take non insiginificant time. Exiting requires at least \~30 minutes to show on Beaconchain, plus exit queue time, and then a variable amount of time depending on the [sweep timing](https://ethereum.org/en/staking/withdrawals/#validator-sweeping), which is impacted by the number of active validators that have either full or partial withdrawals.
-
-Once the exit succeeds and you confirm receipt of the 32 (\* the number of exited validators) ETH, you can stop all services on your Node and permanently shut down if you wish.
-
-If you are only exiting temporarily and are going to use this same confirmation (or are using it) for other validators, you should remove the directory you created here so that you can repeat this process in the future, rebuilding the latest version of prysmctl:
-
-```
-rm -rf $HOME/prysm
-```
+**Note:** Only remove validators that have **fully exited** and whose funds have been withdrawn. Removing an active validator's keys will cause missed attestations and penalties.
 
 ### Appendix E Checking Sync Committee Duties
 
-Before performing maintenance (like pruning Geth, or updating Geth or Prysm), it is prudent to check upcoming sync committee duties (described up to [\~27 hours in advance](https://github.com/ethereum/consensus-specs/pull/2453)) so as not to be offline when you would otherwise be part of a committee.
+Before performing maintenance (like updating Reth or Prysm), it is prudent to check upcoming sync committee duties (described up to [\~27 hours in advance](https://github.com/ethereum/consensus-specs/pull/2453)) so as not to be offline when you would otherwise be part of a committee.
 
 If any of the validators (as identified by the validator index numbers in the command) have upcoming duties, there will be additional output that says _"validator: 123511 found in next sync committee"_. If no such text is present, the validators in question do not have upcoming sync duties.
 
@@ -236,8 +183,8 @@ Note that this requires the following script be set up and made executable:
 ```
 #!/bin/sh
 
-# Set the URL of the local beacon node
-BEACON_NODE="http://localhost:5052"
+# Set the URL of the local beacon node (Prysm default port)
+BEACON_NODE="http://localhost:3500"
 
 # Convert space-separated validator indices from command line arguments to a regex pattern
 VALIDATOR_LIST=$(echo "$@" | tr ' ' '|')
@@ -308,7 +255,7 @@ sudo chmod +x check_sync_committee.sh
 
 to make the script executable.
 
-Also, run the following commpand to ensure you have prerequisite software set up:
+Also, run the following command to ensure you have prerequisite software set up:
 
 ```
 sudo apt update && sudo apt install -y curl gawk sed coreutils
@@ -324,7 +271,7 @@ Run the following command, it will show something like the below:
 
 ### Appendix F MEV-Boost
 
-MEV-boost (Maximal Extractable Value) is software that allows stakers to access MEV, earning them higher block rewards by using opensource middleware (MEV-boost by Flashbots) that allows access to the competitive block-building market. See more information about proposer-builder separation [here](https://ethresear.ch/t/proposer-block-builder-separation-friendly-fee-market-designs/9725).
+MEV-boost (Maximal Extractable Value) is software that allows stakers to access MEV, earning them higher block rewards by using open-source middleware (MEV-boost by Flashbots) that allows access to the competitive block-building market. See more information about proposer-builder separation [here](https://ethresear.ch/t/proposer-block-builder-separation-friendly-fee-market-designs/9725).
 
 There are trade-offs and choices to make in terms of which block-builders are used here, namely, _is the relay censoring aka OFAC compliant_ and _is the relay ethical aka does it employ frontrunning and sandwich attack methods to increase MEV_. Endaoment and this guide do not support or otherwise condone the use of unethical or illegal MEV-boost practices.
 
@@ -409,7 +356,7 @@ sudo systemctl start mevboost
 sudo systemctl status mevboost
 ```
 
-If it says "active (running)" in green text, you've done it! Press Q to quit (this will not effect the mevboost service).
+If it says "active (running)" in green text, you've done it! Press Q to quit (this will not affect the mevboost service).
 
 Use the journal output to follow the progress or check for errors by running the following command:
 
@@ -465,8 +412,8 @@ sudo systemctl restart prysmbeacon prysmvalidator
 Verify your logs look error-free and show use of the new MEV configurations.
 
 ```
-journalctl -fu prysmbeacon
-journalctl -fu prysmvalidator
+journalctl -fu prysmbeacon | ccze
+journalctl -fu prysmvalidator | ccze
 ```
 
 MEV-boost is now configured and set up!
@@ -474,6 +421,8 @@ MEV-boost is now configured and set up!
 #### Update MEV Boost
 
 Before updating, always review the latest [MEV-boost release notes](https://github.com/flashbots/mev-boost/releases) for new requirements and any breaking changes. Typically, you need to ensure that you have the latest execution and consensus client versions installed in order for MEV-boost to work properly.
+
+**⚠️ Important:** MEV-Boost v1.10.1 is a required update for the upcoming Fusaka upgrade (epoch 411392, scheduled for Dec-03-2025 09:49:11 PM UTC). This version includes support for the new GetPayloadV2 API and Prometheus metrics.
 
 First, stop the service:
 
@@ -510,15 +459,85 @@ mev-boost --version
 
 Now you're really cooking.
 
-![](../images/SolarNode2.png)
-
 ### Appendix G Launchpad Validator Actions
 
-As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upgraded the list of actions you can take using the UI beyond simply making deposits into validators. If you navigate to the [Validator Actions](https://launchpad.ethereum.org/en/validator-actions) page and connect the wallet that represents your **withdrawal address**, you'll be able to select a current validator and take a number of different actions with it depending on your withdrawal credentials.
+As of May of 2025, the [Ethereum Launchpad](https://launchpad.ethereum.org/) upgraded the list of actions you can take using the UI beyond simply making deposits into validators. If you navigate to the [Validator Actions](https://launchpad.ethereum.org/en/validator-actions) page and connect the wallet that represents your **withdrawal address**, you'll be able to select a current validator and take a number of different actions with it depending on your withdrawal credentials (`0x00`, `0x01`, or `0x02`).
 
-- **Update account to compounding** - this process converts your existing `0x00` or `0x01` withdrawal credentials to `0x02` (new in the Pectra hardfork). Having `0x02` withdrawal crednetials allows you to increase your effective balance from 32 ETH to 2048 ETH so that you need not spin up a new validator for each tranche. When you make this change, regular withdrawals will cease, and partial withdrawals may be requested using this UI (see "Request partial withdrawal" below). In addition, rewards will be based on your current validator balance and increase as that balance increases, essentially compounding your rewards.
+- **Update account to compounding** - this process converts your existing `0x00` or `0x01` withdrawal credentials to `0x02` (new in the Pectra hard fork). Having `0x02` withdrawal credentials allows you to increase your effective balance from 32 ETH to 2048 ETH so that you need not spin up a new validator for each tranche. When you make this change, regular withdrawals will cease, and partial withdrawals may be requested using this UI (see "Request partial withdrawal" below). In addition, rewards will be based on your current validator balance and increase as that balance increases, essentially compounding your rewards.
 - **Add funds to your validator** - only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to add additional ETH to your validator that is currently held elsewhere. This allows compounding rewards, and has a minimum deposit amount of 1 ETH.
 - **Request partial withdrawal** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to withdraw any portion of staked ETH over 32 to your withdrawal address.
 - **Absorb another validator** -  only available to validators using `0x02` withdrawal credentials (see "Update account to compounding" above), this action allows you to transfer the entire balance of another validator you control to the one you have selected, consolidating those validators into one.
 - **Migrate funds** -  this action allows you to transfer the entire balance of the validator you have selected to another one of your validators. The target consolidation validator must be using `0x02` withdrawal credentials (see "Update account to compounding" above).
 - **Exit validator** - this action allows you to perform a full exit of your validator and withdraw the entire balance thereof.
+
+### Appendix H Resetting Reth Database
+
+In rare cases, you may need to reset the Reth database and re-sync from scratch. Common reasons include:
+
+- **Database corruption** from power outages or hardware failures
+- **Unclean shutdowns** that left the database in an inconsistent state
+- **Storage format upgrades** when a new Reth version requires a fresh sync
+- **Disk space recovery** if the database has grown unexpectedly large
+
+<Warning>
+**This will delete all synced execution layer data** and require a full re-sync, which can take hours to days depending on your sync method. Only proceed if other troubleshooting steps have failed.
+</Warning>
+
+#### Check If a Reset Is Necessary
+
+Before resetting, try restarting Reth first—many issues resolve with a clean restart:
+
+```
+sudo systemctl restart reth
+sudo journalctl -fu reth | ccze
+```
+
+If you see persistent errors like `Database corrupted`, `Checksum mismatch`, or `Failed to open database`, a reset may be necessary.
+
+#### Reset the Database
+
+First, stop the Reth service:
+
+```
+sudo systemctl stop reth
+```
+
+Remove all data from the Reth data directory:
+
+```
+sudo rm -rf /var/lib/reth/*
+```
+
+#### Re-sync Options
+
+**Option 1: Sync from Genesis (Slower, Smaller)**
+
+Simply restart Reth and it will begin syncing from genesis using the `--full` flag configuration:
+
+```
+sudo systemctl start reth
+```
+
+This takes 1-3 days but results in a smaller database (~1-2TB).
+
+**Option 2: Use Merkle Snapshot (Faster, Larger)**
+
+For faster recovery, use a [Merkle snapshot](/validators/validator-sop-part1-setup#optional-use-merkle-snapshot-for-faster-initial-sync) as described in Part 1. This reduces sync time to a few hours but results in a larger database.
+
+#### Monitor Re-sync Progress
+
+Watch the logs to monitor sync progress:
+
+```
+sudo journalctl -fu reth | ccze
+```
+
+Check sync status via JSON-RPC:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' http://localhost:8545
+```
+
+A response of `{"jsonrpc":"2.0","id":1,"result":false}` indicates sync is complete.
+
+**Note:** Your beacon chain will show errors until Reth finishes syncing. This is expected—once Reth catches up, the beacon chain will resume normal operation.

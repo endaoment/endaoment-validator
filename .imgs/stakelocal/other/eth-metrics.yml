@@ -3,5 +3,5 @@
         network: 'Mainnet'
         host: 'Default Host'
         service: 'Ethereum Metrics Exporter'
-        group: 'Prysm/Geth'
+        group: 'Prysm/Reth'
         client: 'Ethereum Metrics Exporter'

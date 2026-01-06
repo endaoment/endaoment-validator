@@ -30,7 +30,7 @@ Following re-generation of the keystore files, simply continue to follow the gui
 
 ### <a id="emergency-action-plan-β-validator-operator-missing"></a>Emergency Action Plan β Validator Operator Missing
 
-This is actually a bit tricker of a situation than in EAP α. As previously described, it is **critical** that the same validator keystore files are not used by two validators at the same time. In the instance that the validator operator is abducted by aliens, etc., the first thing to determine is if the validators are still functional. If not, revert to EAP α, but if so, we need to gain access to the validators physically. Once access is gained, an evaluation should be done to determine if we should:
+This is actually a bit trickier of a situation than in EAP α. As previously described, it is **critical** that the same validator keystore files are not used by two validators at the same time. In the instance that the validator operator is abducted by aliens, etc., the first thing to determine is if the validators are still functional. If not, revert to EAP α, but if so, we need to gain access to the validators physically. Once access is gained, an evaluation should be done to determine if we should:
 
 1. Destroy the Node and revert to EAP α.
 
@@ -48,6 +48,6 @@ What do we do in the event that the validator operator is missing and access to 
 
 3. Import the keystore files as per step 10 in part 1.
 
-4. Issue the voluntary exit command as per Appendix E.
+4. Issue the voluntary exit command as per Appendix D (Exiting a Validator) or Appendix G (Launchpad Validator Actions) in Part 2.
 
-5. Power down the back up Node you just set up after issuing the command to minimize slashing risks. Note that the exit is queued - risk is not fully mitigated until the exit is completed to the withdrawal address.
+5. Power down the backup Node you just set up after issuing the command to minimize slashing risks. Note that the exit is queued - risk is not fully mitigated until the exit is completed to the withdrawal address.
