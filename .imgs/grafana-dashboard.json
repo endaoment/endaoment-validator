@@ -839,7 +839,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (group,service) (execution_net_peerCount{group=\"Prysm/Reth\"}) or\r\nmax by (group,service) (p2p_peers{group=\"Prysm/Reth\"})",
+          "expr": "max by (group,service) (execution_net_peerCount{group=\"Prysm/Reth\"}) or\r\nmax by (group,service) (p2p_peers{group=\"Prysm/Reth\"}) or\r\nmax by (group,service) (reth_network_connected_peers{group=\"Prysm/Reth\"})",
           "hide": false,
           "instant": true,
           "legendFormat": "{{service}}",

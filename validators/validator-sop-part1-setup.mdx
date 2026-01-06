@@ -550,19 +550,15 @@ Then, inside the tmux session, stream download and extract the snapshot:
 
 ```
 cd /var/lib/reth
-SIZE=$(curl -sI https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | grep -i content-length | awk '{print $2}' | tr -d '\r')
-sudo -u reth wget -q -O - https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | \
-  pv -s $SIZE -pterab | sudo -u reth tar -I lz4 -xf -
+sudo -u reth bash -c 'wget -O - https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | tar -I lz4 -xvf -'
 ```
 
 **Replace `YYYY-MM-DD`** with the latest snapshot date (most recent Monday or Thursday). Check [Merkle's snapshot page](https://www.merkle.io/snapshots) for the current available dates.
 
-Example for December 15, 2025:
+Example for January 1, 2026:
 ```
 cd /var/lib/reth
-SIZE=$(curl -sI https://downloads.merkle.io/reth-2025-12-15.tar.lz4 | grep -i content-length | awk '{print $2}' | tr -d '\r')
-sudo -u reth wget -q -O - https://downloads.merkle.io/reth-2025-12-15.tar.lz4 | \
-  pv -s $SIZE -pterab | sudo -u reth tar -I lz4 -xf -
+sudo -u reth bash -c 'wget -O - https://downloads.merkle.io/reth-2026-01-01.tar.lz4 | tar -I lz4 -xvf -'
 ```
 
 **If download gets interrupted:**
@@ -608,6 +604,12 @@ sudo journalctl -fu reth | ccze
 ```
 
 Press CTRL+ C to exit (will not affect the Reth service).
+
+**Note (initial sync / snapshot troubleshooting):** During the initial sync, Reth may occasionally hit an error during pruning or appear to get “stuck”. If you’re monitoring logs and see errors, Reth generally does a good job persisting progress. In many cases, a simple restart is enough to resume work:
+
+```
+sudo systemctl restart reth
+```
 
 Next, enable the Reth service to automatically start on reboot:
 
