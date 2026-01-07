@@ -88,15 +88,15 @@ reth --version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v7.1.1/beacon-chain-v7.1.1-linux-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v7.1.1 in this example (current as of 12/18/25).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v7.1.2/beacon-chain-v7.1.2-linux-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v7.1.2 in this example (current as of 1/7/26).
 
 Curl the latest software and rename:
 
 ```
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.1/validator-v7.1.1-linux-amd64
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.1/beacon-chain-v7.1.1-linux-amd64
-mv beacon-chain-v7.1.1-linux-amd64 beacon-chain
-mv validator-v7.1.1-linux-amd64 validator
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.2/validator-v7.1.2-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.2/beacon-chain-v7.1.2-linux-amd64
+mv beacon-chain-v7.1.2-linux-amd64 beacon-chain
+mv validator-v7.1.2-linux-amd64 validator
 ```
 
 Then stop the Prysm services:
