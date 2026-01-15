@@ -398,7 +398,7 @@ Press CTRL+X to exit
 
 ### Step 7 Install Reth
 
-Time to install Reth! All commands provided below are based on the v1.9.3 version of Reth (current as of Nov 2025), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
+Time to install Reth! All commands provided below are based on the v1.10.0 version of Reth (current as of Jan 2026), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
 
 **Full Node vs Archive Node:**
 
@@ -413,13 +413,13 @@ Curl the Reth build from the above link:
 
 ```
 cd ~
-curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.9.3/reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.10.0/reth-v1.10.0-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Extract the files from the archive and copy to the /usr/local/bin directory. The Reth service will run it from there. Modify the file name to match the downloaded version:
 
 ```
-tar xvf reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
+tar xvf reth-v1.10.0-x86_64-unknown-linux-gnu.tar.gz
 sudo cp reth /usr/local/bin
 ```
 
@@ -427,7 +427,7 @@ Clean up the files. Modify the file name to match the downloaded version:
 
 ```
 cd ~
-rm reth-v1.9.3-x86_64-unknown-linux-gnu.tar.gz
+rm reth-v1.10.0-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Reth will be configured to run as a background service. Create an account for the service to run under. This type of account can't log into the server:
