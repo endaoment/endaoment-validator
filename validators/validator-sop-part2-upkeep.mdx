@@ -42,11 +42,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Reth
 
-First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v1.10.1/reth-v1.10.1-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v1.10.1 in this example (current as of Jan 2026).
+First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v1.10.2/reth-v1.10.2-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v1.10.2 in this example (current as of Jan 2026).
 
 ```
 cd ~
-curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.10.1/reth-v1.10.1-x86_64-unknown-linux-gnu.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v1.10.2/reth-v1.10.2-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Then stop the Reth service
@@ -60,7 +60,7 @@ Note that stopping Reth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf reth-v1.10.1-x86_64-unknown-linux-gnu.tar.gz
+tar xvf reth-v1.10.2-x86_64-unknown-linux-gnu.tar.gz
 sudo cp reth /usr/local/bin
 ```
 
@@ -80,7 +80,7 @@ Finally, clean up the files, modifying the file name to match the downloaded ver
 
 ```
 cd ~
-rm reth-v1.10.1-x86_64-unknown-linux-gnu.tar.gz
+rm reth-v1.10.2-x86_64-unknown-linux-gnu.tar.gz
 reth --version
 ```
 
@@ -281,7 +281,7 @@ While Endaoment will be using this software to increase staking rewards, we are 
 
 #### MEV Boost Set Up
 
-Let's get to installing! All commands below are based on the current version of MEV-boost as of 11.14.25, v1.10.1, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+Let's get to installing! All commands below are based on the current version of MEV-boost as of 11.14.25, v1.10.2, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
 
 Create mevboost service account:
 
@@ -293,7 +293,7 @@ Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.1/mev-boost_1.10.1_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.2/mev-boost_1.10.1_linux_amd64.tar.gz
 ```
 
 For additional security, you can verify the checksum against the checksum found on the releases link above:
@@ -422,7 +422,7 @@ MEV-boost is now configured and set up!
 
 Before updating, always review the latest [MEV-boost release notes](https://github.com/flashbots/mev-boost/releases) for new requirements and any breaking changes. Typically, you need to ensure that you have the latest execution and consensus client versions installed in order for MEV-boost to work properly.
 
-**⚠️ Important:** MEV-Boost v1.10.1 is a required update for the upcoming Fusaka upgrade (epoch 411392, scheduled for Dec-03-2025 09:49:11 PM UTC). This version includes support for the new GetPayloadV2 API and Prometheus metrics.
+**⚠️ Important:** MEV-Boost v1.10.2 is a required update for the upcoming Fusaka upgrade (epoch 411392, scheduled for Dec-03-2025 09:49:11 PM UTC). This version includes support for the new GetPayloadV2 API and Prometheus metrics.
 
 First, stop the service:
 
@@ -430,13 +430,13 @@ First, stop the service:
 sudo systemctl stop mevboost
 ```
 
-The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.10.1, latest as of 11.14.25.
+The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.10.2, latest as of 11.14.25.
 
 Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.1/mev-boost_1.10.1_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.2/mev-boost_1.10.1_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
