@@ -281,7 +281,7 @@ While Endaoment will be using this software to increase staking rewards, we are 
 
 #### MEV Boost Set Up
 
-Let's get to installing! All commands below are based on the current version of MEV-boost as of 11.14.25, v1.10.2, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+Let's get to installing! All commands below are based on the current version of MEV-boost as of 02.03.26, v1.11, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
 
 Create mevboost service account:
 
@@ -293,21 +293,21 @@ Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.2/mev-boost_1.10.1_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.11/mev-boost_1.11_linux_amd64.tar.gz
 ```
 
 For additional security, you can verify the checksum against the checksum found on the releases link above:
 
 ```
-sha256sum mev-boost_1.10.1_linux_amd64.tar.gz
+sha256sum mev-boost_1.11_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, and remove downloaded leftovers:
 
 ```
-tar xvf mev-boost_1.10.1_linux_amd64.tar.gz
+tar xvf mev-boost_1.11_linux_amd64.tar.gz
 sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.10.1_linux_amd64.tar.gz
+rm mev-boost LICENSE README.md mev-boost_1.11_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 ```
 
@@ -422,30 +422,27 @@ MEV-boost is now configured and set up!
 
 Before updating, always review the latest [MEV-boost release notes](https://github.com/flashbots/mev-boost/releases) for new requirements and any breaking changes. Typically, you need to ensure that you have the latest execution and consensus client versions installed in order for MEV-boost to work properly.
 
-**⚠️ Important:** MEV-Boost v1.10.2 is a required update for the upcoming Fusaka upgrade (epoch 411392, scheduled for Dec-03-2025 09:49:11 PM UTC). This version includes support for the new GetPayloadV2 API and Prometheus metrics.
-
 First, stop the service:
 
 ```
 sudo systemctl stop mevboost
 ```
 
-The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.10.2, latest as of 11.14.25.
+The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.11, latest as of 02.03.26.
 
 Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.10.2/mev-boost_1.10.1_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.11/mev-boost_1.11_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
 
 ```
-sudo systemctl stop mevboost
-tar xvf mev-boost_1.10.1_linux_amd64.tar.gz
+tar xvf mev-boost_1.11_linux_amd64.tar.gz
 sudo mv mev-boost /usr/local/bin
-rm LICENSE README.md mev-boost_1.10.1_linux_amd64.tar.gz
+rm LICENSE README.md mev-boost_1.11_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 sudo systemctl start mevboost
 ```
@@ -457,7 +454,7 @@ sudo systemctl status mevboost
 mev-boost --version
 ```
 
-Now you're really cooking.
+You should see `active (running)` in green text and the current mev-boost version below, nice!
 
 ### Appendix G Launchpad Validator Actions
 
