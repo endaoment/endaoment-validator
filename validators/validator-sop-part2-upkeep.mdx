@@ -281,7 +281,9 @@ While Endaoment will be using this software to increase staking rewards, we are 
 
 #### MEV Boost Set Up
 
-Let's get to installing! All commands below are based on the current version of MEV-boost as of 02.03.26, v1.11, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+Let's get to installing! All commands below are based on the current version of MEV-boost as of 02.23.26, v1.12, but should be adjusted based on whatever the latest version of MEV-boost is [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below.
+
+`v1.12` adds relay multiplexing, which allows operators to configure validator mux groups with distinct relay sets, timeouts, and timing game settings via the global config file. If you run multiple validator sets, review the release details and config guidance before upgrading: [v1.12 changelog](https://github.com/flashbots/mev-boost/compare/v1.11...v1.12), [feature PR](https://github.com/flashbots/mev-boost/pull/826). Docker users should use `flashbots/mev-boost:1.12`.
 
 Create mevboost service account:
 
@@ -293,21 +295,21 @@ Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.11/mev-boost_1.11_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.12/mev-boost_1.12_linux_amd64.tar.gz
 ```
 
 For additional security, you can verify the checksum against the checksum found on the releases link above:
 
 ```
-sha256sum mev-boost_1.11_linux_amd64.tar.gz
+sha256sum mev-boost_1.12_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, and remove downloaded leftovers:
 
 ```
-tar xvf mev-boost_1.11_linux_amd64.tar.gz
+tar xvf mev-boost_1.12_linux_amd64.tar.gz
 sudo cp mev-boost /usr/local/bin
-rm mev-boost LICENSE README.md mev-boost_1.11_linux_amd64.tar.gz
+rm mev-boost LICENSE README.md mev-boost_1.12_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
 ```
 
@@ -428,23 +430,23 @@ First, stop the service:
 sudo systemctl stop mevboost
 ```
 
-The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses v1.11, latest as of 02.03.26.
+The latest version of MEV-boost can be found [here](https://github.com/flashbots/mev-boost/releases). Simply scroll to the bottom of the linked releases page, and right click the .tar.gz file that contains `linux_amd64`. Copy that link and replace all file names and links below, which uses `v1.12` (latest as of 02.23.26). If you use Docker instead of a systemd binary install, pull `flashbots/mev-boost:1.12`.
 
 Curl the MEV-boost build from the aforementioned link:
 
 ```
 cd ~
-curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.11/mev-boost_1.11_linux_amd64.tar.gz
+curl -LO https://github.com/flashbots/mev-boost/releases/download/v1.12/mev-boost_1.12_linux_amd64.tar.gz
 ```
 
 Extract the files from the archive, copy to the /usr/local/bin directory, modify file names, remove downloaded leftovers, and start the service back up:
 
 ```
-tar xvf mev-boost_1.11_linux_amd64.tar.gz
+tar xvf mev-boost_1.12_linux_amd64.tar.gz
 sudo mv mev-boost /usr/local/bin
-rm LICENSE README.md mev-boost_1.11_linux_amd64.tar.gz
+rm LICENSE README.md mev-boost_1.12_linux_amd64.tar.gz
 sudo chown mevboost:mevboost /usr/local/bin/mev-boost
-sudo systemctl start mevboost
+sudo systemctl restart mevboost
 ```
 
 Now, verify the service is running correctly and verify the correct version was installed:
