@@ -400,14 +400,15 @@ Press CTRL+X to exit
 
 Time to install Reth! All commands provided below are based on the v2.0.0 version of Reth (current as of Apr 2026), but should be adjusted based on whatever the latest version of Reth is [here](https://github.com/paradigmxyz/reth/releases) - simply expand the Assets section and copy the URL for the 'reth-v...-x86_64-unknown-linux-gnu.tar.gz' file. Note that MANY commands below will need to update if this version is updated.
 
-**Full Node vs Archive Node:**
+**Node Modes — Minimal vs Full vs Archive:**
 
-This guide configures Reth as a **full node** (using the `--full` flag), which is the optimal configuration for validators:
+This guide configures Reth in **minimal storage mode** (using the `--minimal` flag), which is the optimal configuration for validators:
 
-* **Full Node**: Stores recent state and enough history to validate the chain. Syncs in hours (especially with snapshots), requires ~1-2TB storage, and is sufficient for all validation operations.
-* **Archive Node**: Stores complete historical state since genesis. Takes weeks to sync, requires 3-4TB+ storage, and is only needed for specialized applications like block explorers or historical data analysis.
+* **Minimal Node**: State and headers with minimal history. ~224 GB with Storage V2. Sufficient for all validation operations including attestation, block proposals, and MEV-boost. Does not support historical transaction lookups or receipt queries.
+* **Full Node**: Recent state history plus transaction lookups and receipts for the last ~10,064 blocks. ~1 TB with Storage V2. Useful if you need local `eth_getTransactionReceipt` or `eth_getLogs` queries.
+* **Archive Node**: Complete historical state since genesis. ~2.3 TB with Storage V2. Only needed for specialized applications like block explorers or historical data analysis.
 
-**For validators, always use a full node.** Archive nodes provide no benefit for validation and waste time and resources.
+**For validators, always use a minimal node.** Full and archive nodes provide no benefit for validation and waste disk space. All Engine API operations, MEV-boost relay validation, and standard monitoring (`eth_syncing`, `net_peerCount`, `txpool_*`) work with minimal mode.
 
 Curl the Reth build from the above link:
 
@@ -480,7 +481,7 @@ KillSignal=SIGINT
 
 ExecStart=/usr/local/bin/reth node \
   --chain mainnet \
-  --full \
+  --minimal \
   --datadir /var/lib/reth \
   --authrpc.jwtsecret /var/lib/jwtsecret/jwt.hex \
   --authrpc.addr 127.0.0.1 \
@@ -500,7 +501,7 @@ WantedBy=default.target
 ```
 
 **IMPORTANT NOTES:**
-* **`--full` flag**: Runs Reth as a **full node** (not archive). For validators, you only need a full node which stores recent state. Archive nodes store all historical state since genesis and are unnecessary for validation, taking significantly longer to sync (weeks vs hours) and requiring much more disk space.
+* **`--minimal` flag**: Runs Reth in **minimal storage mode**, which aggressively prunes history not needed for validation. This is the recommended mode for validators — it fully prunes sender recovery, transaction lookup, and receipts while keeping the last ~10,064 blocks of account/storage history. Disk usage is ~224 GB with Storage V2.
 * **`TimeoutStopSec=900`**: Allows the Reth service 15 minutes to write cached data to disk on ***clean*** shutdown (important for large databases).
 * **`KillSignal=SIGINT`**: Explicitly tells systemd to use SIGINT for graceful shutdown (same as Ctrl+C).
 * **Port configuration**: Explicitly sets P2P networking ports to 30303 (default) for better peer discovery. This is the default, but better to make explicit.
@@ -509,36 +510,22 @@ WantedBy=default.target
 
 Press CTRL + X then Y then ENTER to save and exit.
 
-**DO NOT add additional pruning flags** (`--prune.accounthistory.full`, `--prune.storagehistory.full`, etc.) as they will **conflict** with the `--full` flag's configuration and cause the pruner to fail. The `--full` flag handles all pruning automatically.
+**DO NOT add additional pruning flags** (`--prune.accounthistory.full`, `--prune.storagehistory.full`, etc.) as they will **conflict** with the `--minimal` flag's configuration and cause the pruner to fail. The `--minimal` flag handles all pruning automatically.
 
-#### Optional: Use Merkle Snapshot for Faster Initial Sync
+#### Optional: Use Reth Snapshot for Faster Initial Sync
 
-**Why use a snapshot?** Syncing Reth from genesis can take days even with a full node. Using a recent snapshot from Merkle.io can reduce initial sync time to just a few hours.
+**Why use a snapshot?** Syncing Reth from genesis can take days. Using an official snapshot from [snapshots.reth.rs](https://snapshots.reth.rs/) can reduce initial sync time to just a few hours. Using a snapshot is particularly recommended for new installations or after database corruption.
 
-[Merkle.io](https://www.merkle.io/snapshots) publishes Reth snapshots every Monday and Thursday at `downloads.merkle.io`. Using a snapshot is particularly recommended for new installations or after database corruption.
+The `reth download` command downloads a pre-built snapshot directly from the official Reth snapshot portal. It supports **minimal**, **full**, and **archive** snapshot tiers — for validators, use `--minimal`. Downloads use Storage V2 by default and support up to 8 concurrent download workers.
 
-<Warning>
-**Archive Node Snapshot Notice:** The Merkle snapshot is an **archive node** snapshot, not a full node snapshot. This means:
+**To download a snapshot:**
 
-- **Faster sync**: You'll catch up with the chain much faster than syncing from genesis
-- **Larger storage**: The resulting database will be larger than a pure full node sync (~2TB+ vs ~1TB)
-- **Pruning in progress**: The Reth team is actively working on improved pruning that will make it easy to convert from archive to full node storage
-
-As of December 2025, Georgios Konstantopoulos (Reth/Paradigm) noted in the Reth Telegram that upcoming changes will "basically remove pruning as an issue altogether" with different storage engines for different workloads. Our recommendation is to **use the snapshot to speed up your initial sync**, and trust that Reth's pruning improvements will soon make it trivial to reclaim the extra space.
-
-For now, ensure you have sufficient storage (>=4TB  recommended) when using the snapshot approach.
-</Warning>
-
-**To use a Merkle snapshot:**
-
-First, install required dependencies:
+While `reth download` supports resumable downloads (tolerating SSH disconnections), it's still recommended to use `tmux` as a safeguard:
 
 ```
 sudo apt-get update
-sudo apt-get install -y lz4 tmux
+sudo apt-get install -y tmux
 ```
-
-**IMPORTANT:** Use `tmux` to run the download to prevent it from being killed if your SSH connection drops.
 
 Start a tmux session:
 
@@ -546,44 +533,29 @@ Start a tmux session:
 tmux new -s reth-download
 ```
 
-Then, inside the tmux session, stream download and extract the snapshot:
+Then, inside the tmux session, run the download:
 
 ```
-cd /var/lib/reth
-sudo -u reth bash -c 'wget -O - https://downloads.merkle.io/reth-YYYY-MM-DD.tar.lz4 | tar -I lz4 -xvf -'
+sudo -u reth /usr/local/bin/reth download --chain mainnet --minimal --datadir /var/lib/reth --resumable
 ```
 
-**Replace `YYYY-MM-DD`** with the latest snapshot date (most recent Monday or Thursday). Check [Merkle's snapshot page](https://www.merkle.io/snapshots) for the current available dates.
-
-Example for January 1, 2026:
-```
-cd /var/lib/reth
-sudo -u reth bash -c 'wget -O - https://downloads.merkle.io/reth-2026-01-01.tar.lz4 | tar -I lz4 -xvf -'
-```
+This command will:
+* Download the minimal snapshot from [snapshots.reth.rs](https://snapshots.reth.rs/) (state + headers + minimal history)
+* Extract it directly into your data directory with Storage V2 layout
+* Support resuming if interrupted (the `--resumable` flag downloads to a `.part` file with HTTP Range support before extracting)
 
 **If download gets interrupted:**
 
-The streaming method is NOT resumable. If interrupted, you must clean up and start over:
-```
-sudo rm -rf /var/lib/reth/*
-# Then rerun the full streaming command from the beginning
-```
-
-This is why tmux is critical - it keeps the process running even if SSH disconnects.
+With the `--resumable` flag, simply rerun the same command — it will pick up where it left off. No need to wipe and start over.
 
 **Tmux controls:**
 * **Detach from session** (leaves download running): Press `Ctrl+B` then `D`
 * **Reattach to session**: `tmux attach -t reth-download`
-* **Monitor progress** in another terminal: `watch -n 30 'df -h /var/lib/reth'` or `tail -f /var/lib/reth/wget-log` or `watch -n 60 'du -sh /var/lib/reth'`
-
-This command will:
-* Download the Merkle snapshot
-* Extract it directly into your data directory (streaming, no temp file)
-* Set proper ownership as the reth user
+* **Monitor progress** in another terminal: `watch -n 30 'df -h /var/lib/reth'` or `watch -n 60 'du -sh /var/lib/reth'`
 
 Once the snapshot extraction completes, proceed with starting the service as normal.
 
-**If not using a snapshot:** Reth will sync from genesis with the `--full` flag, which takes 1-3 days but results in a smaller database (~1TB). Skip the snapshot download and proceed directly to starting the service. This is a valid approach if you have time and want to minimize storage usage, though the Merkle snapshot approach is faster and Reth's upcoming pruning improvements will eventually make the difference negligible.
+**If not using a snapshot:** Reth will sync from genesis with the `--minimal` flag, which takes 1-3 days but results in a very small database (~224 GB with Storage V2). Skip the snapshot download and proceed directly to starting the service. This is a valid approach if you have time, though the snapshot approach is significantly faster.
 
 #### Start Reth Service
 

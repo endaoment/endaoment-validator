@@ -509,19 +509,25 @@ sudo rm -rf /var/lib/reth/*
 
 #### Re-sync Options
 
-**Option 1: Sync from Genesis (Slower, Smaller)**
+**Option 1: Sync from Genesis (Slower)**
 
-Simply restart Reth and it will begin syncing from genesis using the `--full` flag configuration:
+Simply restart Reth and it will begin syncing from genesis using the `--minimal` flag configuration:
 
 ```
 sudo systemctl start reth
 ```
 
-This takes 1-3 days but results in a smaller database (~1-2TB).
+This takes 1-3 days but results in a very small database (~224 GB with Storage V2).
 
-**Option 2: Use Merkle Snapshot (Faster, Larger)**
+**Option 2: Use Reth Snapshot (Faster, Recommended)**
 
-For faster recovery, use a [Merkle snapshot](/validators/validator-sop-part1-setup#optional-use-merkle-snapshot-for-faster-initial-sync) as described in Part 1. This reduces sync time to a few hours but results in a larger database.
+For faster recovery, download a minimal snapshot using `reth download`:
+
+```
+sudo -u reth /usr/local/bin/reth download --chain mainnet --minimal --datadir /var/lib/reth --resumable
+```
+
+This reduces re-sync time to a few hours. The `--resumable` flag allows the download to pick up where it left off if interrupted. See [Part 1 snapshot instructions](/validators/validator-sop-part1-setup#optional-use-reth-snapshot-for-faster-initial-sync) for full details.
 
 #### Monitor Re-sync Progress
 
