@@ -88,15 +88,15 @@ reth --version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v7.1.3/beacon-chain-v7.1.3-linux-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v7.1.3 in this example (current as of 3/18/26).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v7.1.4/beacon-chain-v7.1.4-linux-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v7.1.4 in this example (current as of 5/23/26).
 
 Curl the latest software and rename:
 
 ```
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.3/validator-v7.1.3-linux-amd64
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.3/beacon-chain-v7.1.3-linux-amd64
-mv beacon-chain-v7.1.3-linux-amd64 beacon-chain
-mv validator-v7.1.3-linux-amd64 validator
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.4/validator-v7.1.4-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.4/beacon-chain-v7.1.4-linux-amd64
+mv beacon-chain-v7.1.4-linux-amd64 beacon-chain
+mv validator-v7.1.4-linux-amd64 validator
 ```
 
 Then stop the Prysm services:
@@ -137,14 +137,6 @@ Finally, check that you installed the right version. Note that this command may 
 journalctl --since -1hour -u prysmvalidator.service | grep version
 journalctl --since -1hour -u prysmbeacon.service | grep version
 ```
-
-**Verify blob storage migration:**
-
-```
-sudo ls -l /var/lib/prysm/beacon/blobs/
-```
-
-You should now see a line of text that looks something like `drwx------ 4 prysmbeacon prysmbeacon 4096 {MMM DD HH:MM} by-epoch`.
 
 ### Appendix D Exiting a Validator
 
