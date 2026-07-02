@@ -616,37 +616,37 @@ After running Reth for a few minutes, check the peer count to ensure it's greate
 
 The Prysm Consensus Client is made up of two binaries that provide the functionality of the beacon node and validator, respectively. This step will download and prepare the Prysm binaries.
 
-Time to install Prysm! All commands provided below are based on the v7.1.4 version of Prysm (current as of 5/23/26), but should be adjusted based on whatever the latest version of Prysm is [here](https://github.com/OffchainLabs/prysm/releases). Note that many commands below will need to update if this version is updated.
+Time to install Prysm! All commands provided below are based on the v7.1.6 version of Prysm (current as of 7/1/26), but should be adjusted based on whatever the latest version of Prysm is [here](https://github.com/OffchainLabs/prysm/releases). Note that many commands below will need to update if this version is updated.
 
 In the Assets section (expand if necessary) copy the download links to the beacon-chain-v…-linux-amd64 file and the validator-v…-linux-amd64 file. Be sure to copy the correct links.
 Download the binaries using the commands below. Modify the URL to match the copied download links:
 
-```
+```bash
 cd ~
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.4/beacon-chain-v7.1.4-linux-amd64
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.4/validator-v7.1.4-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.6/beacon-chain-v7.1.6-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.1.6/validator-v7.1.6-linux-amd64
 ```
 
 Now, let's rename the files and make them executable and copy them to the /usr/local/bin directory. The Prysm services will run them from there. Modify the file names to match the downloaded version:
 
-```
-mv beacon-chain-v7.1.4-linux-amd64 beacon-chain
-mv validator-v7.1.4-linux-amd64 validator
+```bash
+mv beacon-chain-v7.1.6-linux-amd64 beacon-chain
+mv validator-v7.1.6-linux-amd64 validator
 ```
 
-```
+```bash
 chmod +x beacon-chain
 chmod +x validator
 ```
 
-```
+```bash
 sudo cp beacon-chain /usr/local/bin
 sudo cp validator /usr/local/bin
 ```
 
 Finally, clean up the files
 
-```
+```bash
 rm beacon-chain && rm validator
 ```
 
@@ -673,7 +673,7 @@ sudo nano /etc/systemd/system/prysmbeacon.service
 
 And then paste the following data into the file:
 
-```
+```bash
 [Unit]
 Description=Prysm Consensus Client BN (Mainnet)
 Wants=network-online.target
@@ -693,7 +693,8 @@ ExecStart=/usr/local/bin/beacon-chain \
   --checkpoint-sync-url={CheckpointSyncURL} \
   --genesis-beacon-api-url={CheckpointSyncURL} \
   --accept-terms-of-use \
-  --blob-storage-layout=by-epoch
+  --blob-storage-layout=by-epoch \
+  --postpone-shutdown-for-proposals
 Environment=USE_PRYSM_MODERN=true
 [Install]
 WantedBy=multi-user.target
