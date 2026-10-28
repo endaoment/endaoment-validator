@@ -42,11 +42,11 @@ It is not irregular for your Node to prompt you to restart it after some particu
 
 ### Appendix B Updating Reth
 
-First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v2.8.0/reth-v2.8.0-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v2.8.0 in this example (current as of October 2026).
+First, go to the Reth Repository [here](https://github.com/paradigmxyz/reth/releases) and expand the Assets section for the latest release. Copy the download link for the `reth-v...-x86_64-unknown-linux-gnu.tar.gz` file. Be sure to copy the correct link. It should look something like `https://github.com/paradigmxyz/reth/releases/download/v2.8.1/reth-v2.8.1-x86_64-unknown-linux-gnu.tar.gz`. Modify the URL in the instructions below to match the download link for the latest version, which is v2.8.1 in this example (current as of October 2026).
 
 ```
 cd ~
-curl -LO https://github.com/paradigmxyz/reth/releases/download/v2.8.0/reth-v2.8.0-x86_64-unknown-linux-gnu.tar.gz
+curl -LO https://github.com/paradigmxyz/reth/releases/download/v2.8.1/reth-v2.8.1-x86_64-unknown-linux-gnu.tar.gz
 ```
 
 Then stop the Reth service
@@ -60,7 +60,7 @@ Note that stopping Reth always takes a moment and is not expected to complete im
 Now extract the files from the archive and copy to the /usr/local/bin directory. Modify the file name to match the downloaded version:
 
 ```
-tar xvf reth-v2.8.0-x86_64-unknown-linux-gnu.tar.gz
+tar xvf reth-v2.8.1-x86_64-unknown-linux-gnu.tar.gz
 sudo cp reth /usr/local/bin
 ```
 
@@ -79,7 +79,7 @@ sudo journalctl -fu prysmbeacon | ccze # <-- Monitor
 Finally, clean up the files, modifying the file name to match the downloaded version. Then check the Reth version to verify that all was installed correctly. This should match the Reth version shown on the repo site:
 
 ```bash
-rm reth-v2.8.0-x86_64-unknown-linux-gnu.tar.gz
+rm reth-v2.8.1-x86_64-unknown-linux-gnu.tar.gz
 reth --version
 ```
 
@@ -87,15 +87,15 @@ reth --version
 
 In order to update Prysm, we'll need to update both the validator and beacon-chain software.
 
-First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v7.3.0/beacon-chain-v7.3.0-linux-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v7.3.0 in this example (current as of 10/17/26).
+First, let's check the latest version of Prysm available on their GitHub repo, which can be accessed [here](https://github.com/OffchainLabs/prysm/releases). Be sure to copy the correct link, it should look something like `https://github.com/OffchainLabs/prysm/releases/download/v7.3.1/beacon-chain-v7.3.1-linux-amd64.sha256`. We will need to modify the commands below to match the latest version number, which is v7.3.1 in this example (current as of 10/22/26).
 
 Curl the latest software and rename:
 
 ```bash
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.3.0/validator-v7.3.0-linux-amd64
-curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.3.0/beacon-chain-v7.3.0-linux-amd64
-mv beacon-chain-v7.3.0-linux-amd64 beacon-chain
-mv validator-v7.3.0-linux-amd64 validator
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.3.1/validator-v7.3.1-linux-amd64
+curl -LO https://github.com/OffchainLabs/prysm/releases/download/v7.3.1/beacon-chain-v7.3.1-linux-amd64
+mv beacon-chain-v7.3.1-linux-amd64 beacon-chain
+mv validator-v7.3.1-linux-amd64 validator
 ```
 
 Then stop the Prysm services:
