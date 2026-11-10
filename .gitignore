@@ -51,3 +51,7 @@ logs/
 images/~$variables.xlsx
 
 validators/GETH-TO-RETH-MIGRATION.md
+
+# Toolbox install state
+.toolbox.layout
+.toolbox-generated.json
