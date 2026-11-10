@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# agent-entry-check v1
+# agent-entry-check v2
 """agent_entry_check.py: the rot guards for a repo's agent entry files.
 
 Checks `AGENTS.md`, `CLAUDE.md`, and any `--extra` instruction file against the
@@ -9,19 +9,21 @@ skill and rule names. Toolbox names are checked against a committed snapshot of
 the toolbox catalog, because CI can read neither the toolbox repo nor `gh`.
 
 Each Endaoment repo that uses this script carries an identical copy, marked by
-the `# agent-entry-check v1` line above. Change every copy together, and bump the
+the `# agent-entry-check v2` line above. Change every copy together, and bump the
 marker when the behaviour changes, so `grep -r "agent-entry-check v"` finds a
 copy that fell behind. Python 3.9+, standard library only.
 
 What counts as a path or a skill:
 
-- A relative Markdown link counts, resolved from the naming file's folder or
-  the repo root. A backticked token counts only when it has a slash, no
+- A relative Markdown link outside inline code counts, resolved from the
+  naming file's folder or the repo root. A backticked token counts only when it has a slash, no
   placeholder or glob characters, does not start with `/`, `./` or `../`, and
   its first segment exists at the repo root.
 - A skill is a backticked `/name` on a line that mentions skills, a
   "`name` toolbox skill", or an `endaoment-toolbox/catalog/skills/<name>/` path,
-  so routes such as `/v1` are not skills.
+  so routes such as `/v1` are not skills. A skill name also passes when the
+  repo has its own `SKILL.md` for it, when it is a harness command such as
+  `/loop`, or when it is a placeholder such as `/skill-name`.
 - Toolbox docs paths (`endaoment-toolbox/catalog/docs/...`) are not checked,
   because the snapshot format lists only skills and rules.
 
@@ -71,6 +73,7 @@ SHARED_RULE_PATH_RE = re.compile(r"endaoment-toolbox/catalog/rules/([a-z0-9-]+)/
 TOOLBOX_RULE_NAME_RE = re.compile(r"endaoment-toolbox/catalog/rules/([a-z0-9-]+)")
 
 BACKTICK_TOKEN_RE = re.compile(r"`([^`\s]+)`")
+CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
 # A link target up to its anchor or title.
 LINK_TARGET_RE = re.compile(r"\]\(([^)#\s]+)")
 URL_SCHEME_RE = re.compile(r"^[a-z]+:", re.I)
@@ -80,6 +83,21 @@ SKILL_LINE_RE = re.compile(r"skill", re.I)
 BACKTICKED_SKILL_RE = re.compile(r"`/([a-z][a-z0-9-]*)`")
 NAMED_SKILL_RE = re.compile(r"`([a-z][a-z0-9-]*)` toolbox skill")
 CATALOG_SKILL_PATH_RE = re.compile(r"endaoment-toolbox/catalog/skills/([a-z0-9-]+)/")
+# Where a repo keeps its own skills, each as <folder>/<name>/SKILL.md.
+REPO_SKILL_FOLDERS = ("skills", ".cursor/skills", ".claude/skills", ".agents/skills")
+# Commands a harness provides itself, so they are never toolbox skills. Each is
+# listed in at least one of: code.claude.com/docs/en/commands (`/code-review`,
+# `/loop` and `/simplify` are bundled skills there, and `/review` an alias),
+# cursor.com/docs/cli/reference/slash-commands, and the Codex CLI slash commands.
+HARNESS_COMMANDS = frozenset(
+    {
+        "agents", "clear", "code-review", "compact", "config", "context", "goal", "help", "hooks", "init",
+        "loop", "mcp", "memory", "model", "permissions", "plan", "resume", "review", "security-review",
+        "simplify", "skills", "status",
+    }
+)
+# A name made only of these words, such as `skill-name` or `your-skill`, is a placeholder.
+PLACEHOLDER_WORDS = frozenset({"skill", "name", "your", "my"})
 GLOB_CHARS = frozenset("*?[")
 
 
@@ -189,7 +207,7 @@ def path_tokens(root: str, text: str) -> list[str]:
     """
     links = [
         target
-        for target in LINK_TARGET_RE.findall(text)
+        for target in LINK_TARGET_RE.findall(CODE_SPAN_RE.sub("", text))
         if not URL_SCHEME_RE.match(target) and not target.startswith("/")
     ]
     backticked = [
@@ -222,6 +240,19 @@ def candidate_paths(root: str, rel: str, token: str) -> list[str]:
     return [os.path.normpath(os.path.join(root, base, token)) + slash for base in (os.path.dirname(rel), "")]
 
 
+def is_known_skill(root: str, name: str, snapshot: dict) -> bool:
+    """Whether a cited skill exists: in the toolbox snapshot, in this repo, or as a harness command.
+
+    A placeholder name passes too, because it names no skill at all.
+    """
+    return (
+        name in snapshot["skills"]
+        or name in HARNESS_COMMANDS
+        or set(name.split("-")) <= PLACEHOLDER_WORDS
+        or any(os.path.isfile(os.path.join(root, folder, name, "SKILL.md")) for folder in REPO_SKILL_FOLDERS)
+    )
+
+
 def named_item_violations(
     root: str, rel: str, text: str, snapshot: dict
 ) -> tuple[list[str], list[tuple[str, str, list[str]]]]:
@@ -237,8 +268,8 @@ def named_item_violations(
         if not any(os.path.exists(path) for path in candidates):
             missing.append((rel, token, candidates))
     for name in cited_skills(text):
-        if name not in snapshot["skills"]:
-            violations.append(f"{rel}: toolbox skill `{name}` is not in the snapshot")
+        if not is_known_skill(root, name, snapshot):
+            violations.append(f"{rel}: skill `{name}` is not in the toolbox snapshot or this repo's skill folders")
     for name in TOOLBOX_RULE_NAME_RE.findall(text):
         if name not in snapshot["rules"]:
             violations.append(f"{rel}: toolbox rule `{name}` is not in the snapshot")
