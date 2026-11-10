@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Endaoment Validator Documentation",
   "scripts": {
+    "check": "mintlify broken-links && npm run spellcheck:sop && python3 tools/standards/agent_entry_check.py",
     "dev": "mintlify dev",
     "prepare": "husky install",
     "spellcheck:sop": "cspell --no-progress --show-suggestions --config ./cspell.json ./validators/validator-sop-part1-setup.mdx ./validators/validator-sop-part2-upkeep.mdx ./validators/validator-sop-part3-emergency.mdx ./validators/validator-sop-part4-monitoring.mdx"

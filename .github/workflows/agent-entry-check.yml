@@ -1,0 +1,17 @@
+name: Agent entry check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  agent-entry-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check agent entry files
+        env:
+          CI: 'true'
+        run: python3 tools/standards/agent_entry_check.py
