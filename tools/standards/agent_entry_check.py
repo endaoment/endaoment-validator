@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# agent-entry-check v2
+# agent-entry-check v3
 """agent_entry_check.py: the rot guards for a repo's agent entry files.
 
 Checks `AGENTS.md`, `CLAUDE.md`, and any `--extra` instruction file against the
@@ -9,21 +9,23 @@ skill and rule names. Toolbox names are checked against a committed snapshot of
 the toolbox catalog, because CI can read neither the toolbox repo nor `gh`.
 
 Each Endaoment repo that uses this script carries an identical copy, marked by
-the `# agent-entry-check v2` line above. Change every copy together, and bump the
+the `# agent-entry-check v3` line above. Change every copy together, and bump the
 marker when the behaviour changes, so `grep -r "agent-entry-check v"` finds a
 copy that fell behind. Python 3.9+, standard library only.
 
 What counts as a path or a skill:
 
 - A relative Markdown link outside inline code counts, resolved from the
-  naming file's folder or the repo root. A backticked token counts only when it has a slash, no
-  placeholder or glob characters, does not start with `/`, `./` or `../`, and
-  its first segment exists at the repo root.
+  naming file's folder, as GitHub resolves it. A backticked token counts only
+  when it has a slash, no placeholder or glob characters, does not start with
+  `/`, `./` or `../`, and its first segment exists at the repo root; it may
+  resolve from the naming file's folder or the repo root.
 - A skill is a backticked `/name` on a line that mentions skills, a
   "`name` toolbox skill", or an `endaoment-toolbox/catalog/skills/<name>/` path,
-  so routes such as `/v1` are not skills. A skill name also passes when the
-  repo has its own `SKILL.md` for it, when it is a harness command such as
-  `/loop`, or when it is a placeholder such as `/skill-name`.
+  so routes such as `/v1` are not skills. A skill name also passes when git
+  tracks the repo's own `SKILL.md` for it (an ignored toolbox install does not
+  count), when it is a harness command such as `/loop`, or when it is a
+  placeholder such as `/skill-name`.
 - Toolbox docs paths (`endaoment-toolbox/catalog/docs/...`) are not checked,
   because the snapshot format lists only skills and rules.
 
@@ -62,8 +64,10 @@ ENTRY_MAX_BYTES = 20 * 1024
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---", re.S)
 ALWAYS_APPLY_RE = re.compile(r"^alwaysApply:\s*(?:true|True|TRUE)\s*(?:#.*)?$", re.M)
 
-FENCE_OPEN_RE = re.compile(r"^(\s*)```([^\n`]*)\s*$")
-FENCE_CLOSE_RE = re.compile(r"^\s*```\s*$")
+# A fence opens with three or more backticks or tildes; a backtick opener's info string has no backtick.
+FENCE_OPEN_RE = re.compile(r"^([ \t]*)(`{3,}(?=[^`\n]*$)|~{3,})")
+# A fence closes on the same character, at least as long, indented at most 3 spaces past the opener.
+FENCE_CLOSE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})[ \t]*$")
 # An unclosed comment hides everything after it, so it runs to the end of the text.
 HTML_COMMENT_RE = re.compile(r"<!--.*?(?:-->|\Z)", re.S)
 LIST_ITEM_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
@@ -132,14 +136,24 @@ def read_text(root: str, rel: str) -> tuple[str | None, str | None]:
 def strip_fences(text: str) -> str:
     """The text without fenced code blocks; an unclosed fence runs to the end."""
     kept = []
-    in_fence = False
+    opener = None  # the open fence's indent and marker
     for line in text.splitlines(keepends=True):
-        if in_fence:
-            in_fence = not FENCE_CLOSE_RE.match(line)
-        elif FENCE_OPEN_RE.match(line):
-            in_fence = True
+        if opener:
+            close = FENCE_CLOSE_RE.match(line.rstrip("\r\n"))
+            indent, marker = opener
+            if (
+                close
+                and close.group(2)[0] == marker[0]
+                and len(close.group(2)) >= len(marker)
+                and len(close.group(1)) <= len(indent) + 3
+            ):
+                opener = None
         else:
-            kept.append(line)
+            fence = FENCE_OPEN_RE.match(line.rstrip("\r\n"))
+            if fence:
+                opener = (fence.group(1), fence.group(2))
+            else:
+                kept.append(line)
     return "".join(kept)
 
 
@@ -198,7 +212,7 @@ def shared_rules_violations(agents: str, always_on: list[str]) -> list[str]:
     ]
 
 
-def path_tokens(root: str, text: str) -> list[str]:
+def path_tokens(root: str, text: str) -> tuple[list[str], list[str]]:
     """The repo paths a file names: relative link targets, and backticked tokens that look like repo paths.
 
     The first-segment test skips per-project conventions such as
@@ -218,7 +232,7 @@ def path_tokens(root: str, text: str) -> list[str]:
         and not NON_PATH_CHARS_RE.search(token)
         and os.path.exists(os.path.join(root, token.split("/")[0]))
     ]
-    return list(dict.fromkeys(links + backticked))
+    return list(dict.fromkeys(links)), list(dict.fromkeys(backticked))
 
 
 def cited_skills(text: str) -> list[str]:
@@ -230,17 +244,41 @@ def cited_skills(text: str) -> list[str]:
     return on_skill_lines + NAMED_SKILL_RE.findall(text) + CATALOG_SKILL_PATH_RE.findall(text)
 
 
-def candidate_paths(root: str, rel: str, token: str) -> list[str]:
-    """Where a path a file names can live: beside the file, or from the repo root.
+def candidate_paths(root: str, rel: str, token: str, from_root: bool) -> list[str]:
+    """Where a path a file names can live: beside the file, and from the repo root when from_root.
 
     A trailing slash stays, so a file cannot stand in for a folder and git can
     match a folder-only ignore pattern such as `dist/`.
     """
     slash = "/" if token.endswith("/") else ""
-    return [os.path.normpath(os.path.join(root, base, token)) + slash for base in (os.path.dirname(rel), "")]
+    bases = (os.path.dirname(rel), "") if from_root else (os.path.dirname(rel),)
+    return [os.path.normpath(os.path.join(root, base, token)) + slash for base in bases]
 
 
-def is_known_skill(root: str, name: str, snapshot: dict) -> bool:
+def repo_skills(root: str) -> set[str]:
+    """The skills this repo keeps itself: each <folder>/<name>/SKILL.md that git tracks.
+
+    A toolbox install in the same folder is git-ignored, and a clean checkout in
+    CI lacks it, so it must not pass here either. Outside a git clone, every
+    SKILL.md on disk counts.
+    """
+    pattern = re.compile(
+        r"^(?:%s)/([^/]+)/SKILL\.md$" % "|".join(re.escape(folder) for folder in REPO_SKILL_FOLDERS)
+    )
+    try:
+        files = git(root, "ls-files", "-z", "--", *REPO_SKILL_FOLDERS).split("\0")
+    except (OSError, subprocess.CalledProcessError):
+        files = [
+            f"{folder}/{name}/SKILL.md"
+            for folder in REPO_SKILL_FOLDERS
+            if os.path.isdir(os.path.join(root, folder))
+            for name in os.listdir(os.path.join(root, folder))
+            if os.path.isfile(os.path.join(root, folder, name, "SKILL.md"))
+        ]
+    return {match.group(1) for match in map(pattern.match, files) if match}
+
+
+def is_known_skill(name: str, snapshot: dict, own_skills: set[str]) -> bool:
     """Whether a cited skill exists: in the toolbox snapshot, in this repo, or as a harness command.
 
     A placeholder name passes too, because it names no skill at all.
@@ -249,12 +287,12 @@ def is_known_skill(root: str, name: str, snapshot: dict) -> bool:
         name in snapshot["skills"]
         or name in HARNESS_COMMANDS
         or set(name.split("-")) <= PLACEHOLDER_WORDS
-        or any(os.path.isfile(os.path.join(root, folder, name, "SKILL.md")) for folder in REPO_SKILL_FOLDERS)
+        or name in own_skills
     )
 
 
 def named_item_violations(
-    root: str, rel: str, text: str, snapshot: dict
+    root: str, rel: str, text: str, snapshot: dict, own_skills: set[str]
 ) -> tuple[list[str], list[tuple[str, str, list[str]]]]:
     """Unknown toolbox names in a file, and the paths it names that do not exist.
 
@@ -263,12 +301,15 @@ def named_item_violations(
     """
     violations = []
     missing = []
-    for token in path_tokens(root, text):
-        candidates = candidate_paths(root, rel, token)
+    links, backticked = path_tokens(root, text)
+    # GitHub resolves a link from the file's folder; a backticked path may also mean the repo root.
+    named = [(token, False) for token in links] + [(token, True) for token in backticked if token not in links]
+    for token, from_root in named:
+        candidates = candidate_paths(root, rel, token, from_root)
         if not any(os.path.exists(path) for path in candidates):
             missing.append((rel, token, candidates))
     for name in cited_skills(text):
-        if not is_known_skill(root, name, snapshot):
+        if not is_known_skill(name, snapshot, own_skills):
             violations.append(f"{rel}: skill `{name}` is not in the toolbox snapshot or this repo's skill folders")
     for name in TOOLBOX_RULE_NAME_RE.findall(text):
         if name not in snapshot["rules"]:
@@ -338,8 +379,9 @@ def check_violations(root: str, snapshot: dict, files: list[str]) -> list[str]:
     if AGENTS_FILE in texts:
         violations += shared_rules_violations(texts[AGENTS_FILE], snapshot["alwaysOnRules"])
     missing = []
+    own_skills = repo_skills(root)
     for rel, text in texts.items():
-        found, missing_here = named_item_violations(root, rel, text, snapshot)
+        found, missing_here = named_item_violations(root, rel, text, snapshot, own_skills)
         violations += found
         missing += missing_here
     violations += dead_path_violations(root, missing)
