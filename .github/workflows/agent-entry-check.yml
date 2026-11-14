@@ -14,6 +14,4 @@ jobs:
         with:
           persist-credentials: false
       - name: Check agent entry files
-        env:
-          CI: 'true'
-        run: python3 tools/standards/agent_entry_check.py
+        uses: endaoment/endaoment-toolbox/tools/agent-entry-check@main

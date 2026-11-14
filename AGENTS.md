@@ -28,17 +28,17 @@ npm ci                      # install; also runs `husky install` for the pre-com
 npm run dev                 # local Mintlify preview
 npx mintlify broken-links   # the pre-commit hook runs this
 npm run spellcheck:sop      # cspell over the four SOP parts
-python3 tools/standards/agent_entry_check.py
-npm run check               # all three checks above
+npm run check               # both checks above
+toolbox agent-check         # the agent entry check
 ```
 
 Install with `npm ci`. The repo commits `package-lock.json` and no `yarn.lock`, even though `package.json` names Yarn in `packageManager`.
 
-`npm run check` proves a change is done. `npm run check` runs `mintlify broken-links`, `npm run spellcheck:sop`, and the agent entry check, and fails if any of the three fails. For a change to rendered content, also open the page in `npm run dev` or in the pull request's Mintlify preview.
+`npm run check` and `toolbox agent-check` prove a change is done. `npm run check` runs `mintlify broken-links` and `npm run spellcheck:sop`, and fails if either fails. For a change to rendered content, also open the page in `npm run dev` or in the pull request's Mintlify preview.
 
 ## Agent entry check
 
-`python3 tools/standards/agent_entry_check.py` checks `AGENTS.md` and `CLAUDE.md` against the rot guards in `endaoment-fabric/standards/agent-instructions.md`. The workflow `.github/workflows/agent-entry-check.yml` runs the same command on every pull request, but only while GitHub Actions is turned on for this repo, so run the check yourself before you open a pull request. The check reads toolbox skill and rule names from `tools/standards/toolbox-catalog.snapshot.json`, and a local run also warns when the live toolbox catalog has moved on from that snapshot. When the toolbox adds, renames, or removes a skill or rule, or changes which rules are always on, run `python3 tools/standards/agent_entry_check.py refresh` and commit the new snapshot. `tools/standards/agent_entry_check.py` is a shared copy that every Endaoment repo carries unchanged, so never edit the script here.
+The agent entry check lives in `endaoment-toolbox`. It checks `AGENTS.md` and `CLAUDE.md` against the rot guards in `endaoment-fabric/standards/agent-instructions.md`, and it reads toolbox skill and rule names from the toolbox catalog, so this repo keeps no copy of the check and no catalog snapshot. The workflow `.github/workflows/agent-entry-check.yml` runs it on every pull request through the `endaoment/endaoment-toolbox/tools/agent-entry-check` action, but only while GitHub Actions is turned on for this repo, so run `toolbox agent-check` from the repo root yourself before you open a pull request.
 
 ## What an agent must never do
 
