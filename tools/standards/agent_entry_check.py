@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-# agent-entry-check v3
+# agent-entry-check v4
 """agent_entry_check.py: the rot guards for a repo's agent entry files.
 
 Checks `AGENTS.md`, `CLAUDE.md`, and any `--extra` instruction file against the
 rules in `endaoment-fabric/standards/agent-instructions.md`: the entry size
-bound, the `CLAUDE.md` import, the Shared rules block, dead paths, and toolbox
-skill and rule names. Toolbox names are checked against a committed snapshot of
+bound, the `CLAUDE.md` import, the Shared rules block, the rule index, dead
+paths, and toolbox skill and rule names. Toolbox names are checked against a committed snapshot of
 the toolbox catalog, because CI can read neither the toolbox repo nor `gh`.
 
 Each Endaoment repo that uses this script carries an identical copy, marked by
-the `# agent-entry-check v3` line above. Change every copy together, and bump the
+the `# agent-entry-check v4` line above. Change every copy together, and bump the
 marker when the behaviour changes, so `grep -r "agent-entry-check v"` finds a
 copy that fell behind. Python 3.9+, standard library only.
 
@@ -26,8 +26,13 @@ What counts as a path or a skill:
   tracks the repo's own `SKILL.md` for it (an ignored toolbox install does not
   count), when it is a harness command such as `/loop`, or when it is a
   placeholder such as `/skill-name`.
+- A toolbox skill path (`endaoment-toolbox/catalog/skills/<name>/`) must name a
+  skill in the snapshot. A repo skill of the same name does not count.
 - Toolbox docs paths (`endaoment-toolbox/catalog/docs/...`) are not checked,
   because the snapshot format lists only skills and rules.
+- Every rule file git tracks in `.cursor/rules/` or `.claude/rules/`, and every
+  repo skill's `SKILL.md`, must be listed in `AGENTS.md` or in a Markdown file
+  `AGENTS.md` names. A skill is also listed by its folder or by `/name`.
 
 Run from the repo root:
 
@@ -89,6 +94,13 @@ NAMED_SKILL_RE = re.compile(r"`([a-z][a-z0-9-]*)` toolbox skill")
 CATALOG_SKILL_PATH_RE = re.compile(r"endaoment-toolbox/catalog/skills/([a-z0-9-]+)/")
 # Where a repo keeps its own skills, each as <folder>/<name>/SKILL.md.
 REPO_SKILL_FOLDERS = ("skills", ".cursor/skills", ".claude/skills", ".agents/skills")
+# Where a repo keeps hand-written rules. AGENTS.md, or an index it links, lists each one.
+REPO_RULE_FOLDERS = (".cursor/rules", ".claude/rules")
+REPO_SKILL_RE = re.compile(
+    r"^(?:%s)/([^/]+)/SKILL\.md$" % "|".join(re.escape(folder) for folder in REPO_SKILL_FOLDERS)
+)
+# A git hook exports these, and they would point a git call in another clone back at this repo.
+GIT_HOOK_ENV = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR")
 # Commands a harness provides itself, so they are never toolbox skills. Each is
 # listed in at least one of: code.claude.com/docs/en/commands (`/code-review`,
 # `/loop` and `/simplify` are bundled skills there, and `/review` an alias),
@@ -116,9 +128,14 @@ def first_line(text: str | None) -> str:
     return (text or "").strip().split("\n")[0]
 
 
+def git_env() -> dict:
+    """The environment without the variables a git hook exports, so git reads the clone at cwd."""
+    return {key: value for key, value in os.environ.items() if key not in GIT_HOOK_ENV}
+
+
 def git(cwd: str, *args: str) -> str:
     return subprocess.run(
-        ["git", *args], cwd=cwd, check=True, capture_output=True, text=True
+        ["git", *args], cwd=cwd, check=True, capture_output=True, text=True, env=git_env()
     ).stdout
 
 
@@ -236,12 +253,12 @@ def path_tokens(root: str, text: str) -> tuple[list[str], list[str]]:
 
 
 def cited_skills(text: str) -> list[str]:
-    """Toolbox skills a file names: a backticked `/name` on a line about skills, a
-    "`name` toolbox skill", or a catalog skill path."""
+    """Skills a file names by name: a backticked `/name` on a line about skills, or a
+    "`name` toolbox skill". Catalog skill paths are read separately."""
     on_skill_lines = [
         name for line in text.splitlines() if SKILL_LINE_RE.search(line) for name in BACKTICKED_SKILL_RE.findall(line)
     ]
-    return on_skill_lines + NAMED_SKILL_RE.findall(text) + CATALOG_SKILL_PATH_RE.findall(text)
+    return on_skill_lines + NAMED_SKILL_RE.findall(text)
 
 
 def candidate_paths(root: str, rel: str, token: str, from_root: bool) -> list[str]:
@@ -262,9 +279,6 @@ def repo_skills(root: str) -> set[str]:
     CI lacks it, so it must not pass here either. Outside a git clone, every
     SKILL.md on disk counts.
     """
-    pattern = re.compile(
-        r"^(?:%s)/([^/]+)/SKILL\.md$" % "|".join(re.escape(folder) for folder in REPO_SKILL_FOLDERS)
-    )
     try:
         files = git(root, "ls-files", "-z", "--", *REPO_SKILL_FOLDERS).split("\0")
     except (OSError, subprocess.CalledProcessError):
@@ -275,7 +289,7 @@ def repo_skills(root: str) -> set[str]:
             for name in os.listdir(os.path.join(root, folder))
             if os.path.isfile(os.path.join(root, folder, name, "SKILL.md"))
         ]
-    return {match.group(1) for match in map(pattern.match, files) if match}
+    return {match.group(1) for match in map(REPO_SKILL_RE.match, files) if match}
 
 
 def is_known_skill(name: str, snapshot: dict, own_skills: set[str]) -> bool:
@@ -311,6 +325,9 @@ def named_item_violations(
     for name in cited_skills(text):
         if not is_known_skill(name, snapshot, own_skills):
             violations.append(f"{rel}: skill `{name}` is not in the toolbox snapshot or this repo's skill folders")
+    for name in CATALOG_SKILL_PATH_RE.findall(text):
+        if name not in snapshot["skills"]:
+            violations.append(f"{rel}: toolbox skill `{name}` is not in the snapshot")
     for name in TOOLBOX_RULE_NAME_RE.findall(text):
         if name not in snapshot["rules"]:
             violations.append(f"{rel}: toolbox rule `{name}` is not in the snapshot")
@@ -342,6 +359,7 @@ def generated_paths(root: str, paths: list[str]) -> set[str]:
         input="\0".join(paths) + "\0",
         capture_output=True,
         text=True,
+        env=git_env(),
     )
     if result.returncode > 1:  # 1 means it ignores none of them
         sys.exit(f"git check-ignore failed: {result.stderr.strip()}")
@@ -365,6 +383,65 @@ def dead_path_violations(root: str, missing: list[tuple[str, str, list[str]]]) -
     ]
 
 
+def repo_rule_files(root: str) -> list[str]:
+    """The rule files and repo skills git tracks, each of which AGENTS.md or an index it links must list.
+
+    A README in those folders is an index, not a rule. Outside a git clone,
+    every such file on disk counts.
+    """
+    folders = (*REPO_RULE_FOLDERS, *REPO_SKILL_FOLDERS)
+    try:
+        files = git(root, "ls-files", "-z", "--", *folders).split("\0")
+    except (OSError, subprocess.CalledProcessError):
+        files = [
+            os.path.relpath(os.path.join(base, name), root)
+            for folder in folders
+            for base, _, names in os.walk(os.path.join(root, folder))
+            for name in names
+        ]
+    return sorted(
+        rel
+        for rel in files
+        if (rel.startswith(tuple(f"{folder}/" for folder in REPO_RULE_FOLDERS)) and rel.endswith((".md", ".mdc"))
+            and os.path.basename(rel) != "README.md")
+        or REPO_SKILL_RE.match(rel)
+    )
+
+
+def listed_items(root: str, rel: str, text: str) -> tuple[set[str], set[str]]:
+    """The repo paths a file names that exist, and the skills it names, outside HTML comments."""
+    text = HTML_COMMENT_RE.sub("", text)
+    links, backticked = path_tokens(root, text)
+    named = [(token, False) for token in links] + [(token, True) for token in backticked]
+    paths = {
+        os.path.relpath(path.rstrip("/"), root)
+        for token, from_root in named
+        for path in candidate_paths(root, rel, token, from_root)
+        if os.path.exists(path)
+    }
+    return paths, set(cited_skills(text))
+
+
+def rule_index_violations(root: str, texts: dict) -> list[str]:
+    """Each repo rule and repo skill is listed in AGENTS.md or in a Markdown file AGENTS.md names."""
+    if AGENTS_FILE not in texts:
+        return []
+    paths, skills = listed_items(root, AGENTS_FILE, texts[AGENTS_FILE])
+    for index in sorted(paths):
+        if index.endswith((".md", ".mdc")) and os.path.isfile(os.path.join(root, index)):
+            text = texts.get(index) or read_text(root, index)[0] or ""
+            more_paths, more_skills = listed_items(root, index, text)
+            paths |= more_paths
+            skills |= more_skills
+    violations = []
+    for rel in repo_rule_files(root):
+        skill = REPO_SKILL_RE.match(rel)
+        if rel in paths or (skill and (os.path.dirname(rel) in paths or skill.group(1) in skills)):
+            continue
+        violations.append(f"{rel}: not listed in {AGENTS_FILE} or an index it links")
+    return violations
+
+
 def check_violations(root: str, snapshot: dict, files: list[str]) -> list[str]:
     """Every violation in the entry files and the extra instruction files, in order."""
     violations = []
@@ -385,6 +462,7 @@ def check_violations(root: str, snapshot: dict, files: list[str]) -> list[str]:
         violations += found
         missing += missing_here
     violations += dead_path_violations(root, missing)
+    violations += rule_index_violations(root, texts)
     return list(dict.fromkeys(violations))
 
 
