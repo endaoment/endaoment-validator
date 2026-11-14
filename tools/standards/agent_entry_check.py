@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# agent-entry-check v4
+# agent-entry-check v5
 """agent_entry_check.py: the rot guards for a repo's agent entry files.
 
 Checks `AGENTS.md`, `CLAUDE.md`, and any `--extra` instruction file against the
@@ -9,7 +9,7 @@ paths, and toolbox skill and rule names. Toolbox names are checked against a com
 the toolbox catalog, because CI can read neither the toolbox repo nor `gh`.
 
 Each Endaoment repo that uses this script carries an identical copy, marked by
-the `# agent-entry-check v4` line above. Change every copy together, and bump the
+the `# agent-entry-check v5` line above. Change every copy together, and bump the
 marker when the behaviour changes, so `grep -r "agent-entry-check v"` finds a
 copy that fell behind. Python 3.9+, standard library only.
 
@@ -27,12 +27,15 @@ What counts as a path or a skill:
   count), when it is a harness command such as `/loop`, or when it is a
   placeholder such as `/skill-name`.
 - A toolbox skill path (`endaoment-toolbox/catalog/skills/<name>/`) must name a
-  skill in the snapshot. A repo skill of the same name does not count.
+  skill in the snapshot or a placeholder. A repo skill of the same name does
+  not count.
 - Toolbox docs paths (`endaoment-toolbox/catalog/docs/...`) are not checked,
   because the snapshot format lists only skills and rules.
-- Every rule file git tracks in `.cursor/rules/` or `.claude/rules/`, and every
-  repo skill's `SKILL.md`, must be listed in `AGENTS.md` or in a Markdown file
-  `AGENTS.md` names. A skill is also listed by its folder or by `/name`.
+- Every file git tracks in a `.cursor/rules/` or `.claude/rules/` folder at any
+  depth, and every repo skill's `SKILL.md`, is checked like an `--extra` file
+  and must be listed in `AGENTS.md` or in an index `AGENTS.md` names. An index
+  is any other Markdown file; a rule or skill file is not one. A skill is also
+  listed by its folder or by `/name`. Fenced code and HTML comments list nothing.
 
 Run from the repo root:
 
@@ -56,6 +59,7 @@ import re
 import subprocess
 import sys
 from typing import Callable
+from urllib.parse import unquote
 
 TOOLBOX_REPO = "endaoment/endaoment-toolbox"
 SNAPSHOT_NAME = "toolbox-catalog.snapshot.json"
@@ -83,8 +87,8 @@ TOOLBOX_RULE_NAME_RE = re.compile(r"endaoment-toolbox/catalog/rules/([a-z0-9-]+)
 
 BACKTICK_TOKEN_RE = re.compile(r"`([^`\s]+)`")
 CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
-# A link target up to its anchor or title.
-LINK_TARGET_RE = re.compile(r"\]\(([^)#\s]+)")
+# A link target up to its anchor or title, or the whole of an <angle-bracket> target.
+LINK_TARGET_RE = re.compile(r"\]\((?:<([^>\n]+)>|([^)#\s]+))")
 URL_SCHEME_RE = re.compile(r"^[a-z]+:", re.I)
 # A token with any of these is a placeholder, a glob, a command, or a package, not a path.
 NON_PATH_CHARS_RE = re.compile(r"[<>*{}$:@]")
@@ -229,6 +233,15 @@ def shared_rules_violations(agents: str, always_on: list[str]) -> list[str]:
     ]
 
 
+def link_targets(text: str) -> list[str]:
+    """Each link target in the text, percent-decoded, without an anchor."""
+    return [
+        unquote((angled.split("#")[0] if angled else bare).strip())
+        for angled, bare in LINK_TARGET_RE.findall(text)
+        if (angled.split("#")[0] if angled else bare).strip()
+    ]
+
+
 def path_tokens(root: str, text: str) -> tuple[list[str], list[str]]:
     """The repo paths a file names: relative link targets, and backticked tokens that look like repo paths.
 
@@ -238,7 +251,7 @@ def path_tokens(root: str, text: str) -> tuple[list[str], list[str]]:
     """
     links = [
         target
-        for target in LINK_TARGET_RE.findall(CODE_SPAN_RE.sub("", text))
+        for target in link_targets(CODE_SPAN_RE.sub("", text))
         if not URL_SCHEME_RE.match(target) and not target.startswith("/")
     ]
     backticked = [
@@ -326,7 +339,7 @@ def named_item_violations(
         if not is_known_skill(name, snapshot, own_skills):
             violations.append(f"{rel}: skill `{name}` is not in the toolbox snapshot or this repo's skill folders")
     for name in CATALOG_SKILL_PATH_RE.findall(text):
-        if name not in snapshot["skills"]:
+        if name not in snapshot["skills"] and not set(name.split("-")) <= PLACEHOLDER_WORDS:
             violations.append(f"{rel}: toolbox skill `{name}` is not in the snapshot")
     for name in TOOLBOX_RULE_NAME_RE.findall(text):
         if name not in snapshot["rules"]:
@@ -383,36 +396,39 @@ def dead_path_violations(root: str, missing: list[tuple[str, str, list[str]]]) -
     ]
 
 
+def is_rule_file(rel: str) -> bool:
+    """A Markdown file in a rule folder at any depth, which a harness loads as a rule, README included."""
+    return rel.endswith((".md", ".mdc")) and any(f"/{folder}/" in f"/{rel}" for folder in REPO_RULE_FOLDERS)
+
+
 def repo_rule_files(root: str) -> list[str]:
     """The rule files and repo skills git tracks, each of which AGENTS.md or an index it links must list.
 
-    A README in those folders is an index, not a rule. Outside a git clone,
-    every such file on disk counts.
+    Outside a git clone, every such file on disk under the root folders counts.
     """
-    folders = (*REPO_RULE_FOLDERS, *REPO_SKILL_FOLDERS)
+    pathspecs = [f":(glob)**/{folder}/**" for folder in REPO_RULE_FOLDERS] + list(REPO_SKILL_FOLDERS)
     try:
-        files = git(root, "ls-files", "-z", "--", *folders).split("\0")
+        files = git(root, "ls-files", "-z", "--", *pathspecs).split("\0")
     except (OSError, subprocess.CalledProcessError):
         files = [
             os.path.relpath(os.path.join(base, name), root)
-            for folder in folders
+            for folder in (*REPO_RULE_FOLDERS, *REPO_SKILL_FOLDERS)
             for base, _, names in os.walk(os.path.join(root, folder))
             for name in names
         ]
-    return sorted(
-        rel
-        for rel in files
-        if (rel.startswith(tuple(f"{folder}/" for folder in REPO_RULE_FOLDERS)) and rel.endswith((".md", ".mdc"))
-            and os.path.basename(rel) != "README.md")
-        or REPO_SKILL_RE.match(rel)
-    )
+    return sorted(rel for rel in files if is_rule_file(rel) or REPO_SKILL_RE.match(rel))
 
 
 def listed_items(root: str, rel: str, text: str) -> tuple[set[str], set[str]]:
-    """The repo paths a file names that exist, and the skills it names, outside HTML comments."""
-    text = HTML_COMMENT_RE.sub("", text)
+    """The repo paths a file names that exist, and the skills it names, outside comments and fenced code.
+
+    A backticked path may hold spaces here, because only a path that exists counts.
+    """
+    text = strip_fences(HTML_COMMENT_RE.sub("", text))
     links, backticked = path_tokens(root, text)
+    spaced = [token for token in CODE_SPAN_RE.findall(text) if " " in token and "/" in token]
     named = [(token, False) for token in links] + [(token, True) for token in backticked]
+    named += [(token.strip("`"), True) for token in spaced]
     paths = {
         os.path.relpath(path.rstrip("/"), root)
         for token, from_root in named
@@ -428,7 +444,12 @@ def rule_index_violations(root: str, texts: dict) -> list[str]:
         return []
     paths, skills = listed_items(root, AGENTS_FILE, texts[AGENTS_FILE])
     for index in sorted(paths):
-        if index.endswith((".md", ".mdc")) and os.path.isfile(os.path.join(root, index)):
+        if (
+            index.endswith((".md", ".mdc"))
+            and not is_rule_file(index)
+            and not REPO_SKILL_RE.match(index)
+            and os.path.isfile(os.path.join(root, index))
+        ):
             text = texts.get(index) or read_text(root, index)[0] or ""
             more_paths, more_skills = listed_items(root, index, text)
             paths |= more_paths
@@ -636,7 +657,7 @@ def load_snapshot(path: str) -> dict:
 
 def run_check(root: str, snapshot_path: str, extras: list[str]) -> int:
     snapshot = load_snapshot(snapshot_path)
-    files = list(dict.fromkeys([AGENTS_FILE, CLAUDE_FILE, *map(os.path.normpath, extras)]))
+    files = list(dict.fromkeys([AGENTS_FILE, CLAUDE_FILE, *map(os.path.normpath, extras), *repo_rule_files(root)]))
     violations = check_violations(root, snapshot, files)
     for violation in violations:
         print(violation, file=sys.stderr)
