@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# agent-entry-check v5
+# agent-entry-check v6
 """agent_entry_check.py: the rot guards for a repo's agent entry files.
 
 Checks `AGENTS.md`, `CLAUDE.md`, and any `--extra` instruction file against the
@@ -9,7 +9,7 @@ paths, and toolbox skill and rule names. Toolbox names are checked against a com
 the toolbox catalog, because CI can read neither the toolbox repo nor `gh`.
 
 Each Endaoment repo that uses this script carries an identical copy, marked by
-the `# agent-entry-check v5` line above. Change every copy together, and bump the
+the `# agent-entry-check v6` line above. Change every copy together, and bump the
 marker when the behaviour changes, so `grep -r "agent-entry-check v"` finds a
 copy that fell behind. Python 3.9+, standard library only.
 
@@ -19,7 +19,8 @@ What counts as a path or a skill:
   naming file's folder, as GitHub resolves it. A backticked token counts only
   when it has a slash, no placeholder or glob characters, does not start with
   `/`, `./` or `../`, and its first segment exists at the repo root; it may
-  resolve from the naming file's folder or the repo root.
+  resolve from the naming file's folder, from the folder that owns a nested
+  rules folder (`apps/web` for `apps/web/.cursor/rules/`), or the repo root.
 - A skill is a backticked `/name` on a line that mentions skills, a
   "`name` toolbox skill", or an `endaoment-toolbox/catalog/skills/<name>/` path,
   so routes such as `/v1` are not skills. A skill name also passes when git
@@ -31,7 +32,7 @@ What counts as a path or a skill:
   not count.
 - Toolbox docs paths (`endaoment-toolbox/catalog/docs/...`) are not checked,
   because the snapshot format lists only skills and rules.
-- Every file git tracks in a `.cursor/rules/` or `.claude/rules/` folder at any
+- Every Markdown file git tracks in a `.cursor/rules/` or `.claude/rules/` folder at any
   depth, and every repo skill's `SKILL.md`, is checked like an `--extra` file
   and must be listed in `AGENTS.md` or in an index `AGENTS.md` names. An index
   is any other Markdown file; a rule or skill file is not one. A skill is also
@@ -77,8 +78,8 @@ ALWAYS_APPLY_RE = re.compile(r"^alwaysApply:\s*(?:true|True|TRUE)\s*(?:#.*)?$", 
 FENCE_OPEN_RE = re.compile(r"^([ \t]*)(`{3,}(?=[^`\n]*$)|~{3,})")
 # A fence closes on the same character, at least as long, indented at most 3 spaces past the opener.
 FENCE_CLOSE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})[ \t]*$")
-# An unclosed comment hides everything after it, so it runs to the end of the text.
-HTML_COMMENT_RE = re.compile(r"<!--.*?(?:-->|\Z)", re.S)
+# Blockquote markers before a line's content, so a fence inside a quote is still a fence.
+BLOCKQUOTE_PREFIX_RE = re.compile(r"^(?:[ \t]{0,3}>[ \t]?)+")
 LIST_ITEM_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
 HEADING_RE = re.compile(r"^(#{1,6})[ \t]+(.*)$", re.M)
 SHARED_RULES_TITLE_RE = re.compile(r"shared rules\b", re.I)
@@ -103,8 +104,13 @@ REPO_RULE_FOLDERS = (".cursor/rules", ".claude/rules")
 REPO_SKILL_RE = re.compile(
     r"^(?:%s)/([^/]+)/SKILL\.md$" % "|".join(re.escape(folder) for folder in REPO_SKILL_FOLDERS)
 )
-# A git hook exports these, and they would point a git call in another clone back at this repo.
-GIT_HOOK_ENV = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR")
+# A git hook exports these. The first five would point a git call in another clone back at this
+# repo, and the pathspec ones (set by `git --literal-pathspecs`, which some editors use) would make
+# the rule-folder globs match nothing.
+GIT_HOOK_ENV = (
+    "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR",
+    "GIT_LITERAL_PATHSPECS", "GIT_GLOB_PATHSPECS", "GIT_NOGLOB_PATHSPECS", "GIT_ICASE_PATHSPECS",
+)
 # Commands a harness provides itself, so they are never toolbox skills. Each is
 # listed in at least one of: code.claude.com/docs/en/commands (`/code-review`,
 # `/loop` and `/simplify` are bundled skills there, and `/review` an alias),
@@ -154,13 +160,18 @@ def read_text(root: str, rel: str) -> tuple[str | None, str | None]:
         return None, f"{rel}: is not UTF-8 text ({error.reason} at byte {error.start})"
 
 
-def strip_fences(text: str) -> str:
-    """The text without fenced code blocks; an unclosed fence runs to the end."""
+def visible_text(text: str) -> str:
+    """The text without fenced code blocks or HTML comments; an unclosed one runs to the end.
+
+    One pass handles both, so a comment marker inside a fence and a fence marker
+    inside a comment change nothing. A fence inside a blockquote is still a fence.
+    """
     kept = []
     opener = None  # the open fence's indent and marker
+    in_comment = False
     for line in text.splitlines(keepends=True):
         if opener:
-            close = FENCE_CLOSE_RE.match(line.rstrip("\r\n"))
+            close = FENCE_CLOSE_RE.match(BLOCKQUOTE_PREFIX_RE.sub("", line.rstrip("\r\n")))
             indent, marker = opener
             if (
                 close
@@ -169,12 +180,27 @@ def strip_fences(text: str) -> str:
                 and len(close.group(1)) <= len(indent) + 3
             ):
                 opener = None
-        else:
-            fence = FENCE_OPEN_RE.match(line.rstrip("\r\n"))
-            if fence:
-                opener = (fence.group(1), fence.group(2))
+            continue
+        visible = ""
+        rest = line
+        while rest:
+            if in_comment:
+                end = rest.find("-->")
+                if end < 0:
+                    rest = ""
+                else:
+                    rest, in_comment = rest[end + 3 :], False
             else:
-                kept.append(line)
+                start = rest.find("<!--")
+                if start < 0:
+                    visible, rest = visible + rest, ""
+                else:
+                    visible, rest, in_comment = visible + rest[:start], rest[start + 4 :], True
+        fence = FENCE_OPEN_RE.match(BLOCKQUOTE_PREFIX_RE.sub("", visible.rstrip("\r\n")))
+        if fence:
+            opener = (fence.group(1), fence.group(2))
+        else:
+            kept.append(visible)
     return "".join(kept)
 
 
@@ -214,7 +240,7 @@ def shared_rules_section(text: str) -> str | None:
 def shared_rules_violations(agents: str, always_on: list[str]) -> list[str]:
     """The Shared rules list items name exactly the snapshot's always-on rules."""
     # Comments and fenced examples are not the block, so neither can satisfy it.
-    section = shared_rules_section(strip_fences(HTML_COMMENT_RE.sub("", agents)))
+    section = shared_rules_section(visible_text(agents))
     if section is None:
         return [f"{AGENTS_FILE}: no `Shared rules` heading listing the always-on toolbox rules"]
     listed = {
@@ -274,14 +300,29 @@ def cited_skills(text: str) -> list[str]:
     return on_skill_lines + NAMED_SKILL_RE.findall(text)
 
 
+def rule_owner(rel: str) -> str | None:
+    """The folder a nested rule folder belongs to, such as `apps/web` for `apps/web/.cursor/rules/x.mdc`."""
+    for folder in REPO_RULE_FOLDERS:
+        marker = f"/{folder}/"
+        if marker in f"/{rel}":
+            owner = f"/{rel}".split(marker)[0].strip("/")
+            return owner or None
+    return None
+
+
 def candidate_paths(root: str, rel: str, token: str, from_root: bool) -> list[str]:
-    """Where a path a file names can live: beside the file, and from the repo root when from_root.
+    """Where a path a file names can live: beside the file, and when from_root, from the folder
+    that owns a nested rule folder and from the repo root.
 
     A trailing slash stays, so a file cannot stand in for a folder and git can
     match a folder-only ignore pattern such as `dist/`.
     """
     slash = "/" if token.endswith("/") else ""
-    bases = (os.path.dirname(rel), "") if from_root else (os.path.dirname(rel),)
+    owner = rule_owner(rel)
+    if from_root:
+        bases = tuple(dict.fromkeys(base for base in (os.path.dirname(rel), owner, "") if base is not None))
+    else:
+        bases = (os.path.dirname(rel),)
     return [os.path.normpath(os.path.join(root, base, token)) + slash for base in bases]
 
 
@@ -424,7 +465,7 @@ def listed_items(root: str, rel: str, text: str) -> tuple[set[str], set[str]]:
 
     A backticked path may hold spaces here, because only a path that exists counts.
     """
-    text = strip_fences(HTML_COMMENT_RE.sub("", text))
+    text = visible_text(text)
     links, backticked = path_tokens(root, text)
     spaced = [token for token in CODE_SPAN_RE.findall(text) if " " in token and "/" in token]
     named = [(token, False) for token in links] + [(token, True) for token in backticked]
